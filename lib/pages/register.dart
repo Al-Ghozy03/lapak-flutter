@@ -63,7 +63,9 @@ class _RegisterState extends State<Register> {
       print(jsonDecode(res.body));
       setState(() {
         isLoading = false;
-        errorEmail = jsonDecode(res.body)["error"]["email"]["msg"];
+        if (jsonDecode(res.body)["error"]["email"]["msg"] == null) {
+          errorEmail = jsonDecode(res.body)["error"]["email"]["msg"];
+        }
         // errorName = jsonDecode(res.body)["error"]["name"]["msg"]!;
         // errorPassword = jsonDecode(res.body)["error"]["password"]["msg"]!;
         // errorPhone = jsonDecode(res.body)["error"]["phone"]["msg"]!;

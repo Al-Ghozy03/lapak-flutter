@@ -173,8 +173,12 @@ class _TokoState extends State<Toko> {
                             ],
                           ),
                           IconButton(
-                            onPressed: () => Navigator.of(context)
-                                .push(CustomPageRoute(child: Chat())),
+                            onPressed: () =>
+                                Navigator.of(context).push(CustomPageRoute(
+                                    child: ChatPage(
+                              to: 1,
+                              roomCode: "",
+                            ))),
                             icon: Icon(Iconsax.message),
                             iconSize: width / 20,
                           )
@@ -552,8 +556,12 @@ class _TokoState extends State<Toko> {
                           ],
                         ),
                         IconButton(
-                          onPressed: () => Navigator.of(context)
-                              .push(CustomPageRoute(child: Chat())),
+                          onPressed: () =>
+                              Navigator.of(context).push(CustomPageRoute(
+                                  child: ChatPage(
+                            to: 1,
+                            roomCode: "",
+                          ))),
                           icon: Icon(Iconsax.message),
                           iconSize: width / 20,
                         )

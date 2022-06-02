@@ -53,7 +53,7 @@ class _ListChatState extends State<ListChat> {
 
   Widget _list(width) {
     return InkWell(
-      onTap: () => Navigator.of(context).push(CustomPageRoute(child: Chat())),
+      onTap: () => Navigator.of(context).push(CustomPageRoute(child: ChatPage(to: 1,roomCode: "",))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
