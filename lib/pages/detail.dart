@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
@@ -39,11 +40,11 @@ class _DetailState extends State<Detail> {
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
       socket.emit("join_room", jsonDecode(res.body)["code"]["room_code"]);
-      Navigator.of(context).push(CustomPageRoute(
-          child: ChatPage(
-        to: widget.data.owner,
-        roomCode: jsonDecode(res.body)["code"]["room_code"],
-      )));
+      Get.to(
+          ChatPage(
+              to: widget.data.owner,
+              roomCode: jsonDecode(res.body)["code"]["room_code"]),
+          transition: Transition.rightToLeft);
     } else {
       print(res.statusCode);
       print(res.body);

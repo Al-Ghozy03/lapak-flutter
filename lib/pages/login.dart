@@ -41,6 +41,7 @@ class _LoginState extends State<Login> {
       setState(() {
         isLoading = false;
         sharedPreferences.setString("token", jsonDecode(res.body)["token"]);
+        
         final Info info = Info.fromJson({
           "name": jsonDecode(res.body)["data"]["name"],
           "alamat": jsonDecode(res.body)["data"]["alamat"],

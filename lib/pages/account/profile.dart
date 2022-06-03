@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/profile_model.dart';
+import 'package:lapak/pages/account/edit.dart';
 import 'package:lapak/style/color.dart';
+import 'package:lapak/widget/custom_route.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -62,9 +64,16 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: IntrinsicWidth(
                               child: Column(
                                 children: [
-                                  Text(
-                                    "Edit",
-                                    style: TextStyle(fontSize: width / 40),
+                                  InkWell(
+                                    onTap: () => Navigator.of(context)
+                                        .push(CustomPageRoute(
+                                            child: EditProfile(
+                                      data: snapshot.data.data,
+                                    ))),
+                                    child: Text(
+                                      "Edit",
+                                      style: TextStyle(fontSize: width / 40),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -115,19 +124,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         offset: Offset(0, 1),
                         child: Container(
                           padding: EdgeInsets.only(top: width / 25),
-                          height: width / 5.5,
                           width: width,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(width / 15),
                                   topRight: Radius.circular(width / 15)),
                               color: Colors.white),
-                          child: Center(
-                              child: Text(
-                            snapshot.data.data.name,
-                            style: TextStyle(
-                                fontSize: width / 18, fontFamily: "popinsemi"),
-                          )),
                         ),
                       ),
                     ),
@@ -141,6 +143,16 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Center(
+                                  child: Text(
+                                snapshot.data.data.name,
+                                style: TextStyle(
+                                    fontSize: width / 18,
+                                    fontFamily: "popinsemi"),
+                              )),
+                              SizedBox(
+                                height: width / 30,
+                              ),
                               Divider(
                                 thickness: 2,
                               ),
@@ -155,8 +167,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               SizedBox(
                                 height: width / 40,
                               ),
-                              _info(
-                                  width, "Nomer HP", snapshot.data.data.phone.toString()),
+                              _info(width, "Nomer HP",
+                                  snapshot.data.data.phone.toString()),
                               SizedBox(
                                 height: width / 40,
                               ),

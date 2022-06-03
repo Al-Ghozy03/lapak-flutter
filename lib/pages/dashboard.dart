@@ -2,6 +2,7 @@
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/list_chat.dart';
@@ -13,7 +14,7 @@ import 'package:lapak/pages/keranjang.dart';
 import 'package:lapak/pages/login.dart';
 import 'package:lapak/pages/notifikasi.dart';
 import 'package:lapak/pages/pesanan.dart';
-import 'package:lapak/pages/profile.dart';
+import 'package:lapak/pages/account/profile.dart';
 import 'package:lapak/pages/search.dart';
 import 'package:lapak/pages/store/empty_store.dart';
 import 'package:lapak/pages/store/toko.dart';
@@ -262,8 +263,7 @@ class _DashboardState extends State<Dashboard> {
                 ),
                 IconButton(
                     onPressed: () {
-                      Navigator.of(context)
-                          .push(CustomPageRoute(child: Notifikasi()));
+                      Get.to(Notifikasi(), transition: Transition.rightToLeft);
                     },
                     icon: Icon(
                       Iconsax.notification,
@@ -271,8 +271,7 @@ class _DashboardState extends State<Dashboard> {
                     )),
                 IconButton(
                     onPressed: () {
-                      Navigator.of(context)
-                          .push(CustomPageRoute(child: ListChat()));
+                      Get.to(ListChat(), transition: Transition.rightToLeft);
                     },
                     icon: Icon(
                       Iconsax.message,

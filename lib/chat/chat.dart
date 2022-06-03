@@ -1,13 +1,14 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_prefixes, unnecessary_this
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_prefixes, unnecessary_this, unused_field, deprecated_member_use, prefer_collection_literals, avoid_print
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:grouped_list/grouped_list.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/message_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as Io;
+import 'package:http/http.dart' as http;
 
 class ChatPage extends StatefulWidget {
   int to;
@@ -20,7 +21,26 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   late Future getProfile;
   late Future getListMessage;
-  TextEditingController message = TextEditingController();
+  List messageList = [];
+  ScrollController scrollController = ScrollController();
+
+  Future listMessage(String roomCode) async {
+    Uri url = Uri.parse("$baseUrl/chat/list-message/$roomCode");
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    headers["Authorization"] = "Bearer ${storage.getString("token")}";
+    final res = await http.get(url, headers: headers);
+    if (res.statusCode == 200) {
+      setState(() {
+        messageList = jsonDecode(res.body)["data"];
+      });
+      return messageFromJson(res.body);
+    } else {
+      print(res.statusCode);
+      print(res.body);
+    }
+  }
+
+  TextEditingController messageController = TextEditingController();
   Io.Socket socket = Io.io('http://192.168.5.220:4003', <String, dynamic>{
     "transports": ["websocket"],
   });
@@ -38,25 +58,37 @@ class _ChatPageState extends State<ChatPage> {
     socket.onConnect((data) => print("connect $data, ${socket.json}"));
     socket.onConnectError((data) => print("error $data"));
     socket.onDisconnect((data) => print("disconnect"));
+
     socket.on("received_message", (data) {
-      print("data $data");
+      setState(() {
+        if (data["room_code"] != widget.roomCode) {
+          messageList.add({
+            "from": data["from"],
+            "to": data["to"],
+            "message": data["message"],
+            "room_code": data["room_code"]
+          });
+        }
+      });
     });
   }
 
   void sendMessage() {
     socket.emit("send_message", {
-      "message": message.text,
       "from": sender,
       "to": widget.to,
+      "message": messageController.text,
       "room_code": widget.roomCode
     });
-    message.clear();
+    messageController.clear();
+    scrollController.animateTo(scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 400), curve: Curves.easeOut);
   }
 
   @override
   void initState() {
     getProfile = ApiService().getProfileChat(widget.to);
-    getListMessage = ApiService().listMessage(widget.roomCode);
+    getListMessage = listMessage(widget.roomCode);
     super.initState();
     getSender();
     connectSocket();
@@ -65,24 +97,14 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
-    message.dispose();
+    messageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    Widget _listChat(width, Message message) {
-      return Column(
-        children: message.data.map((data) {
-          return Align(
-            alignment: Alignment.centerRight,
-            child: _messageFromMe(width),
-          );
-        }).toList(),
-      );
-    }
-
+    final height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: width / 5,
@@ -108,7 +130,9 @@ class _ChatPageState extends State<ChatPage> {
                       width: width / 40,
                     ),
                     Text(
-                      snapshot.data.data.name,
+                      snapshot.data.data.name.length >= 22
+                          ? "${snapshot.data.data.name.substring(0, 10)}..."
+                          : snapshot.data.data.name,
                       style: TextStyle(
                           color: Colors.black,
                           fontFamily: "popinsemi",
@@ -128,62 +152,39 @@ class _ChatPageState extends State<ChatPage> {
       body: SafeArea(
           child: Padding(
         padding: EdgeInsets.all(width / 25),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FutureBuilder(
-                future: getListMessage,
-                builder: (context, AsyncSnapshot snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done) {
-                    return Text("loading");
-                  } else if (snapshot.hasError) {
-                    return Text("terjadi kesalahan");
-                  } else {
-                    if (snapshot.hasData) {
-                      return _listChat(width, snapshot.data);
-                    } else {
-                      return Text("kosong");
-                    }
-                  }
-                },
-              )
-
-              // SizedBox(
-              //   height: width / 1.2,
-              // ),
-              // Row(
-              //   children: [
-              //     Expanded(
-              //       child: TextField(
-              //         controller: message,
-              //         decoration: InputDecoration(
-              //           hintText: 'Write a message...',
-              //           border: OutlineInputBorder(
-              //               borderRadius: BorderRadius.circular(width / 20)),
-              //           filled: true,
-              //           fillColor: Color(0xffE8E8E8),
-              //         ),
-              //       ),
-              //     ),
-              //     IconButton(
-              //       onPressed: () {
-              //         sendMessage();
-              //       },
-              //       icon: Icon(Iconsax.send_1),
-              //     )
-              //   ],
-              // )
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                height: height,
+                child: ListView.builder(
+                  itemCount: messageList.length,
+                  controller: scrollController,
+                  itemBuilder: (_, i) {
+                    return Align(
+                      alignment: messageList[i]["from"] == sender
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: messageList[i]["from"] == sender
+                          ? _messageFromMe(width, messageList[i]["message"])
+                          : _messageFromOther(width, messageList[i]["message"]),
+                    );
+                  },
+                ),
+              ),
+            ),
+            _sendArea(width)
+          ],
         ),
       )),
     );
   }
 
-  Widget _messageFromOther(width) {
+  Widget _messageFromOther(width, message) {
     return Container(
-      padding: EdgeInsets.all(width / 20),
+      margin: EdgeInsets.symmetric(vertical: width / 60),
+      padding: EdgeInsets.all(width / 25),
       decoration: BoxDecoration(
           color: Color(0xff6495FF),
           borderRadius: BorderRadius.only(
@@ -191,13 +192,13 @@ class _ChatPageState extends State<ChatPage> {
               bottomLeft: Radius.circular(width / 20),
               bottomRight: Radius.circular(width / 20))),
       child: Text(
-        "Lorem ipsum dolor sit amet,",
+        message.toString(),
         style: TextStyle(fontSize: width / 26, color: Colors.white),
       ),
     );
   }
 
-  Widget _messageFromMe(width) {
+  Widget _messageFromMe(width, message) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: width / 60),
       padding: EdgeInsets.all(width / 25),
@@ -208,36 +209,35 @@ class _ChatPageState extends State<ChatPage> {
               bottomLeft: Radius.circular(width / 20),
               bottomRight: Radius.circular(width / 20))),
       child: Text(
-        "Lorem ipsum dolor sit amet,",
+        message.toString(),
         style: TextStyle(fontSize: width / 26),
       ),
     );
   }
 
-  Widget _header(width) {
-    return Container(
-      height: width / 5,
-      decoration: BoxDecoration(color: Color(0xffF4F4F4)),
-      child: Row(
-        children: [
-          IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: Icon(Iconsax.arrow_left)),
-          CircleAvatar(
-            maxRadius: width / 20,
-            minRadius: width / 20,
+  Widget _sendArea(width) {
+    return Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: messageController,
+            decoration: InputDecoration(
+              hintText: 'Write a message...',
+              contentPadding: EdgeInsets.symmetric(horizontal: width / 50),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(width / 20)),
+              filled: true,
+              fillColor: Color(0xffE8E8E8),
+            ),
           ),
-          SizedBox(
-            width: width / 30,
-          ),
-          Text(
-            "Adam",
-            style: TextStyle(fontSize: width / 20, fontFamily: "popinsemi"),
-          )
-        ],
-      ),
+        ),
+        IconButton(
+          onPressed: () {
+            sendMessage();
+          },
+          icon: Icon(Iconsax.send_1),
+        )
+      ],
     );
   }
 }
