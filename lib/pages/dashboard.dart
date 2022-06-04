@@ -7,19 +7,18 @@ import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/list_chat.dart';
 import 'package:lapak/models/rekomendasi_model.dart';
+import 'package:lapak/pages/auth/login.dart';
 import 'package:lapak/pages/detail.dart';
 import 'package:lapak/pages/diskon.dart';
 import 'package:lapak/pages/kategori.dart';
 import 'package:lapak/pages/keranjang.dart';
-import 'package:lapak/pages/login.dart';
-import 'package:lapak/pages/notifikasi.dart';
+import 'package:lapak/pages/notification/notifikasi.dart';
 import 'package:lapak/pages/pesanan.dart';
 import 'package:lapak/pages/account/profile.dart';
 import 'package:lapak/pages/search.dart';
 import 'package:lapak/pages/store/empty_store.dart';
 import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/custom_route.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -125,8 +124,8 @@ class _DashboardState extends State<Dashboard> {
                     Container(
                       child: InkWell(
                         onTap: () {
-                          Navigator.of(context)
-                              .push(CustomPageRoute(child: ProfilePage()));
+                          Get.to(ProfilePage(),
+                              transition: Transition.rightToLeft);
                         },
                         child: Row(
                           children: [
@@ -207,8 +206,7 @@ class _DashboardState extends State<Dashboard> {
                             await SharedPreferences.getInstance();
                         preferences.remove("token");
                         preferences.remove("info");
-                        Navigator.of(context)
-                            .pushReplacement(CustomPageRoute(child: Login()));
+                        Get.off(Login(), transition: Transition.rightToLeft);
                       },
                       child: Row(
                         children: [
@@ -253,8 +251,8 @@ class _DashboardState extends State<Dashboard> {
                       color: blueTheme,
                       borderRadius: BorderRadius.circular(13)),
                   child: IconButton(
-                    onPressed: () => Navigator.of(context)
-                        .push(CustomPageRoute(child: SearchPage())),
+                    onPressed: () => Get.to(SearchPage(),
+                        transition: Transition.rightToLeft),
                     icon: Icon(
                       Iconsax.search_normal_1,
                       color: Colors.white,
@@ -271,7 +269,8 @@ class _DashboardState extends State<Dashboard> {
                     )),
                 IconButton(
                     onPressed: () {
-                      Get.to(ListChat(), transition: Transition.rightToLeft);
+                      Get.to(ListChatPage(),
+                          transition: Transition.rightToLeft);
                     },
                     icon: Icon(
                       Iconsax.message,
@@ -337,111 +336,117 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _card(width, Rekomendasi data, int i) {
-    return OpenContainer(
-      openBuilder: (context, action) {
-        return Detail(
-          data: data.data[i],
-        );
-      },
-      closedBuilder: (context, action) {
-        return Container(
-            width: width / 2,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(width / 25),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 5,
-                      blurRadius: 10,
-                      offset: Offset(0, 3))
-                ]),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: width,
-                      height: width / 3,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(width / 25),
-                              topRight: Radius.circular(width / 25)),
-                          image: DecorationImage(
-                              image: NetworkImage(data.data[i].fotoBarang),
-                              fit: BoxFit.cover)),
-                    ),
-                    Positioned(
-                      top: width / 50,
-                      left: width / 2.6,
-                      child: Container(
-                        height: width / 12,
-                        width: width / 12,
+    if (data.data.isNotEmpty) {
+      return OpenContainer(
+        openBuilder: (context, action) {
+          return Detail(
+            data: data.data[i],
+          );
+        },
+        closedBuilder: (context, action) {
+          return Container(
+              width: width / 2,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(width / 25),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 5,
+                        blurRadius: 10,
+                        offset: Offset(0, 3))
+                  ]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        width: width,
+                        height: width / 3,
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(width),
-                            color: Colors.black.withOpacity(0.5)),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Iconsax.shop_add,
-                            color: Colors.white,
-                            size: width / 25,
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(width / 25),
+                                topRight: Radius.circular(width / 25)),
+                            image: DecorationImage(
+                                image: NetworkImage(data.data[i].fotoBarang),
+                                fit: BoxFit.cover)),
+                      ),
+                      Positioned(
+                        top: width / 50,
+                        left: width / 2.6,
+                        child: Container(
+                          height: width / 12,
+                          width: width / 12,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(width),
+                              color: Colors.black.withOpacity(0.5)),
+                          child: IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Iconsax.shop_add,
+                              color: Colors.white,
+                              size: width / 25,
+                            ),
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: width / 30, vertical: width / 50),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: NetworkImage(data.data[0].fotoToko),
+                        ),
+                        SizedBox(
+                          width: width / 40,
+                        ),
+                        Text(
+                          data.data[i].namaToko.length >= 15
+                              ? "${data.data[i].namaToko.substring(0, 14)}..."
+                              : data.data[i].namaToko,
+                          style: TextStyle(
+                              fontFamily: "popinsemi", fontSize: width / 30),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: width / 30, vertical: width / 50),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(data.data[0].fotoToko),
-                      ),
-                      SizedBox(
-                        width: width / 40,
-                      ),
-                      Text(
-                        data.data[i].namaToko.length >= 15
-                            ? "${data.data[i].namaToko.substring(0, 14)}..."
-                            : data.data[i].namaToko,
-                        style: TextStyle(
-                            fontFamily: "popinsemi", fontSize: width / 30),
-                      ),
-                    ],
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: width / 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        data.data[i].namaBarang.length >= 28
-                            ? "${data.data[i].namaBarang.substring(0, 27)}..."
-                            : data.data[i].namaBarang,
-                        style: TextStyle(
-                            fontSize: width / 23, fontFamily: "popinsemi"),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            "${CurrencyFormat.convertToIdr(data.data[i].harga, 0)} . ${data.data[i].daerah}",
-                            style: TextStyle(
-                                fontSize: width / 35, color: grayText),
-                          )
-                        ],
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ));
-      },
-    );
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width / 30),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          data.data[i].namaBarang.length >= 28
+                              ? "${data.data[i].namaBarang.substring(0, 27)}..."
+                              : data.data[i].namaBarang,
+                          style: TextStyle(
+                              fontSize: width / 23, fontFamily: "popinsemi"),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "${CurrencyFormat.convertToIdr(data.data[i].harga, 0)} . ${data.data[i].daerah}",
+                              style: TextStyle(
+                                  fontSize: width / 35, color: grayText),
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ));
+        },
+      );
+    } else {
+      return Center(
+        child: Text("kosong"),
+      );
+    }
   }
 
   Widget _kategori(width, data, context) {
@@ -455,10 +460,11 @@ class _DashboardState extends State<Dashboard> {
                     borderRadius: BorderRadius.circular(width)),
                 padding: EdgeInsets.symmetric(horizontal: width / 27)),
             onPressed: () {
-              Navigator.of(context).push(CustomPageRoute(
-                  child: KategoriPage(
-                kategori: data,
-              )));
+              Get.to(
+                  KategoriPage(
+                    kategori: data,
+                  ),
+                  transition: Transition.rightToLeft);
             },
             child: Text(
               data,
@@ -506,8 +512,8 @@ class _DashboardState extends State<Dashboard> {
                           borderRadius: BorderRadius.circular((10))),
                       padding: EdgeInsets.symmetric(
                           horizontal: width / 30, vertical: width / 80)),
-                  onPressed: () => Navigator.of(context)
-                      .push(CustomPageRoute(child: Diskon())),
+                  onPressed: () =>
+                      Get.to(Diskon(), transition: Transition.rightToLeft),
                   child: Text("Get now",
                       style: TextStyle(
                           color: blueTheme,
@@ -527,7 +533,7 @@ class _DashboardState extends State<Dashboard> {
   Widget _choice(width, icon, text, route, BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(CustomPageRoute(child: route));
+        Get.to(route, transition: Transition.rightToLeft);
       },
       child: Row(
         children: [

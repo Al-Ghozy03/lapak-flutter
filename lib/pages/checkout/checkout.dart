@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, prefer_const_constructors_in_immutables, use_key_in_widget_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, avoid_print
 
 import 'dart:convert';
 
@@ -10,6 +10,7 @@ import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:socket_io_client/socket_io_client.dart' as Io;
 
 class Checkout extends StatefulWidget {
   final data;
@@ -23,6 +24,18 @@ class _CheckoutState extends State<Checkout> {
   int total = 1;
   Info _info = Info(name: "", alamat: "");
   bool isLoading = false;
+
+  void getInfo() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    Map<String, dynamic> info = {};
+    String infoStr = storage.getString("info").toString();
+
+    setState(() {
+      info = jsonDecode(infoStr) as Map<String, dynamic>;
+      _info = Info.fromJson(info);
+    });
+  }
+
   TextEditingController alamat = TextEditingController();
   Future checkout(
       int totalBarang, int totalHarga, int ongkir, String alamat) async {
@@ -37,11 +50,18 @@ class _CheckoutState extends State<Checkout> {
           "total_barang": totalBarang,
           "total_harga": totalHarga,
           "barang_id": widget.data.id,
+          "owner_barang": widget.data.owner,
           "ongkir": ongkir,
           "alamat": alamat
         }),
         headers: headers);
     if (res.statusCode == 200) {
+      var data = jsonDecode(res.body)["data"];
+      socket.emit("send_notif", {
+        "from": data["user_id"],
+        "message": "memesan ${widget.data.namaBarang}",
+        "to": widget.data.owner,
+      });
       setState(() {
         isLoading = false;
       });
@@ -117,22 +137,21 @@ class _CheckoutState extends State<Checkout> {
         });
   }
 
-  void getInfo() async {
-    SharedPreferences storage = await SharedPreferences.getInstance();
-    Map<String, dynamic> info = {};
-    String infoStr = storage.getString("info").toString();
+  Io.Socket socket = Io.io('http://192.168.5.220:4003', <String, dynamic>{
+    "transports": ["websocket"],
+  });
 
-    setState(() {
-      info = jsonDecode(infoStr) as Map<String, dynamic>;
-      _info = Info.fromJson(info);
-    });
+  void connectSocket() {
+    socket.onConnect((data) => print("connect ${socket.id}"));
+    socket.onDisconnect((data) => print("disconnect"));
+    socket.onConnectError((data) => print("error $data"));
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     getInfo();
     super.initState();
+    connectSocket();
   }
 
   @override

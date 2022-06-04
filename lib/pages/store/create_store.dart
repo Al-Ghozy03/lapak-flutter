@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:async/async.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -11,7 +12,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/custom_route.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -67,8 +67,8 @@ class _CreateStoreState extends State<CreateStore> {
               setState(() {
                 isLoading = false;
               });
-              Navigator.of(context).pushReplacement(CustomPageRoute(
-                  child: Toko(storeId: jsonDecode(res.body)["data"]["id"])));
+              Get.off(Toko(storeId: jsonDecode(res.body)["data"]["id"]),
+                  transition: Transition.rightToLeft);
               return true;
             } else {
               setState(() {

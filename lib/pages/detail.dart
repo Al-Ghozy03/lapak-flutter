@@ -1,15 +1,16 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, use_build_context_synchronously, library_prefixes, avoid_print, prefer_final_fields
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/pages/checkout/checkout.dart';
+import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/custom_route.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -27,6 +28,15 @@ class _DetailState extends State<Detail> {
     "transports": ["websocket"],
   });
 
+  int userId = 0;
+  void getUserId() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    var token = Jwt.parseJwt(storage.getString("token").toString());
+    setState(() {
+      userId = token["id"];
+    });
+  }
+
   void connectSocket() {
     socket.onConnect((data) => print("connect"));
     socket.onConnectError((data) => print("error $data"));
@@ -39,12 +49,21 @@ class _DetailState extends State<Detail> {
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
-      socket.emit("join_room", jsonDecode(res.body)["code"]["room_code"]);
-      Get.to(
-          ChatPage(
-              to: widget.data.owner,
-              roomCode: jsonDecode(res.body)["code"]["room_code"]),
-          transition: Transition.rightToLeft);
+      if (jsonDecode(res.body)["code"]["room_code"] != null) {
+        socket.emit("join_room", jsonDecode(res.body)["code"]["room_code"]);
+        Get.to(
+            ChatPage(
+                to: widget.data.owner,
+                roomCode: jsonDecode(res.body)["code"]["room_code"]),
+            transition: Transition.rightToLeft);
+      } else {
+        socket.emit("join_room", jsonDecode(res.body)["code"]["code"]);
+        Get.to(
+            ChatPage(
+                to: widget.data.owner,
+                roomCode: jsonDecode(res.body)["code"]["code"]),
+            transition: Transition.rightToLeft);
+      }
     } else {
       print(res.statusCode);
       print(res.body);
@@ -53,6 +72,7 @@ class _DetailState extends State<Detail> {
 
   @override
   void initState() {
+    getUserId();
     super.initState();
     connectSocket();
   }
@@ -62,26 +82,30 @@ class _DetailState extends State<Detail> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.all(width / 25),
-        width: width,
-        child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(CustomPageRoute(
-                  child: Checkout(
-                data: widget.data,
-              )));
-            },
-            style: ElevatedButton.styleFrom(
-                primary: blueTheme,
-                padding: EdgeInsets.symmetric(vertical: width / 80),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(width / 50))),
-            child: Text(
-              "Pesan",
-              style: TextStyle(fontSize: width / 20, fontFamily: "popinsemi"),
-            )),
-      ),
+      bottomNavigationBar: widget.data.owner != userId
+          ? Container(
+              padding: EdgeInsets.all(width / 25),
+              width: width,
+              child: ElevatedButton(
+                  onPressed: () {
+                    Get.to(
+                        Checkout(
+                          data: widget.data,
+                        ),
+                        transition: Transition.rightToLeft);
+                  },
+                  style: ElevatedButton.styleFrom(
+                      primary: blueTheme,
+                      padding: EdgeInsets.symmetric(vertical: width / 80),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(width / 50))),
+                  child: Text(
+                    "Pesan",
+                    style: TextStyle(
+                        fontSize: width / 20, fontFamily: "popinsemi"),
+                  )),
+            )
+          : Text(""),
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
@@ -152,14 +176,16 @@ class _DetailState extends State<Detail> {
                                   fontFamily: "popinsemi"),
                             ),
                           ),
-                          IconButton(
-                              onPressed: () {
-                                generateCode();
-                              },
-                              icon: Icon(
-                                Iconsax.message,
-                                size: width / 20,
-                              )),
+                          widget.data.owner != userId
+                              ? IconButton(
+                                  onPressed: () {
+                                    generateCode();
+                                  },
+                                  icon: Icon(
+                                    Iconsax.message,
+                                    size: width / 20,
+                                  ))
+                              : Container(),
                         ],
                       ),
                       SizedBox(
@@ -171,7 +197,7 @@ class _DetailState extends State<Detail> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _info(
+                              _infoBarang(
                                   width,
                                   CurrencyFormat.convertToIdr(
                                       widget.data.harga, 0),
@@ -179,12 +205,18 @@ class _DetailState extends State<Detail> {
                               SizedBox(
                                 height: width / 60,
                               ),
-                              _info(
+                              _infoBarang(
                                   width, widget.data.daerah, Iconsax.location),
                             ],
                           ),
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(widget.data.fotoToko),
+                          InkWell(
+                            onTap: () => Get.to(
+                                Toko(storeId: widget.data.storeId),
+                                transition: Transition.rightToLeft),
+                            child: CircleAvatar(
+                              backgroundImage:
+                                  NetworkImage(widget.data.fotoToko),
+                            ),
                           )
                         ],
                       ),
@@ -209,7 +241,7 @@ class _DetailState extends State<Detail> {
     );
   }
 
-  Widget _info(width, text, icon) {
+  Widget _infoBarang(width, text, icon) {
     return Row(
       children: [
         Icon(

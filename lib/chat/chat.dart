@@ -1,10 +1,10 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_prefixes, unnecessary_this, unused_field, deprecated_member_use, prefer_collection_literals, avoid_print
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_prefixes, unnecessary_this, unused_field, deprecated_member_use, prefer_collection_literals, avoid_print, use_key_in_widget_constructors, must_be_immutable, unused_local_variable, unused_element, invalid_return_type_for_catch_error, sized_box_for_whitespace
 
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
+import 'package:lapak/models/chat_model.dart';
 import 'package:lapak/models/message_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as Io;
@@ -21,7 +21,8 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   late Future getProfile;
   late Future getListMessage;
-  List messageList = [];
+  List<ChatModel> messageList = [];
+  ChatModel? chatModel;
   ScrollController scrollController = ScrollController();
 
   Future listMessage(String roomCode) async {
@@ -30,13 +31,11 @@ class _ChatPageState extends State<ChatPage> {
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
-      setState(() {
-        messageList = jsonDecode(res.body)["data"];
-      });
       return messageFromJson(res.body);
     } else {
       print(res.statusCode);
       print(res.body);
+      return false;
     }
   }
 
@@ -58,19 +57,6 @@ class _ChatPageState extends State<ChatPage> {
     socket.onConnect((data) => print("connect $data, ${socket.json}"));
     socket.onConnectError((data) => print("error $data"));
     socket.onDisconnect((data) => print("disconnect"));
-
-    socket.on("received_message", (data) {
-      setState(() {
-        if (data["room_code"] != widget.roomCode) {
-          messageList.add({
-            "from": data["from"],
-            "to": data["to"],
-            "message": data["message"],
-            "room_code": data["room_code"]
-          });
-        }
-      });
-    });
   }
 
   void sendMessage() {
@@ -78,17 +64,51 @@ class _ChatPageState extends State<ChatPage> {
       "from": sender,
       "to": widget.to,
       "message": messageController.text,
-      "room_code": widget.roomCode
+      "room_code": widget.roomCode,
     });
     messageController.clear();
     scrollController.animateTo(scrollController.position.maxScrollExtent,
         duration: Duration(milliseconds: 400), curve: Curves.easeOut);
   }
 
+  void setStateIfMounted(f) {
+    if (mounted) setState(f);
+  }
+
+  void receiveMessage() {
+    socket.on("received_message", (data) {
+      setStateIfMounted(() {
+        messageList.add(ChatModel(
+          from: data["from"],
+          to: data["to"],
+          message: data["message"],
+          roomCode: data["room_code"],
+        ));
+      });
+    });
+  }
+
   @override
   void initState() {
     getProfile = ApiService().getProfileChat(widget.to);
     getListMessage = listMessage(widget.roomCode);
+    receiveMessage();
+
+    getListMessage.then((value) {
+      value.data.map((e) {
+        setState(() {
+          messageList.add(ChatModel(
+              id: e.id,
+              from: e.from,
+              to: e.to,
+              message: e.message,
+              roomCode: e.roomCode,
+              createdAt: e.createdAt,
+              updatedAt: e.updatedAt));
+        });
+      }).toList();
+    }).catchError((onError) => print(onError));
+
     super.initState();
     getSender();
     connectSocket();
@@ -163,12 +183,12 @@ class _ChatPageState extends State<ChatPage> {
                   controller: scrollController,
                   itemBuilder: (_, i) {
                     return Align(
-                      alignment: messageList[i]["from"] == sender
+                      alignment: messageList[i].from == sender
                           ? Alignment.centerRight
                           : Alignment.centerLeft,
-                      child: messageList[i]["from"] == sender
-                          ? _messageFromMe(width, messageList[i]["message"])
-                          : _messageFromOther(width, messageList[i]["message"]),
+                      child: messageList[i].from == sender
+                          ? _messageFromMe(width, messageList[i].message)
+                          : _messageFromOther(width, messageList[i].message),
                     );
                   },
                 ),

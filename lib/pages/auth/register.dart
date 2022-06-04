@@ -1,10 +1,12 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, unused_local_variable, sized_box_for_whitespace, avoid_print, use_build_context_synchronously
+// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, unused_local_variable, sized_box_for_whitespace, avoid_print, use_build_context_synchronously, prefer_if_null_operators
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
+import 'package:lapak/models/info_model.dart';
 import 'package:lapak/pages/dashboard.dart';
 import 'package:lapak/style/color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,13 +25,12 @@ class _RegisterState extends State<Register> {
   TextEditingController password = TextEditingController();
   TextEditingController phone = TextEditingController();
   TextEditingController alamat = TextEditingController();
-  String? errorEmail = "";
-  String? errorName = "";
-  String? errorPassword = "";
-  String? errorPhone = "";
-  String? errorAlamat = "";
   bool isLoading = false;
-
+  String errorName = "";
+  String errorPassword = "";
+  String errorAlamat = "";
+  String errorEmail = "";
+  String errorPhone = "";
   Future registerHandle() async {
     setState(() {
       isLoading = true;
@@ -46,31 +47,43 @@ class _RegisterState extends State<Register> {
         headers: {"Content-Type": "application/json"});
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     setState(() {
-      errorEmail = "";
-      errorName = "";
-      errorPassword = "";
-      errorPhone = "";
-      errorAlamat = "";
+      if (name.text.isEmpty) {
+        errorName = "Nama wajib diisi";
+      } else if (password.text.isEmpty) {
+        errorPassword = "Password wajib diisi";
+      } else if (alamat.text.isEmpty) {
+        errorAlamat = "Alamat wajib diisi";
+      }
     });
     if (res.statusCode == 200) {
       setState(() {
         isLoading = false;
         sharedPreferences.setString("token", jsonDecode(res.body)["token"]);
+        final Info info = Info.fromJson({
+          "name": jsonDecode(res.body)["data"]["name"],
+          "alamat": jsonDecode(res.body)["data"]["alamat"],
+          "photo_profile": jsonDecode(res.body)["data"]["photo_profile"],
+        });
+        sharedPreferences.setString("info", jsonEncode(info));
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => Dashboard()));
       });
     } else {
-      print(jsonDecode(res.body));
+      var data = jsonDecode(res.body);
       setState(() {
         isLoading = false;
-        if (jsonDecode(res.body)["error"]["email"]["msg"] == null) {
-          errorEmail = jsonDecode(res.body)["error"]["email"]["msg"];
+        if (data?["error"]?["email"] != null) {
+          errorEmail = data["error"]["email"]["msg"];
+        } else {
+          errorEmail = "";
         }
-        // errorName = jsonDecode(res.body)["error"]["name"]["msg"]!;
-        // errorPassword = jsonDecode(res.body)["error"]["password"]["msg"]!;
-        // errorPhone = jsonDecode(res.body)["error"]["phone"]["msg"]!;
-        // errorAlamat = jsonDecode(res.body)["error"]["alamat"]["msg"]!;
+        if (data["error"]["phone"] != null) {
+          errorPhone = data["error"]["phone"]["msg"];
+        } else {
+          errorPhone = "";
+        }
       });
+      return false;
     }
   }
 
@@ -88,7 +101,7 @@ class _RegisterState extends State<Register> {
             children: [
               Row(children: [
                 IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Get.back(),
                     icon: Icon(Iconsax.arrow_left)),
                 SizedBox(
                   width: width / 15,
@@ -114,7 +127,7 @@ class _RegisterState extends State<Register> {
               ),
               Center(
                 child: InkWell(
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => Get.back(),
                   child: RichText(
                       text: TextSpan(
                           style: TextStyle(
@@ -156,7 +169,7 @@ class _RegisterState extends State<Register> {
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
-        Text(errorEmail!,
+        Text(errorEmail,
             style: TextStyle(
                 color: Colors.red,
                 fontSize: width / 33,
@@ -180,7 +193,7 @@ class _RegisterState extends State<Register> {
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
-        Text(errorName!,
+        Text(errorName,
             style: TextStyle(
                 color: Colors.red,
                 fontSize: width / 33,
@@ -215,7 +228,7 @@ class _RegisterState extends State<Register> {
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
-        Text(errorPassword!,
+        Text(errorPassword,
             style: TextStyle(
                 color: Colors.red,
                 fontSize: width / 33,
@@ -240,7 +253,7 @@ class _RegisterState extends State<Register> {
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
-        Text(errorPhone!,
+        Text(errorPhone,
             style: TextStyle(
                 color: Colors.red,
                 fontSize: width / 33,
@@ -264,7 +277,7 @@ class _RegisterState extends State<Register> {
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
-        Text(errorAlamat!,
+        Text(errorAlamat,
             style: TextStyle(
                 color: Colors.red,
                 fontSize: width / 33,

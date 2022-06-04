@@ -4,8 +4,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:lapak/api/api_service.dart';
+import 'package:lapak/pages/auth/login.dart';
 import 'package:lapak/pages/dashboard.dart';
-import 'package:lapak/pages/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -42,6 +42,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      title: "Lapak Online Shop",
       theme: ThemeData(fontFamily: "popin"),
       debugShowCheckedModeBanner: false,
       home: token == null ? Login() : Dashboard(),

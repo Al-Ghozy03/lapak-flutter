@@ -6,6 +6,7 @@ import 'package:animations/animations.dart';
 import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
@@ -18,6 +19,9 @@ import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/custom_route.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:lapak/widget/skeleton.dart';
+import 'package:material_dialogs/material_dialogs.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Toko extends StatefulWidget {
   int storeId;
@@ -41,6 +45,20 @@ class _TokoState extends State<Toko> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+
+    Future deleteBarang(int id) async {
+      Uri url = Uri.parse("$baseUrl/barang/delete/$id");
+      SharedPreferences storage = await SharedPreferences.getInstance();
+      headers["Authorization"] = "Bearer ${storage.getString("token")}";
+      final res = await http.delete(url, headers: headers);
+      if(res.statusCode == 200){
+        print("berhasil hapus");
+        return true;
+      }else{
+        print(res.statusCode);
+        print("gagal");
+      }
+    }
 
     Widget _builder(Store store) {
       return SafeArea(
@@ -351,10 +369,14 @@ class _TokoState extends State<Toko> {
                                           ),
                                         ),
                                         SizedBox(height: width / 60),
-                                        Text(
-                                          "Hapus",
-                                          style:
-                                              TextStyle(fontSize: width / 40),
+                                        InkWell(
+                                          onTap: () =>
+                                              _dialogDelete(context, width),
+                                          child: Text(
+                                            "Hapus",
+                                            style:
+                                                TextStyle(fontSize: width / 40),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -424,6 +446,42 @@ class _TokoState extends State<Toko> {
             ));
       },
     );
+  }
+
+  Future<void> _dialogDelete(BuildContext context, width) {
+    return Dialogs.materialDialog(
+        context: context,
+        msg: "Apakah anda yakin ingin menghapus nya?",
+        msgStyle: TextStyle(fontSize: width / 25),
+        msgAlign: TextAlign.center,
+        title: "Delete",
+        titleStyle: TextStyle(fontSize: width / 20, fontFamily: "popinsemi"),
+        actions: [
+          OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                  side: BorderSide(width: 1.5, color: grayBorder),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(width / 60)),
+                  padding: EdgeInsets.symmetric(vertical: width / 80)),
+              onPressed: () {
+                Get.back();
+              },
+              child: Text(
+                "Batal",
+                style: TextStyle(fontSize: width / 25, color: grayText),
+              )),
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(width / 60)),
+                  padding: EdgeInsets.symmetric(vertical: width / 80),
+                  primary: blueTheme),
+              onPressed: () {},
+              child: Text(
+                "Hapus",
+                style: TextStyle(fontSize: width / 25, color: Colors.white),
+              )),
+        ]);
   }
 
   Widget _emptyState(width, height) {

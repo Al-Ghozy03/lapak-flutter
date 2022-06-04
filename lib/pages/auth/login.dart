@@ -3,11 +3,12 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/info_model.dart';
+import 'package:lapak/pages/auth/register.dart';
 import 'package:lapak/pages/dashboard.dart';
-import 'package:lapak/pages/register.dart';
 import 'package:lapak/style/color.dart';
 import 'package:http/http.dart' as http;
 import 'package:lapak/widget/custom_route.dart';
@@ -41,7 +42,7 @@ class _LoginState extends State<Login> {
       setState(() {
         isLoading = false;
         sharedPreferences.setString("token", jsonDecode(res.body)["token"]);
-        
+
         final Info info = Info.fromJson({
           "name": jsonDecode(res.body)["data"]["name"],
           "alamat": jsonDecode(res.body)["data"]["alamat"],
@@ -92,8 +93,8 @@ class _LoginState extends State<Login> {
               ),
               Center(
                 child: InkWell(
-                  onTap: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Register())),
+                  onTap: () =>
+                      Get.off(Register(), transition: Transition.rightToLeft),
                   child: RichText(
                       text: TextSpan(
                           style: TextStyle(

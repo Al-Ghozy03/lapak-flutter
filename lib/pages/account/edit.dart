@@ -1,8 +1,9 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, depend_on_referenced_packages, prefer_typing_uninitialized_variables, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, avoid_print, sized_box_for_whitespace
 
 import 'dart:io';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lapak/api/api_service.dart';
@@ -49,7 +50,7 @@ class _EditProfileState extends State<EditProfile> {
     });
     Uri url = Uri.parse("$baseUrl/user/update");
     SharedPreferences storage = await SharedPreferences.getInstance();
-     final req = http.MultipartRequest("PUT", url);
+    final req = http.MultipartRequest("PUT", url);
     if (_image.path.isNotEmpty) {
       var stream = http.ByteStream(DelegatingStream.typed(imgFile.openRead()));
       var length = await imgFile.length();
@@ -59,7 +60,9 @@ class _EditProfileState extends State<EditProfile> {
     }
     req.fields["name"] = name.text;
     req.fields["email"] = email.text;
-    req.fields["password"] = password.text;
+    if (password.text.isNotEmpty) {
+      req.fields["password"] = password.text;
+    }
     req.fields["phone"] = phone.text;
     req.fields["alamat"] = alamat.text;
     req.headers["Authorization"] = "Bearer ${storage.getString("token")}";
@@ -70,7 +73,7 @@ class _EditProfileState extends State<EditProfile> {
           setState(() {
             isLoading = false;
           });
-          print("berhasil");
+          Get.back();
           return true;
         } else {
           setState(() {
@@ -115,20 +118,36 @@ class _EditProfileState extends State<EditProfile> {
                   child: InkWell(
                 onTap: () async => await getImage(),
                 child: path.path.isEmpty
-                    ? CircleAvatar(
-                        maxRadius: width / 6,
-                        minRadius: width / 6,
-                        backgroundColor: grayBorder,
-                        child: Icon(
-                          Iconsax.camera5,
-                          color: Colors.white,
-                          size: width / 7,
-                        ),
-                      )
+                    ? widget.data.photoProfile == null
+                        ? CircleAvatar(
+                            maxRadius: width / 6,
+                            minRadius: width / 6,
+                            backgroundColor: grayBorder,
+                            child: Icon(
+                              Iconsax.camera5,
+                              color: Colors.white,
+                              size: width / 7,
+                            ),
+                          )
+                        : CircleAvatar(
+                            maxRadius: width / 6,
+                            minRadius: width / 6,
+                            backgroundImage:
+                                NetworkImage(widget.data.photoProfile),
+                            child: Icon(
+                              Iconsax.camera5,
+                              color: Colors.white.withOpacity(0.7),
+                              size: width / 7,
+                            ))
                     : CircleAvatar(
                         maxRadius: width / 6,
                         minRadius: width / 6,
                         backgroundImage: FileImage(path),
+                        child: Icon(
+                          Iconsax.camera5,
+                          color: Colors.white.withOpacity(0.7),
+                          size: width / 7,
+                        ),
                       ),
               )),
               SizedBox(
