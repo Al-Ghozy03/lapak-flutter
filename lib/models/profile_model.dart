@@ -43,7 +43,7 @@ class Data {
     String name;
     String email;
     String password;
-    int phone;
+    String phone;
     int? storeId;
     String alamat;
     dynamic photoProfile;

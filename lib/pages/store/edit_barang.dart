@@ -24,10 +24,8 @@ class _UpdateBarangState extends State<UpdateBarang> {
   bool isLoading = false;
   TextEditingController namaBarang = TextEditingController();
   TextEditingController harga = TextEditingController();
-  TextEditingController daerah = TextEditingController();
   TextEditingController deskripsi = TextEditingController();
   TextEditingController diskon = TextEditingController();
-  TextEditingController beratBarang = TextEditingController();
   File _image = File("");
   String? selectedValue;
   final picker = ImagePicker();
@@ -63,9 +61,7 @@ class _UpdateBarangState extends State<UpdateBarang> {
     req.fields["store_id"] = widget.data.storeId.toString();
     req.fields["nama_barang"] = namaBarang.text;
     req.fields["harga"] = harga.text;
-    req.fields["daerah"] = daerah.text;
     req.fields["deskripsi"] = deskripsi.text;
-    req.fields["berat_barang"] = beratBarang.text;
     req.fields["diskon"] = diskon.text == "" ? null.toString() : diskon.text;
     req.fields["kategori"] = selectedValue.toString();
     req.headers["Authorization"] = "Bearer ${storage.getString("token")}";
@@ -92,9 +88,7 @@ class _UpdateBarangState extends State<UpdateBarang> {
   void initState() {
     namaBarang.text = widget.data.namaBarang;
     harga.text = widget.data.harga.toString();
-    daerah.text = widget.data.daerah;
     deskripsi.text = widget.data.deskripsi;
-    beratBarang.text = widget.data.beratBarang.toString();
     diskon.text =
         widget.data.diskon == null ? "" : widget.data.diskon.toString();
     selectedValue = widget.data.kategori;
@@ -155,25 +149,6 @@ class _UpdateBarangState extends State<UpdateBarang> {
               SizedBox(
                 height: width / 35,
               ),
-              _label("Daerah", width),
-              SizedBox(
-                height: width / 35,
-              ),
-              TextField(
-                controller: daerah,
-                style: TextStyle(fontSize: width / 33),
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
-                ),
-              ),
-              SizedBox(
-                height: width / 35,
-              ),
               _label("Deskripsi", width),
               SizedBox(
                 height: width / 35,
@@ -183,34 +158,6 @@ class _UpdateBarangState extends State<UpdateBarang> {
                 controller: deskripsi,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
-                ),
-              ),
-              SizedBox(
-                height: width / 35,
-              ),
-              _label("Berat barang", width),
-              SizedBox(
-                height: width / 35,
-              ),
-              TextField(
-                controller: beratBarang,
-                style: TextStyle(fontSize: width / 33),
-                decoration: InputDecoration(
-                  suffix: Padding(
-                    padding: EdgeInsets.only(right: width / 20),
-                    child: Text(
-                      "gr",
-                      style: TextStyle(
-                        fontSize: width / 30,
-                      ),
-                    ),
-                  ),
                   enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
                       borderSide: BorderSide(color: grayBorder, width: 3)),

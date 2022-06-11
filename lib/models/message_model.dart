@@ -33,6 +33,7 @@ class Datum {
     required this.roomCode,
     required this.createdAt,
     required this.updatedAt,
+    required this.isRead
   });
 
   int id;
@@ -40,6 +41,7 @@ class Datum {
   int to;
   String message;
   String roomCode;
+  bool isRead;
   DateTime createdAt;
   DateTime updatedAt;
 
@@ -49,6 +51,7 @@ class Datum {
         to: json["to"],
         message: json["message"],
         roomCode: json["room_code"],
+        isRead: json["isRead"],
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
       );
@@ -59,6 +62,7 @@ class Datum {
         "to": to,
         "message": message,
         "room_code": roomCode,
+        "isRead": isRead,
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),
       };

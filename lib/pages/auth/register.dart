@@ -72,15 +72,13 @@ class _RegisterState extends State<Register> {
       var data = jsonDecode(res.body);
       setState(() {
         isLoading = false;
-        if (data?["error"]?["email"] != null) {
-          errorEmail = data["error"]["email"]["msg"];
-        } else {
-          errorEmail = "";
-        }
-        if (data["error"]["phone"] != null) {
-          errorPhone = data["error"]["phone"]["msg"];
-        } else {
+        print(data["message"]);
+        if(data["message"] == "email sudah digunakan"){
+          errorEmail = data["message"];
           errorPhone = "";
+        }else{
+          errorPhone = data["message"];
+          errorEmail = "";
         }
       });
       return false;
@@ -295,7 +293,7 @@ class _RegisterState extends State<Register> {
                   primary: blueTheme,
                   padding: EdgeInsets.symmetric(vertical: width / 67),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15))),
+                      borderRadius: BorderRadius.circular(width/50))),
               child: isLoading
                   ? CircularProgressIndicator(
                       color: Colors.white,

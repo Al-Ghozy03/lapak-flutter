@@ -73,12 +73,10 @@ class Data {
 
 class Barang {
   Barang({
-    required this.beratBarang,
     required this.id,
     required this.storeId,
     required this.namaBarang,
     required this.harga,
-    required this.daerah,
     required this.deskripsi,
     required this.kategori,
     required this.diskon,
@@ -91,11 +89,9 @@ class Barang {
   int? storeId;
   String namaBarang;
   int harga;
-  String daerah;
   String deskripsi;
   String kategori;
   int? diskon;
-  int beratBarang;
   String fotoBarang;
   DateTime createdAt;
   DateTime updatedAt;
@@ -105,10 +101,8 @@ class Barang {
         storeId: json["store_id"],
         namaBarang: json["nama_barang"],
         harga: json["harga"],
-        daerah: json["daerah"],
         deskripsi: json["deskripsi"],
         kategori: json["kategori"],
-        beratBarang: json["berat_barang"],
         diskon: json["diskon"] ?? null,
         fotoBarang: json["foto_barang"],
         createdAt: DateTime.parse(json["createdAt"]),
@@ -120,10 +114,8 @@ class Barang {
         "store_id": storeId,
         "nama_barang": namaBarang,
         "harga": harga,
-        "daerah": daerah,
         "deskripsi": deskripsi,
         "kategori": kategori,
-        "berat_barang": beratBarang,
         "diskon": diskon == null ? null : diskon,
         "foto_barang": fotoBarang,
         "createdAt": createdAt.toIso8601String(),

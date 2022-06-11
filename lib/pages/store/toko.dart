@@ -1,13 +1,16 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, must_be_immutable, use_key_in_widget_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, must_be_immutable, use_key_in_widget_constructors, library_prefixes, avoid_print, no_leading_underscores_for_local_identifiers
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:animations/animations.dart';
 import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/model_store.dart';
@@ -15,13 +18,14 @@ import 'package:lapak/models/store_model.dart';
 import 'package:lapak/pages/detail.dart';
 import 'package:lapak/pages/store/create_barang.dart';
 import 'package:lapak/pages/store/edit_barang.dart';
+import 'package:lapak/pages/store/edit_toko.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/custom_route.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:lapak/widget/skeleton.dart';
 import 'package:material_dialogs/material_dialogs.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart' as Io;
 
 class Toko extends StatefulWidget {
   int storeId;
@@ -34,8 +38,64 @@ class _TokoState extends State<Toko> {
   String? selectedValue;
   CustomPopupMenuController controller = CustomPopupMenuController();
   late Stream getStore;
+  Io.Socket socket = Io.io(baseUrl, <String, dynamic>{
+    "transports": ["websocket"],
+  });
+  Future deleteBarang(int id) async {
+    Uri url = Uri.parse("$baseUrl/barang/delete/$id");
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    headers["Authorization"] = "Bearer ${storage.getString("token")}";
+    final res = await http.delete(url, headers: headers);
+    if (res.statusCode == 200) {
+      print("berhasil hapus");
+      return true;
+    } else {
+      print(res.statusCode);
+      print("gagal");
+    }
+  }
+
+  int userId = 0;
+  void getUserId() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    var token = storage.getString("token");
+    setState(() {
+      userId = Jwt.parseJwt(token.toString())["id"];
+    });
+  }
+
+  Future generateCode(int to) async {
+    Uri url = Uri.parse("$baseUrl/chat/generate-code/$to");
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    headers["Authorization"] = "Bearer ${storage.getString("token")}";
+    final res = await http.get(url, headers: headers);
+    if (res.statusCode == 200) {
+      if (jsonDecode(res.body)["code"]["room_code"] != null) {
+        socket.emit("join_room",{
+          "room_code": jsonDecode(res.body)["code"]["room_code"],
+          "from":userId
+        });
+        Get.to(
+            ChatPage(
+                to: to, roomCode: jsonDecode(res.body)["code"]["room_code"]),
+            transition: Transition.rightToLeft);
+      } else {
+        socket.emit("join_room", {
+          "room_code":jsonDecode(res.body)["code"]["code"],
+          "from":userId
+        });
+        Get.to(ChatPage(to: to, roomCode: jsonDecode(res.body)["code"]["code"]),
+            transition: Transition.rightToLeft);
+      }
+    } else {
+      print(res.statusCode);
+      print(res.body);
+    }
+  }
+
   @override
   void initState() {
+    getUserId();
     getStore = Stream.periodic(Duration(seconds: 3))
         .asyncMap((event) => ApiService().getStoreInfo(widget.storeId));
     super.initState();
@@ -45,20 +105,6 @@ class _TokoState extends State<Toko> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-
-    Future deleteBarang(int id) async {
-      Uri url = Uri.parse("$baseUrl/barang/delete/$id");
-      SharedPreferences storage = await SharedPreferences.getInstance();
-      headers["Authorization"] = "Bearer ${storage.getString("token")}";
-      final res = await http.delete(url, headers: headers);
-      if(res.statusCode == 200){
-        print("berhasil hapus");
-        return true;
-      }else{
-        print(res.statusCode);
-        print("gagal");
-      }
-    }
 
     Widget _builder(Store store) {
       return SafeArea(
@@ -71,40 +117,49 @@ class _TokoState extends State<Toko> {
                 },
                 icon: Icon(Iconsax.arrow_left)),
             actions: [
-              CustomPopupMenu(
-                menuBuilder: () => ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Container(
-                    padding: EdgeInsets.all(width / 50),
-                    color: Colors.white,
-                    child: IntrinsicWidth(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          InkWell(
-                            onTap: () => Navigator.of(context).push(
-                                CustomPageRoute(
-                                    child: CreateBarang(id: store.data.id))),
-                            child: Text(
-                              "Buat barang",
-                              style: TextStyle(fontSize: width / 40),
+              store.data.owner != userId
+                  ? Text("")
+                  : CustomPopupMenu(
+                      menuBuilder: () => ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: EdgeInsets.all(width / 50),
+                          color: Colors.white,
+                          child: IntrinsicWidth(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                InkWell(
+                                  onTap: () => Get.to(
+                                      CreateBarang(id: store.data.id),
+                                      transition: Transition.rightToLeft),
+                                  child: Text(
+                                    "Buat barang",
+                                    style: TextStyle(fontSize: width / 40),
+                                  ),
+                                ),
+                                SizedBox(height: width / 60),
+                                InkWell(
+                                  onTap: () => Get.to(
+                                      EditToko(
+                                        data: store.data,
+                                      ),
+                                      transition: Transition.rightToLeft),
+                                  child: Text(
+                                    "Edit toko",
+                                    style: TextStyle(fontSize: width / 40),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(height: width / 60),
-                          Text(
-                            "Laporkan",
-                            style: TextStyle(fontSize: width / 40),
-                          ),
-                        ],
+                        ),
                       ),
+                      pressType: PressType.singleClick,
+                      controller: controller,
+                      barrierColor: Colors.white.withOpacity(0),
+                      child: Icon(Iconsax.more),
                     ),
-                  ),
-                ),
-                pressType: PressType.singleClick,
-                controller: controller,
-                barrierColor: Colors.white.withOpacity(0),
-                child: Icon(Iconsax.more),
-              ),
             ],
             title: Text("Toko"),
             centerTitle: true,
@@ -190,16 +245,14 @@ class _TokoState extends State<Toko> {
                               ),
                             ],
                           ),
-                          IconButton(
-                            onPressed: () =>
-                                Navigator.of(context).push(CustomPageRoute(
-                                    child: ChatPage(
-                              to: 1,
-                              roomCode: "",
-                            ))),
-                            icon: Icon(Iconsax.message),
-                            iconSize: width / 20,
-                          )
+                          userId == store.data.owner
+                              ? Container()
+                              : IconButton(
+                                  onPressed: () =>
+                                      generateCode(store.data.owner),
+                                  icon: Icon(Iconsax.message),
+                                  iconSize: width / 20,
+                                )
                         ],
                       ),
                       SizedBox(
@@ -249,6 +302,7 @@ class _TokoState extends State<Toko> {
                                         "nama_toko": store.data.namaToko,
                                         "owner": store.data.owner,
                                         "foto_toko": store.data.photoProfile,
+                                        "daerah": store.data.daerah
                                       }))
                                   .toList(),
                             )
@@ -273,7 +327,7 @@ class _TokoState extends State<Toko> {
         stream: getStore,
         builder: (context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState != ConnectionState.active) {
-            return _emptyState(width, height);
+            return _loadingState(width, height);
           } else if (snapshot.hasError) {
             return Text("terjadi kesalahan");
           } else {
@@ -290,18 +344,17 @@ class _TokoState extends State<Toko> {
 
   Widget _card(width, data, Map info) {
     var value = MoreStore(
-        beratBarang: data.beratBarang,
         id: data.id,
         storeId: data.storeId,
         owner: info["owner"],
         namaToko: info["nama_toko"],
-        daerah: data.daerah,
         fotoToko: info["foto_toko"],
         namaBarang: data.namaBarang,
         harga: data.harga,
         deskripsi: data.deskripsi,
         kategori: data.kategori,
         fotoBarang: data.fotoBarang,
+        daerah: info["daerah"],
         diskon: data.diskon);
     return OpenContainer(
       openBuilder: (context, action) {
@@ -339,63 +392,69 @@ class _TokoState extends State<Toko> {
                               image: NetworkImage(data.fotoBarang),
                               fit: BoxFit.cover)),
                     ),
-                    Positioned(
-                      top: width / 50,
-                      left: width / 3.2,
-                      child: CustomPopupMenu(
-                          barrierColor: Colors.black.withOpacity(0),
-                          menuBuilder: () => ClipRRect(
-                                borderRadius: BorderRadius.circular(width / 50),
-                                child: Container(
-                                  padding: EdgeInsets.all(width / 50),
-                                  decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 245, 245, 245),
-                                  ),
-                                  child: IntrinsicWidth(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        InkWell(
-                                          onTap: () => Navigator.of(context)
-                                              .push(CustomPageRoute(
-                                                  child: UpdateBarang(
-                                            data: value,
-                                          ))),
-                                          child: Text(
-                                            "Edit",
-                                            style:
-                                                TextStyle(fontSize: width / 40),
+                    info["owner"] != userId
+                        ? Text("")
+                        : Positioned(
+                            top: width / 50,
+                            left: width / 3.2,
+                            child: CustomPopupMenu(
+                                barrierColor: Colors.black.withOpacity(0),
+                                menuBuilder: () => ClipRRect(
+                                      borderRadius:
+                                          BorderRadius.circular(width / 50),
+                                      child: Container(
+                                        padding: EdgeInsets.all(width / 50),
+                                        decoration: BoxDecoration(
+                                          color: Color.fromARGB(
+                                              255, 245, 245, 245),
+                                        ),
+                                        child: IntrinsicWidth(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              InkWell(
+                                                onTap: () => Get.to(
+                                                    UpdateBarang(
+                                                      data: value,
+                                                    ),
+                                                    transition:
+                                                        Transition.rightToLeft),
+                                                child: Text(
+                                                  "Edit",
+                                                  style: TextStyle(
+                                                      fontSize: width / 40),
+                                                ),
+                                              ),
+                                              SizedBox(height: width / 60),
+                                              InkWell(
+                                                onTap: () => _dialogDelete(
+                                                    context, width, data.id),
+                                                child: Text(
+                                                  "Hapus",
+                                                  style: TextStyle(
+                                                      fontSize: width / 40),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        SizedBox(height: width / 60),
-                                        InkWell(
-                                          onTap: () =>
-                                              _dialogDelete(context, width),
-                                          child: Text(
-                                            "Hapus",
-                                            style:
-                                                TextStyle(fontSize: width / 40),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
+                                pressType: PressType.singleClick,
+                                child: Container(
+                                  height: width / 12,
+                                  width: width / 12,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(width),
+                                      color: Colors.black.withOpacity(0.5)),
+                                  child: Icon(
+                                    Iconsax.more4,
+                                    color: Colors.white,
                                   ),
-                                ),
-                              ),
-                          pressType: PressType.singleClick,
-                          child: Container(
-                            height: width / 12,
-                            width: width / 12,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(width),
-                                color: Colors.black.withOpacity(0.5)),
-                            child: Icon(
-                              Iconsax.more4,
-                              color: Colors.white,
-                            ),
-                          )),
-                    ),
+                                )),
+                          ),
                   ],
                 ),
                 Padding(
@@ -436,7 +495,7 @@ class _TokoState extends State<Toko> {
                         style: TextStyle(fontSize: width / 35, color: grayText),
                       ),
                       Text(
-                        data.daerah,
+                        info["daerah"],
                         style: TextStyle(fontSize: width / 35, color: grayText),
                       ),
                     ],
@@ -448,7 +507,7 @@ class _TokoState extends State<Toko> {
     );
   }
 
-  Future<void> _dialogDelete(BuildContext context, width) {
+  Future<void> _dialogDelete(BuildContext context, width, int id) {
     return Dialogs.materialDialog(
         context: context,
         msg: "Apakah anda yakin ingin menghapus nya?",
@@ -476,7 +535,9 @@ class _TokoState extends State<Toko> {
                       borderRadius: BorderRadius.circular(width / 60)),
                   padding: EdgeInsets.symmetric(vertical: width / 80),
                   primary: blueTheme),
-              onPressed: () {},
+              onPressed: () {
+                deleteBarang(id);
+              },
               child: Text(
                 "Hapus",
                 style: TextStyle(fontSize: width / 25, color: Colors.white),
@@ -484,7 +545,7 @@ class _TokoState extends State<Toko> {
         ]);
   }
 
-  Widget _emptyState(width, height) {
+  Widget _loadingState(width, height) {
     return SafeArea(
         child: CustomScrollView(
       slivers: [
@@ -495,37 +556,7 @@ class _TokoState extends State<Toko> {
               },
               icon: Icon(Iconsax.arrow_left)),
           actions: [
-            CustomPopupMenu(
-              menuBuilder: () => ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  padding: EdgeInsets.all(width / 50),
-                  color: Colors.white,
-                  child: IntrinsicWidth(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          child: Text(
-                            "Buat barang",
-                            style: TextStyle(fontSize: width / 40),
-                          ),
-                        ),
-                        SizedBox(height: width / 60),
-                        Text(
-                          "Laporkan",
-                          style: TextStyle(fontSize: width / 40),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              pressType: PressType.singleClick,
-              controller: controller,
-              barrierColor: Colors.white.withOpacity(0),
-              child: Icon(Iconsax.more),
-            ),
+            Icon(Iconsax.more),
           ],
           title: Text("Toko"),
           centerTitle: true,
@@ -578,51 +609,38 @@ class _TokoState extends State<Toko> {
                         child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          margin: EdgeInsets.only(bottom: width / 40),
-                          height: height / 50,
+                        FadeShimmer(
                           width: width / 1.5,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(width),
-                              color: Colors.grey.withOpacity(0.5)),
+                          height: height / 50,
+                          radius: width,
+                          baseColor: Colors.grey.withOpacity(0.3),
+                          highlightColor: Colors.grey.withOpacity(0.5),
                         ),
-                        Container(
-                          height: height / 60,
+                        SizedBox(
+                          height: width / 40,
+                        ),
+                        FadeShimmer(
                           width: width / 2,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(width),
-                              color: Colors.grey.withOpacity(0.5)),
+                          height: height / 60,
+                          radius: width,
+                          baseColor: Colors.grey.withOpacity(0.3),
+                          highlightColor: Colors.grey.withOpacity(0.5),
                         ),
                       ],
                     )),
                     SizedBox(
                       height: width / 20,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
                       children: [
-                        Column(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.grey.withOpacity(0.5),
-                            ),
-                            Text(
-                              "Produk",
-                              style: TextStyle(
-                                  fontSize: width / 40, color: grayText),
-                            ),
-                          ],
+                        CircleAvatar(
+                          backgroundColor: Colors.grey.withOpacity(0.5),
                         ),
-                        IconButton(
-                          onPressed: () =>
-                              Navigator.of(context).push(CustomPageRoute(
-                                  child: ChatPage(
-                            to: 1,
-                            roomCode: "",
-                          ))),
-                          icon: Icon(Iconsax.message),
-                          iconSize: width / 20,
-                        )
+                        Text(
+                          "Produk",
+                          style:
+                              TextStyle(fontSize: width / 40, color: grayText),
+                        ),
                       ],
                     ),
                     SizedBox(

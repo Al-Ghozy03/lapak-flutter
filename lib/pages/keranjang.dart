@@ -1,6 +1,5 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:iconsax/iconsax.dart';
@@ -108,17 +107,10 @@ class _KeranjangState extends State<Keranjang> {
       mainAxisSpacing: 2,
       crossAxisCount: 2,
       children: cart.data.map((data) {
-        return OpenContainer(
-          openBuilder: (context, action) {
-            return Container();
-          },
-          closedBuilder: (context, action) {
-            return CustomCard(
+        return CustomCard(
               data: data,
               where: "cart",
             );
-          },
-        );
       }).toList(),
     );
   }

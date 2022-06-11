@@ -1,6 +1,7 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_unnecessary_containers
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, avoid_unnecessary_containers, avoid_print
 
 import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -205,29 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
               },
               icon: Icon(Iconsax.arrow_left)),
           actions: [
-            CustomPopupMenu(
-              menuBuilder: () => ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  padding: EdgeInsets.all(width / 50),
-                  color: Colors.white,
-                  child: IntrinsicWidth(
-                    child: Column(
-                      children: [
-                        Text(
-                          "Edit",
-                          style: TextStyle(fontSize: width / 40),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              pressType: PressType.singleClick,
-              controller: controller,
-              barrierColor: Colors.white.withOpacity(0),
-              child: Icon(Iconsax.more),
-            ),
+            Icon(Iconsax.more),
           ],
           title: Text("Profile"),
           centerTitle: true,
@@ -279,14 +258,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Center(
-                        child: Container(
-                      margin: EdgeInsets.only(bottom: width / 40),
-                      height: height / 50,
-                      width: width / 1.5,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(width),
-                          color: Colors.grey.withOpacity(0.5)),
-                    )),
+                      child: FadeShimmer(
+                        width: width / 1.5,
+                        height: height / 50,
+                        radius: width,
+                        baseColor: Colors.grey.withOpacity(0.3),
+                        highlightColor: Colors.grey.withOpacity(0.5),
+                      ),
+                    ),
                     SizedBox(
                       height: width / 30,
                     ),
@@ -323,22 +302,22 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          height: height / 60,
+        FadeShimmer(
           width: width / 4,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(width),
-              color: Colors.grey.withOpacity(0.5)),
+          height: height / 60,
+          radius: width,
+          baseColor: Colors.grey.withOpacity(0.3),
+          highlightColor: Colors.grey.withOpacity(0.5),
         ),
         SizedBox(
           height: width / 50,
         ),
-        Container(
-          height: height / 60,
+        FadeShimmer(
           width: width / 2,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(width),
-              color: Colors.grey.withOpacity(0.5)),
+          height: height / 60,
+          radius: width,
+          baseColor: Colors.grey.withOpacity(0.3),
+          highlightColor: Colors.grey.withOpacity(0.5),
         ),
       ],
     );

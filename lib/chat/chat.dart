@@ -1,7 +1,11 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_prefixes, unnecessary_this, unused_field, deprecated_member_use, prefer_collection_literals, avoid_print, use_key_in_widget_constructors, must_be_immutable, unused_local_variable, unused_element, invalid_return_type_for_catch_error, sized_box_for_whitespace
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:grouped_list/grouped_list.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/chat_model.dart';
@@ -39,8 +43,54 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
+  Future sendMessage() async {
+    Uri url = Uri.parse("$baseUrl/chat/send-message");
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    headers["Authorization"] = "Bearer ${storage.getString("token")}";
+    final res = await http.post(url,
+        body: jsonEncode({
+          "from": sender,
+          "to": widget.to,
+          "message": messageController.text,
+          "room_code": widget.roomCode
+        }),
+        headers: headers);
+    if (res.statusCode == 200) {
+      socket.emit("send_message", {
+        "from": sender,
+        "to": widget.to,
+        "message": messageController.text,
+        "room_code": widget.roomCode,
+        "isRead": false
+      });
+      socket.on("received_message", (data) {
+        print(data);
+        setStateIfMounted(() {
+          messageList.add(ChatModel(
+              id: jsonDecode(res.body)["data"]["id"],
+              from: data["from"],
+              to: data["to"],
+              message: data["message"],
+              roomCode: data["room_code"],
+              isRead: data["isRead"],
+              createdAt:
+                  DateTime.parse(jsonDecode(res.body)["data"]["createdAt"]),
+              updatedAt:
+                  DateTime.parse(jsonDecode(res.body)["data"]["updatedAt"])));
+        });
+      });
+      messageController.clear();
+      scrollController.animateTo(scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 400), curve: Curves.easeOut);
+      return true;
+    } else {
+      print(res.statusCode);
+      return false;
+    }
+  }
+
   TextEditingController messageController = TextEditingController();
-  Io.Socket socket = Io.io('http://192.168.5.220:4003', <String, dynamic>{
+  Io.Socket socket = Io.io(baseUrl, <String, dynamic>{
     "transports": ["websocket"],
   });
   String token = "";
@@ -59,41 +109,14 @@ class _ChatPageState extends State<ChatPage> {
     socket.onDisconnect((data) => print("disconnect"));
   }
 
-  void sendMessage() {
-    socket.emit("send_message", {
-      "from": sender,
-      "to": widget.to,
-      "message": messageController.text,
-      "room_code": widget.roomCode,
-    });
-    messageController.clear();
-    scrollController.animateTo(scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 400), curve: Curves.easeOut);
-  }
-
   void setStateIfMounted(f) {
     if (mounted) setState(f);
-  }
-
-  void receiveMessage() {
-    socket.on("received_message", (data) {
-      setStateIfMounted(() {
-        messageList.add(ChatModel(
-          from: data["from"],
-          to: data["to"],
-          message: data["message"],
-          roomCode: data["room_code"],
-        ));
-      });
-    });
   }
 
   @override
   void initState() {
     getProfile = ApiService().getProfileChat(widget.to);
     getListMessage = listMessage(widget.roomCode);
-    receiveMessage();
-
     getListMessage.then((value) {
       value.data.map((e) {
         setState(() {
@@ -102,6 +125,7 @@ class _ChatPageState extends State<ChatPage> {
               from: e.from,
               to: e.to,
               message: e.message,
+              isRead: e.isRead,
               roomCode: e.roomCode,
               createdAt: e.createdAt,
               updatedAt: e.updatedAt));
@@ -176,24 +200,34 @@ class _ChatPageState extends State<ChatPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: Container(
-                height: height,
-                child: ListView.builder(
-                  itemCount: messageList.length,
-                  controller: scrollController,
-                  itemBuilder: (_, i) {
-                    return Align(
-                      alignment: messageList[i].from == sender
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: messageList[i].from == sender
-                          ? _messageFromMe(width, messageList[i].message)
-                          : _messageFromOther(width, messageList[i].message),
-                    );
-                  },
-                ),
+                child: Container(
+              height: height,
+              child: GroupedListView<dynamic, DateTime>(
+                controller: scrollController,
+                elements: messageList,
+                groupBy: (data) => DateTime(data.createdAt.year,
+                    data.createdAt.month, data.createdAt.day),
+                groupSeparatorBuilder: (DateTime date) => Center(
+                    child: Text(
+                  DateFormat.yMEd().format(date).toString() ==
+                          DateFormat.yMEd().format(DateTime.now())
+                      ? "Hari ini"
+                      : DateFormat.yMEd().format(date).toString(),
+                  style: TextStyle(fontSize: width / 35),
+                )),
+                order: GroupedListOrder.ASC,
+                itemBuilder: (context, dynamic data) {
+                  return Align(
+                    alignment: data.from == sender
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
+                    child: data.from == sender
+                        ? _messageFromMe(width, data.message, data.isRead)
+                        : _messageFromOther(width, data.message),
+                  );
+                },
               ),
-            ),
+            )),
             _sendArea(width)
           ],
         ),
@@ -218,7 +252,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _messageFromMe(width, message) {
+  Widget _messageFromMe(width, message, isRead) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: width / 60),
       padding: EdgeInsets.all(width / 25),
@@ -229,7 +263,7 @@ class _ChatPageState extends State<ChatPage> {
               bottomLeft: Radius.circular(width / 20),
               bottomRight: Radius.circular(width / 20))),
       child: Text(
-        message.toString(),
+        "$message",
         style: TextStyle(fontSize: width / 26),
       ),
     );

@@ -24,7 +24,7 @@ class Detail extends StatefulWidget {
 }
 
 class _DetailState extends State<Detail> {
-  Io.Socket socket = Io.io('http://192.168.5.220:4003', <String, dynamic>{
+  Io.Socket socket = Io.io(baseUrl, <String, dynamic>{
     "transports": ["websocket"],
   });
 
@@ -50,14 +50,20 @@ class _DetailState extends State<Detail> {
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
       if (jsonDecode(res.body)["code"]["room_code"] != null) {
-        socket.emit("join_room", jsonDecode(res.body)["code"]["room_code"]);
+        socket.emit("join_room", {
+          "room_code": jsonDecode(res.body)["code"]["room_code"],
+          "from": userId
+        });
         Get.to(
             ChatPage(
                 to: widget.data.owner,
                 roomCode: jsonDecode(res.body)["code"]["room_code"]),
             transition: Transition.rightToLeft);
       } else {
-        socket.emit("join_room", jsonDecode(res.body)["code"]["code"]);
+        socket.emit("join_room", {
+          "room_code": jsonDecode(res.body)["code"]["code"],
+          "from": userId
+        });
         Get.to(
             ChatPage(
                 to: widget.data.owner,

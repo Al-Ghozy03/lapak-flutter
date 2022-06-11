@@ -1,10 +1,13 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_prefixes, avoid_print, sized_box_for_whitespace
 
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:grouped_list/grouped_list.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/notif_value_model.dart';
@@ -27,7 +30,17 @@ class _NotifikasiState extends State<Notifikasi> {
     if (mounted) setState(f);
   }
 
-  Io.Socket socket = Io.io('http://192.168.5.220:4003', <String, dynamic>{
+  int userId = 0;
+  var lengthNotif = 0.obs;
+  void getUserId() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    var token = Jwt.parseJwt(storage.getString("token").toString());
+    setState(() {
+      userId = token["id"];
+    });
+  }
+
+  Io.Socket socket = Io.io(baseUrl, <String, dynamic>{
     "transports": ["websocket"],
   });
   void connectSocket() {
@@ -37,14 +50,16 @@ class _NotifikasiState extends State<Notifikasi> {
   }
 
   Future generateCode(int id) async {
-    print("id $id");
     Uri url = Uri.parse("$baseUrl/chat/generate-code/$id");
     SharedPreferences storage = await SharedPreferences.getInstance();
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
       if (jsonDecode(res.body)["code"]["room_code"] != null) {
-        socket.emit("join_room", jsonDecode(res.body)["code"]["room_code"]);
+        socket.emit("join_room", {
+          "room_code": jsonDecode(res.body)["code"]["room_code"],
+          "from": userId
+        });
         Get.to(
             ChatPage(
                 to: jsonDecode(res.body)["code"]["to"],
@@ -66,6 +81,7 @@ class _NotifikasiState extends State<Notifikasi> {
 
   @override
   void initState() {
+    getUserId();
     connectSocket();
     getNotif = ApiService().getNotification();
     getNotif.then((value) {
@@ -77,7 +93,8 @@ class _NotifikasiState extends State<Notifikasi> {
               from: data.from,
               message: data.message,
               to: data.to,
-              id: data.notifId));
+              id: data.notifId,
+              createdAt: data.createdAt));
         });
       }).toList();
     });
@@ -125,27 +142,29 @@ class _NotifikasiState extends State<Notifikasi> {
                         ),
                       ),
                     )
-                  : Text(
-                      "Hari ini",
-                      style: TextStyle(
-                          fontFamily: "popinsemi", fontSize: width / 27),
-                    ),
-              SizedBox(
-                height: width / 25,
-              ),
-              Container(
-                height: height,
-                child: ListView.separated(
-                    itemBuilder: (_, i) {
-                      return _notifikasi(width, notif, i);
-                    },
-                    separatorBuilder: (_, i) {
-                      return SizedBox(
-                        height: width / 30,
-                      );
-                    },
-                    itemCount: notif.length),
-              )
+                  : Container(
+                      height: height,
+                      child: GroupedListView<dynamic, DateTime>(
+                        elements: notif,
+                        groupBy: (data) => DateTime(data.createdAt.year,
+                            data.createdAt.month, data.createdAt.day),
+                        groupSeparatorBuilder: (DateTime date) => Container(
+                          margin: EdgeInsets.symmetric(vertical: width / 60),
+                          child: Text(
+                            DateFormat.yMEd().format(date).toString() ==
+                                    DateFormat.yMEd().format(DateTime.now())
+                                ? "Hari ini"
+                                : DateFormat.yMEd().format(date).toString(),
+                            style: TextStyle(
+                                fontFamily: "popinsemi", fontSize: width / 27),
+                          ),
+                        ),
+                        order: GroupedListOrder.DESC,
+                        itemBuilder: (context, dynamic data) {
+                          return _notifikasi(width, data);
+                        },
+                      ),
+                    )
             ],
           ),
         )),
@@ -153,45 +172,51 @@ class _NotifikasiState extends State<Notifikasi> {
     );
   }
 
-  Widget _notifikasi(width, data, i) {
-    return InkWell(
-      onTap: () => generateCode(data[i].from),
-      child: Row(
-        children: [
-          data[i].photoProfile == null
-              ? CircleAvatar(
-                  maxRadius: width / 17,
-                  minRadius: width / 17,
-                  backgroundColor: grayBorder,
-                  child: Icon(
-                    Iconsax.user,
-                    size: width / 20,
-                    color: grayText,
+  Widget _notifikasi(
+    width,
+    data,
+  ) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: width / 50),
+      child: InkWell(
+        onTap: () => generateCode(data.from),
+        child: Row(
+          children: [
+            data.photoProfile == null
+                ? CircleAvatar(
+                    maxRadius: width / 17,
+                    minRadius: width / 17,
+                    backgroundColor: grayBorder,
+                    child: Icon(
+                      Iconsax.user,
+                      size: width / 20,
+                      color: grayText,
+                    ),
+                  )
+                : CircleAvatar(
+                    maxRadius: width / 17,
+                    minRadius: width / 17,
+                    backgroundImage: NetworkImage(data.photoProfile),
                   ),
-                )
-              : CircleAvatar(
-                  maxRadius: width / 17,
-                  minRadius: width / 17,
-                  backgroundImage: NetworkImage(data[i].photoProfile),
-                ),
-          SizedBox(
-            width: width / 27,
-          ),
-          Flexible(
-            child: RichText(
-                text: TextSpan(
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontFamily: "popin",
-                        fontSize: width / 29),
-                    children: [
-                  TextSpan(
-                      text: data[i].name,
-                      style: TextStyle(fontFamily: "popinsemi")),
-                  TextSpan(text: " ${data[i].message}")
-                ])),
-          )
-        ],
+            SizedBox(
+              width: width / 27,
+            ),
+            Flexible(
+              child: RichText(
+                  text: TextSpan(
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontFamily: "popin",
+                          fontSize: width / 29),
+                      children: [
+                    TextSpan(
+                        text: data.name,
+                        style: TextStyle(fontFamily: "popinsemi")),
+                    TextSpan(text: " ${data.message}")
+                  ])),
+            )
+          ],
+        ),
       ),
     );
   }

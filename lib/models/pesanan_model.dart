@@ -32,7 +32,6 @@ class Datum {
         required this.storeId,
         required this.totalBarang,
         required this.totalHarga,
-        required this.ongkir,
         required this.alamat,
         required this.isPaid,
         required this.namaBarang,
@@ -41,7 +40,6 @@ class Datum {
         required this.deskripsi,
         required this.kategori,
         required this.diskon,
-        required this.beratBarang,
         required this.fotoBarang,
         required this.owner,
         required this.namaToko,
@@ -54,7 +52,6 @@ class Datum {
     int storeId;
     int totalBarang;
     int totalHarga;
-    int ongkir;
     String alamat;
     int isPaid;
     String namaBarang;
@@ -63,7 +60,6 @@ class Datum {
     String deskripsi;
     String kategori;
     int diskon;
-    int beratBarang;
     String fotoBarang;
     int owner;
     String namaToko;
@@ -76,7 +72,6 @@ class Datum {
         storeId: json["store_id"],
         totalBarang: json["total_barang"],
         totalHarga: json["total_harga"],
-        ongkir: json["ongkir"],
         alamat: json["alamat"],
         isPaid: json["isPaid"],
         namaBarang: json["nama_barang"],
@@ -85,7 +80,6 @@ class Datum {
         deskripsi: json["deskripsi"],
         kategori: json["kategori"],
         diskon: json["diskon"],
-        beratBarang: json["berat_barang"],
         fotoBarang: json["foto_barang"],
         owner: json["owner"],
         namaToko: json["nama_toko"],
@@ -99,7 +93,6 @@ class Datum {
         "store_id": storeId,
         "total_barang": totalBarang,
         "total_harga": totalHarga,
-        "ongkir": ongkir,
         "alamat": alamat,
         "isPaid": isPaid,
         "nama_barang": namaBarang,
@@ -108,7 +101,6 @@ class Datum {
         "deskripsi": deskripsi,
         "kategori": kategori,
         "diskon": diskon,
-        "berat_barang": beratBarang,
         "foto_barang": fotoBarang,
         "owner": owner,
         "nama_toko": namaToko,

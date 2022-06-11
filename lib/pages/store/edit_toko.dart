@@ -1,38 +1,36 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, await_only_futures, deprecated_member_use, depend_on_referenced_packages, invalid_return_type_for_catch_error, avoid_print, sized_box_for_whitespace
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, deprecated_member_use, depend_on_referenced_packages, prefer_typing_uninitialized_variables, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, avoid_print, sized_box_for_whitespace
 
-import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 import 'package:async/async.dart';
-import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:lapak/api/api_service.dart';
-import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
+import 'package:http/http.dart' as http;
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class CreateStore extends StatefulWidget {
-  const CreateStore({Key? key}) : super(key: key);
-
+class EditToko extends StatefulWidget {
+  final data;
+  EditToko({required this.data});
   @override
-  State<CreateStore> createState() => _CreateStoreState();
+  State<EditToko> createState() => _EditTokoState();
 }
 
-class _CreateStoreState extends State<CreateStore> {
-  File? path;
-  bool isLoading = false;
-  TextEditingController namaToko = TextEditingController();
+class _EditTokoState extends State<EditToko> {
+  TextEditingController name = TextEditingController();
   TextEditingController daerah = TextEditingController();
-  File? _image;
+
   final picker = ImagePicker();
+  bool isLoading = false;
+  bool hidden = true;
+  File _image = File("");
+  File path = File("");
 
   Future<void> getImage() async {
     final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
     setState(() {
       if (pickedFile != null) {
         _image = File(pickedFile.path);
@@ -43,45 +41,48 @@ class _CreateStoreState extends State<CreateStore> {
     });
   }
 
-  Future createStore(File imgFile, BuildContext context) async {
+  Future updateProfile(File imgFile) async {
     setState(() {
       isLoading = true;
     });
-    var stream = http.ByteStream(DelegatingStream.typed(imgFile.openRead()));
-    var length = await imgFile.length();
-    Uri url = Uri.parse("$baseUrl/store/create");
+    Uri url = Uri.parse("$baseUrl/store/update/${widget.data.id}");
     SharedPreferences storage = await SharedPreferences.getInstance();
-
-    final req = http.MultipartRequest("POST", url);
-    req.fields["nama_toko"] = namaToko.text;
+    final req = http.MultipartRequest("PUT", url);
+    if (_image.path.isNotEmpty) {
+      var stream = http.ByteStream(DelegatingStream.typed(imgFile.openRead()));
+      var length = await imgFile.length();
+      var multipartFile = http.MultipartFile('photo_profile', stream, length,
+          filename: basename(imgFile.path));
+      req.files.add(multipartFile);
+    }
+    req.fields["nama_toko"] = name.text;
     req.fields["daerah"] = daerah.text;
     req.headers["Authorization"] = "Bearer ${storage.getString("token")}";
-    var multipartFile = http.MultipartFile('photo_profile', stream, length,
-        filename: basename(imgFile.path));
-    req.files.add(multipartFile);
 
     await req.send().then((result) async {
-      http.Response.fromStream(result)
-          .then((res) {
-            if (res.statusCode == 200) {
-              setState(() {
-                isLoading = false;
-              });
-              Get.off(Toko(storeId: jsonDecode(res.body)["data"]["id"]),
-                  transition: Transition.rightToLeft);
-              return true;
-            } else {
-              setState(() {
-                isLoading = false;
-              });
-              print(res.statusCode);
-              print(res.body);
-              return false;
-            }
-          })
-          .catchError((err) => print(err.toString()))
-          .whenComplete(() {});
+      http.Response.fromStream(result).then((res) {
+        if (res.statusCode == 200) {
+          setState(() {
+            isLoading = false;
+          });
+          Get.back();
+          return true;
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          print(res.statusCode);
+          print(res.body);
+        }
+      });
     });
+  }
+
+  @override
+  void initState() {
+    name.text = widget.data.namaToko;
+    daerah.text = widget.data.daerah;
+    super.initState();
   }
 
   @override
@@ -89,22 +90,65 @@ class _CreateStoreState extends State<CreateStore> {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SafeArea(
-          child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(width / 25),
+          child: Padding(
+        padding: EdgeInsets.all(width / 25),
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _header(context, width),
               SizedBox(
-                height: width / 15,
+                height: width / 10,
               ),
-              _label("Nama toko", width),
+              _label("Foto toko", width),
+              SizedBox(
+                height: width / 20,
+              ),
+              Center(
+                  child: InkWell(
+                onTap: () async => await getImage(),
+                child: path.path.isEmpty
+                    ? widget.data.photoProfile == null
+                        ? CircleAvatar(
+                            maxRadius: width / 6,
+                            minRadius: width / 6,
+                            backgroundColor: grayBorder,
+                            child: Icon(
+                              Iconsax.camera5,
+                              color: Colors.white,
+                              size: width / 7,
+                            ),
+                          )
+                        : CircleAvatar(
+                            maxRadius: width / 6,
+                            minRadius: width / 6,
+                            backgroundImage:
+                                NetworkImage(widget.data.photoProfile),
+                            child: Icon(
+                              Iconsax.camera5,
+                              color: Colors.white.withOpacity(0.7),
+                              size: width / 7,
+                            ))
+                    : CircleAvatar(
+                        maxRadius: width / 6,
+                        minRadius: width / 6,
+                        backgroundImage: FileImage(path),
+                        child: Icon(
+                          Iconsax.camera5,
+                          color: Colors.white.withOpacity(0.7),
+                          size: width / 7,
+                        ),
+                      ),
+              )),
+              SizedBox(
+                height: width / 10,
+              ),
+              _label("Nama", width),
               SizedBox(
                 height: width / 35,
               ),
               TextField(
-                controller: namaToko,
+                controller: name,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(
@@ -116,7 +160,7 @@ class _CreateStoreState extends State<CreateStore> {
                 ),
               ),
               SizedBox(
-                height: width / 35,
+                height: width / 20,
               ),
               _label("Daerah", width),
               SizedBox(
@@ -134,60 +178,14 @@ class _CreateStoreState extends State<CreateStore> {
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  InkWell(
-                    onTap: () async => await getImage(),
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: width / 10),
-                      height: width / 1.5,
-                      decoration: BoxDecoration(
-                          image: path != null
-                              ? DecorationImage(image: FileImage(path!))
-                              : DecorationImage(
-                                  image: AssetImage("assets/08973278.png"))),
-                    ),
-                  ),
-                  Positioned(
-                    top: width / 1.3,
-                    child: Center(
-                      child: path == null
-                          ? Text(
-                              "Masukan foto toko",
-                              style: TextStyle(
-                                  color: grayText,
-                                  fontFamily: "popinmedium",
-                                  fontSize: width / 25),
-                            )
-                          : OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.red, width: width / 300),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: width / 25)),
-                              onPressed: () {
-                                setState(() {
-                                  path = null;
-                                });
-                              },
-                              child: Text(
-                                "Cancel",
-                                style: TextStyle(
-                                    fontSize: width / 20, color: Colors.red),
-                              )),
-                    ),
-                  ),
-                ],
-              ),
               SizedBox(
-                height: width / 20,
+                height: width / 10,
               ),
               Container(
                 width: width,
                 child: ElevatedButton(
                     onPressed: () {
-                      createStore(_image!, context);
+                      updateProfile(_image);
                     },
                     style: ElevatedButton.styleFrom(
                         primary: blueTheme,
@@ -201,7 +199,7 @@ class _CreateStoreState extends State<CreateStore> {
                             color: Colors.white,
                           )
                         : Text(
-                            "Buat toko",
+                            "Simpan",
                             style: TextStyle(
                                 fontSize: width / 20, fontFamily: "popinsemi"),
                           )),
@@ -230,7 +228,7 @@ class _CreateStoreState extends State<CreateStore> {
             },
             icon: Icon(Iconsax.arrow_left)),
         Text(
-          "Toko",
+          "Edit",
           style: TextStyle(
             fontSize: width / 15,
             fontFamily: "popinsemi",

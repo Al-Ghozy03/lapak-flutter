@@ -1,20 +1,29 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, must_be_immutable, use_key_in_widget_constructors
 
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lapak/style/color.dart';
+import 'package:lapak/api/api_service.dart';
+import 'package:lapak/models/diskon_model.dart';
+import 'package:lapak/widget/custom_card.dart';
+import 'package:lapak/widget/skeleton.dart';
 
-class Diskon extends StatefulWidget {
+class DiskonPage extends StatefulWidget {
   @override
-  State<Diskon> createState() => _DiskonState();
+  State<DiskonPage> createState() => _DiskonPageState();
 }
 
-class _DiskonState extends State<Diskon> {
+class _DiskonPageState extends State<DiskonPage> {
   String? selectedValue;
   List<String> dropDownChoice = ["Harga tertinggi", "Harga terendah"];
   List kategori = ["", "", "", ""];
+  late Future getDiskon;
+  @override
+  void initState() {
+    getDiskon = ApiService().getDiskon("asc");
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -58,11 +67,36 @@ class _DiskonState extends State<Diskon> {
               SizedBox(
                 height: width / 15,
               ),
-              StaggeredGrid.count(
-                crossAxisCount: 2,
-                mainAxisSpacing: 2,
-                children: kategori.map((e) => _card(width)).toList(),
-              )
+              FutureBuilder(
+                future: getDiskon,
+                builder: (context, AsyncSnapshot snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return StaggeredGrid.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 2,
+                      children: [
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
+                      ],
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text("terjadi kesalahan"),
+                    );
+                  } else {
+                    if (snapshot.hasData) {
+                      return _card(width, snapshot.data);
+                    } else {
+                      return Center(
+                        child: Text("kosong"),
+                      );
+                    }
+                  }
+                },
+              ),
             ],
           ),
         ),
@@ -70,104 +104,16 @@ class _DiskonState extends State<Diskon> {
     );
   }
 
-  Widget _card(width) {
-    return OpenContainer(
-      openBuilder: (context, action) {
-        return Container();
-      },
-      closedBuilder: (context, action) {
-        return Container(
-            margin: EdgeInsets.all(10),
-            height: width / 1.5,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(width / 25),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: Offset(0, 3))
-                ]),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: width,
-                      height: width / 3,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(width / 25),
-                              topRight: Radius.circular(width / 25)),
-                          image: DecorationImage(
-                              image: NetworkImage(
-                                  "https://www.yangcanggih.com/wp-content/uploads/2022/01/ASUS-ROG-Zephyrus-Duo-16-4.webp"),
-                              fit: BoxFit.cover)),
-                    ),
-                    Positioned(
-                      top: width / 50,
-                      left: width / 3.2,
-                      child: Container(
-                        height: width / 12,
-                        width: width / 12,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(width),
-                            color: Colors.black.withOpacity(0.5)),
-                        child: IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Iconsax.shop_add,
-                            color: Colors.white,
-                            size: width / 25,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: width / 30, vertical: width / 50),
-                  child: Row(
-                    children: [
-                      CircleAvatar(),
-                      SizedBox(
-                        width: width / 40,
-                      ),
-                      Text(
-                        "Toko haram",
-                        style: TextStyle(
-                            fontFamily: "popinsemi", fontSize: width / 30),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: width / 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "ROG Zephyrus",
-                        style: TextStyle(
-                            fontSize: width / 23, fontFamily: "popinsemi"),
-                      ),
-                      Text(
-                        "Rp 15.000",
-                        style: TextStyle(fontSize: width / 35, color: grayText),
-                      ),
-                      Text(
-                        "Cibitung, Bekasi",
-                        style: TextStyle(fontSize: width / 35, color: grayText),
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ));
-      },
+  Widget _card(width, Diskon data) {
+    return StaggeredGrid.count(
+      crossAxisCount: 2,
+      mainAxisSpacing: 2,
+      children: data.data.map((data) {
+        return CustomCard(
+          data: data,
+          where: "",
+        );
+      }).toList(),
     );
   }
 

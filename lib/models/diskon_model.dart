@@ -1,21 +1,21 @@
 // To parse required this JSON data, do
 //
-//     final cart = cartFromJson(jsonString);
+//     final diskon = diskonFromJson(jsonString);
 
 import 'dart:convert';
 
-Cart cartFromJson(String str) => Cart.fromJson(json.decode(str));
+Diskon diskonFromJson(String str) => Diskon.fromJson(json.decode(str));
 
-String cartToJson(Cart data) => json.encode(data.toJson());
+String diskonToJson(Diskon data) => json.encode(data.toJson());
 
-class Cart {
-    Cart({
+class Diskon {
+    Diskon({
         required this.data,
     });
 
     List<Datum> data;
 
-    factory Cart.fromJson(Map<String, dynamic> json) => Cart(
+    factory Diskon.fromJson(Map<String, dynamic> json) => Diskon(
         data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
     );
 
@@ -27,67 +27,59 @@ class Cart {
 class Datum {
     Datum({
         required this.id,
-        required this.barangId,
-        required this.userId,
         required this.storeId,
+        required this.owner,
+        required this.namaToko,
+        required this.daerah,
+        required this.fotoToko,
         required this.namaBarang,
         required this.harga,
-        required this.daerah,
         required this.deskripsi,
         required this.kategori,
-        required this.diskon,
         required this.fotoBarang,
-        required this.namaToko,
-        required this.fotoToko,
-        required this.owner
+        required this.diskon,
     });
 
     int id;
-    int barangId;
-    int userId;
     int storeId;
     int owner;
+    String namaToko;
+    String daerah;
+    String fotoToko;
     String namaBarang;
     int harga;
-    String daerah;
     String deskripsi;
     String kategori;
-    dynamic diskon;
     String fotoBarang;
-    String namaToko;
-    String fotoToko;
+    int diskon;
 
     factory Datum.fromJson(Map<String, dynamic> json) => Datum(
         id: json["id"],
-        barangId: json["barang_id"],
-        userId: json["user_id"],
         storeId: json["store_id"],
+        owner: json["owner"],
+        namaToko: json["nama_toko"],
+        daerah: json["daerah"],
+        fotoToko: json["foto_toko"],
         namaBarang: json["nama_barang"],
         harga: json["harga"],
-        owner: json["owner"],
-        daerah: json["daerah"],
         deskripsi: json["deskripsi"],
         kategori: json["kategori"],
-        diskon: json["diskon"],
         fotoBarang: json["foto_barang"],
-        namaToko: json["nama_toko"],
-        fotoToko: json["foto_toko"],
+        diskon: json["diskon"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
-        "barang_id": barangId,
-        "user_id": userId,
         "store_id": storeId,
+        "owner": owner,
+        "nama_toko": namaToko,
+        "daerah": daerah,
+        "foto_toko": fotoToko,
         "nama_barang": namaBarang,
         "harga": harga,
-        "owner": owner,
-        "daerah": daerah,
         "deskripsi": deskripsi,
         "kategori": kategori,
-        "diskon": diskon,
         "foto_barang": fotoBarang,
-        "nama_toko": namaToko,
-        "foto_toko": fotoToko,
+        "diskon": diskon,
     };
 }

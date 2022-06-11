@@ -1,9 +1,9 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lapak/pages/search_result.dart';
-import 'package:lapak/widget/custom_route.dart';
+import 'package:lapak/pages/search/search_result.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -40,10 +40,9 @@ class _SearchPageState extends State<SearchPage> {
                         if (value.isEmpty) {
                           return;
                         } else {
-                          Navigator.of(context).push(CustomPageRoute(
-                              child: SearchResult(
+                          Get.to(SearchResult(
                             search: value,
-                          )));
+                          ),transition: Transition.rightToLeft);
                         }
                       },
                       style: TextStyle(fontSize: width / 30),

@@ -23,13 +23,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  
-
   var token;
   void getToken() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    SharedPreferences storage = await SharedPreferences.getInstance();
     setState(() {
-      token = sharedPreferences.getString("token");
+      token = storage.getString("token");
     });
   }
 

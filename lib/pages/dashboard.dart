@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, unused_local_variable, avoid_unnecessary_containers, sized_box_for_whitespace, unnecessary_new
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, unused_local_variable, avoid_unnecessary_containers, sized_box_for_whitespace, unnecessary_new, no_leading_underscores_for_local_identifiers
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,7 @@ import 'package:lapak/pages/keranjang.dart';
 import 'package:lapak/pages/notification/notifikasi.dart';
 import 'package:lapak/pages/pesanan.dart';
 import 'package:lapak/pages/account/profile.dart';
-import 'package:lapak/pages/search.dart';
+import 'package:lapak/pages/search/search.dart';
 import 'package:lapak/pages/store/empty_store.dart';
 import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
@@ -133,14 +133,19 @@ class _DashboardState extends State<Dashboard> {
                                 ? CircleAvatar(
                                     maxRadius: width / 13,
                                     minRadius: width / 13,
+                                    backgroundColor: grayBorder,
                                     backgroundImage: NetworkImage(
                                         snapshot.data.data.photoProfile),
                                   )
                                 : CircleAvatar(
                                     minRadius: width / 13,
                                     maxRadius: width / 13,
-                                    backgroundColor:
-                                        Color.fromARGB(255, 196, 196, 196),
+                                    backgroundColor: grayBorder,
+                                    child: Icon(
+                                      Iconsax.user,
+                                      color: grayText,
+                                      size: width / 15,
+                                    ),
                                   ),
                             SizedBox(
                               width: width / 25,
@@ -513,7 +518,7 @@ class _DashboardState extends State<Dashboard> {
                       padding: EdgeInsets.symmetric(
                           horizontal: width / 30, vertical: width / 80)),
                   onPressed: () =>
-                      Get.to(Diskon(), transition: Transition.rightToLeft),
+                      Get.to(DiskonPage(), transition: Transition.rightToLeft),
                   child: Text("Get now",
                       style: TextStyle(
                           color: blueTheme,

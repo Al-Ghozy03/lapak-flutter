@@ -11,18 +11,16 @@ class MoreStore {
     required this.deskripsi,
     required this.kategori,
     required this.fotoBarang,
-    required this.beratBarang,
     required this.diskon,
   });
   int id;
   int storeId;
   int owner;
   String namaToko;
-  String daerah;
   String fotoToko;
   String namaBarang;
+  String daerah;
   int harga;
-  int beratBarang;
   String deskripsi;
   String kategori;
   String fotoBarang;

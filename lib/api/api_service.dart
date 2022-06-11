@@ -2,6 +2,7 @@
 
 import 'package:http/http.dart' as http;
 import 'package:lapak/models/cart_model.dart';
+import 'package:lapak/models/diskon_model.dart';
 import 'package:lapak/models/kategori_model.dart';
 import 'package:lapak/models/list_chat_model.dart';
 import 'package:lapak/models/notif_model.dart';
@@ -12,13 +13,25 @@ import 'package:lapak/models/search_model.dart';
 import 'package:lapak/models/store_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-String baseUrl = "http://192.168.5.220:4003";
+String baseUrl = "https://lapak-backend-uas.herokuapp.com";
 Map<String, String> headers = {
   "Content-Type": "application/json",
   "Authorization": ""
 };
 
 class ApiService {
+
+  Future getDiskon(String order) async {
+    Uri url = Uri.parse("$baseUrl/barang/diskon-30?orderBy=$order");
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    headers["Authorization"] = "Bearer ${storage.getString("token")}";
+    final res = await http.get(url, headers: headers);
+    if (res.statusCode == 200) {
+      return diskonFromJson(res.body);
+    } else {
+      print(res.statusCode);
+    }
+  }
   Future getNotification() async {
     Uri url = Uri.parse("$baseUrl/checkout/notif");
     SharedPreferences storage = await SharedPreferences.getInstance();

@@ -11,7 +11,6 @@ import 'package:lapak/pages/auth/register.dart';
 import 'package:lapak/pages/dashboard.dart';
 import 'package:lapak/style/color.dart';
 import 'package:http/http.dart' as http;
-import 'package:lapak/widget/custom_route.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -49,8 +48,7 @@ class _LoginState extends State<Login> {
           "photo_profile": jsonDecode(res.body)["data"]["photo_profile"],
         });
         sharedPreferences.setString("info", jsonEncode(info));
-        Navigator.of(context)
-            .pushReplacement(CustomPageRoute(child: Dashboard()));
+        Get.to(Dashboard(), transition: Transition.rightToLeft);
       });
     } else {
       print(res.body);
@@ -189,7 +187,7 @@ class _LoginState extends State<Login> {
                   primary: blueTheme,
                   padding: EdgeInsets.symmetric(vertical: width / 67),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15))),
+                      borderRadius: BorderRadius.circular(width / 50))),
               child: isLoading
                   ? CircularProgressIndicator(
                       color: Colors.white,

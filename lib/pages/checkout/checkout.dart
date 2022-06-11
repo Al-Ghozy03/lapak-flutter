@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, avoid_print
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, avoid_print, library_prefixes, no_leading_underscores_for_local_identifiers
 
 import 'dart:convert';
 
@@ -37,8 +37,7 @@ class _CheckoutState extends State<Checkout> {
   }
 
   TextEditingController alamat = TextEditingController();
-  Future checkout(
-      int totalBarang, int totalHarga, int ongkir, String alamat) async {
+  Future checkout(int totalBarang, int totalHarga, String alamat) async {
     SharedPreferences storage = await SharedPreferences.getInstance();
     setState(() {
       isLoading = true;
@@ -51,7 +50,6 @@ class _CheckoutState extends State<Checkout> {
           "total_harga": totalHarga,
           "barang_id": widget.data.id,
           "owner_barang": widget.data.owner,
-          "ongkir": ongkir,
           "alamat": alamat
         }),
         headers: headers);
@@ -137,7 +135,7 @@ class _CheckoutState extends State<Checkout> {
         });
   }
 
-  Io.Socket socket = Io.io('http://192.168.5.220:4003', <String, dynamic>{
+  Io.Socket socket = Io.io(baseUrl, <String, dynamic>{
     "transports": ["websocket"],
   });
 
@@ -241,17 +239,13 @@ class _CheckoutState extends State<Checkout> {
                 _paymentInfo(width, "Total Harga",
                     CurrencyFormat.convertToIdr(widget.data.harga * total, 0)),
                 SizedBox(
-                  height: width / 50,
-                ),
-                _paymentInfo(width, "Ongkir", "Rp 120.000"),
-                SizedBox(
                   height: width / 4,
                 ),
                 Container(
                   width: width,
                   child: ElevatedButton(
                       onPressed: () {
-                        checkout(total, widget.data.harga * total, 120000,
+                        checkout(total, widget.data.harga * total,
                             alamat.text != "" ? alamat.text : _info.alamat);
                       },
                       style: ElevatedButton.styleFrom(

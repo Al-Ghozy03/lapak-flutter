@@ -25,10 +25,8 @@ class _CreateBarangState extends State<CreateBarang> {
   bool isLoading = false;
   TextEditingController namaBarang = TextEditingController();
   TextEditingController harga = TextEditingController();
-  TextEditingController daerah = TextEditingController();
   TextEditingController deskripsi = TextEditingController();
   TextEditingController diskon = TextEditingController();
-  TextEditingController beratBarang = TextEditingController();
   File? _image;
   String? selectedValue;
   final picker = ImagePicker();
@@ -58,31 +56,32 @@ class _CreateBarangState extends State<CreateBarang> {
     req.fields["store_id"] = widget.id.toString();
     req.fields["nama_barang"] = namaBarang.text;
     req.fields["harga"] = harga.text;
-    req.fields["daerah"] = daerah.text;
     req.fields["deskripsi"] = deskripsi.text;
     req.fields["diskon"] = diskon.text == "" ? null.toString() : diskon.text;
     req.fields["kategori"] = selectedValue.toString();
-    req.fields["berat_barang"] = beratBarang.text;
     req.headers["Authorization"] = "Bearer ${storage.getString("token")}";
 
     var multipartFile = http.MultipartFile('foto_barang', stream, length,
         filename: basename(imgFile.path));
     req.files.add(multipartFile);
-    final res = await req.send();
-
-    if (res.statusCode == 200) {
-      setState(() {
-        isLoading = false;
+    await req.send().then((result) async {
+      http.Response.fromStream(result).then((res) {
+        if (res.statusCode == 200) {
+          setState(() {
+            isLoading = false;
+          });
+          Navigator.of(context).pop();
+          return true;
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          print(res.statusCode);
+          print(res.body);
+          return false;
+        }
       });
-      Navigator.of(context).pop();
-      return true;
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-      print(res.statusCode);
-      return false;
-    }
+    });
   }
 
   @override
@@ -139,25 +138,6 @@ class _CreateBarangState extends State<CreateBarang> {
               SizedBox(
                 height: width / 35,
               ),
-              _label("Daerah", width),
-              SizedBox(
-                height: width / 35,
-              ),
-              TextField(
-                controller: daerah,
-                style: TextStyle(fontSize: width / 33),
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
-                ),
-              ),
-              SizedBox(
-                height: width / 35,
-              ),
               _label("Deskripsi", width),
               SizedBox(
                 height: width / 35,
@@ -165,25 +145,6 @@ class _CreateBarangState extends State<CreateBarang> {
               TextField(
                 maxLines: 10,
                 controller: deskripsi,
-                style: TextStyle(fontSize: width / 33),
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
-                ),
-              ),
-              SizedBox(
-                height: width / 35,
-              ),
-              _label("Berat barang", width),
-              SizedBox(
-                height: width / 35,
-              ),
-              TextField(
-                controller: beratBarang,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
                   enabledBorder: OutlineInputBorder(

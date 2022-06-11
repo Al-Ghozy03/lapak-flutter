@@ -1,12 +1,15 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, library_prefixes, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/list_chat_model.dart';
 import 'package:lapak/style/color.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart' as Io;
 
 class ListChatPage extends StatefulWidget {
   const ListChatPage({Key? key}) : super(key: key);
@@ -17,9 +20,19 @@ class ListChatPage extends StatefulWidget {
 
 class _ListChatPageState extends State<ListChatPage> {
   late Future getListChat;
+  Io.Socket socket = Io.io(baseUrl, <String, dynamic>{
+    "transports": ["websocket"],
+  });
+
+  void connectSocket() {
+    socket.onConnect((data) => print("connect $data, ${socket.json}"));
+    socket.onConnectError((data) => print("error $data"));
+    socket.onDisconnect((data) => print("disconnect"));
+  }
 
   @override
   void initState() {
+    connectSocket();
     getListChat = ApiService().getListChat();
     super.initState();
   }
@@ -36,21 +49,6 @@ class _ListChatPageState extends State<ListChatPage> {
           child: Column(
             children: [
               _header(width),
-              SizedBox(
-                height: width / 10,
-              ),
-              TextField(
-                decoration: InputDecoration(
-                    hintText: "Search...",
-                    hintStyle: TextStyle(fontSize: width / 32),
-                    prefixIcon: Icon(Iconsax.search_normal_1),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(width / 40),
-                        borderSide: BorderSide(width: 3, color: grayBorder)),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(width / 40),
-                        borderSide: BorderSide(width: 3, color: grayBorder))),
-              ),
               SizedBox(
                 height: width / 30,
               ),
@@ -83,14 +81,25 @@ class _ListChatPageState extends State<ListChatPage> {
 
   Widget _list(width, ListChat chat, height) {
     return Container(
-      height: height*1.2,
+      height: height * 1.2,
       child: ListView.separated(
           itemBuilder: (context, i) {
             return InkWell(
-              onTap: () => Get.to(ChatPage(
-                to: chat.data[i].receiver,
-                roomCode: chat.data[i].roomCode,
-              ),transition: Transition.rightToLeft),
+              onTap: () async {
+                SharedPreferences storage =
+                    await SharedPreferences.getInstance();
+                var userId =
+                    Jwt.parseJwt(storage.getString("token").toString());
+
+                socket.emit("join_room",
+                    {"room_code": chat.data[i].roomCode, "from": userId["id"]});
+                Get.to(
+                    ChatPage(
+                      to: chat.data[i].receiver,
+                      roomCode: chat.data[i].roomCode,
+                    ),
+                    transition: Transition.rightToLeft);
+              },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

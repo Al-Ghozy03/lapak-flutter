@@ -97,8 +97,6 @@ class _AfterCheckoutState extends State<AfterCheckout> {
                 SizedBox(
                   height: width / 50,
                 ),
-                _paymentInfo(width, "Ongkir",
-                    CurrencyFormat.convertToIdr(widget.data.ongkir, 0)),
                 SizedBox(
                   height: width / 4,
                 ),

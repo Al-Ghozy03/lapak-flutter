@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/search_model.dart';
@@ -55,7 +56,7 @@ class _SearchResultState extends State<SearchResult> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Get.back();
                     },
                     icon: Icon(Iconsax.arrow_left),
                     iconSize: width / 20,
@@ -96,7 +97,12 @@ class _SearchResultState extends State<SearchResult> {
                         StaggeredGrid.count(
                           crossAxisCount: 2,
                           mainAxisSpacing: 2,
-                          children: [Skeleton()],
+                          children: [
+                            Skeleton(),
+                            Skeleton(),
+                            Skeleton(),
+                            Skeleton(),
+                          ],
                         ),
                       ],
                     );
