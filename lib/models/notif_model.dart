@@ -49,7 +49,7 @@ class Datum {
         name: json["name"],
         message: json["message"],
         to: json["to"],
-        createdAt: DateTime.parse(json["createdAt"]),
+        createdAt: DateTime.parse(json["created_at"]),
         photoProfile: json["photo_profile"],
     );
 
@@ -59,7 +59,7 @@ class Datum {
         "name": name,
         "message": message,
         "to": to,
-        "createdAt": createdAt.toIso8601String(),
+        "created_at": createdAt.toIso8601String(),
         "photo_profile": photoProfile,
     };
 }

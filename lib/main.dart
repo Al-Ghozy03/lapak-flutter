@@ -26,6 +26,7 @@ class _MyAppState extends State<MyApp> {
   var token;
   void getToken() async {
     SharedPreferences storage = await SharedPreferences.getInstance();
+    storage.remove("token");
     setState(() {
       token = storage.getString("token");
     });

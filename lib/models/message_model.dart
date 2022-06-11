@@ -51,7 +51,7 @@ class Datum {
         to: json["to"],
         message: json["message"],
         roomCode: json["room_code"],
-        isRead: json["isRead"],
+        isRead: json["is_read"],
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
       );
@@ -62,7 +62,7 @@ class Datum {
         "to": to,
         "message": message,
         "room_code": roomCode,
-        "isRead": isRead,
+        "is_read": isRead,
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),
       };

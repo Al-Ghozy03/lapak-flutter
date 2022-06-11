@@ -41,6 +41,7 @@ class ApiService {
       return notificationFromJson(res.body);
     } else {
       print(res.statusCode);
+      print(res.body);
     }
   }
   Future getListChat() async {

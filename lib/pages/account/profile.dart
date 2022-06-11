@@ -115,8 +115,12 @@ class _ProfilePageState extends State<ProfilePage> {
                             : CircleAvatar(
                                 minRadius: width / 9,
                                 maxRadius: width / 9,
-                                backgroundColor:
-                                    Color.fromARGB(255, 196, 196, 196),
+                                backgroundColor: grayBorder,
+                                child: Icon(
+                                  Iconsax.user,
+                                  color: grayText,
+                                  size: width / 10,
+                                ),
                               ),
                       ),
                       centerTitle: true,
