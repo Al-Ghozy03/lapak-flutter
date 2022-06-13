@@ -61,7 +61,7 @@ class _ChatPageState extends State<ChatPage> {
         "to": widget.to,
         "message": messageController.text,
         "room_code": widget.roomCode,
-        "isRead": false
+        "is_read": false
       });
       socket.on("received_message", (data) {
         print(data);
@@ -72,7 +72,7 @@ class _ChatPageState extends State<ChatPage> {
               to: data["to"],
               message: data["message"],
               roomCode: data["room_code"],
-              isRead: data["isRead"],
+              isRead: data["is_read"],
               createdAt:
                   DateTime.parse(jsonDecode(res.body)["data"]["createdAt"]),
               updatedAt:

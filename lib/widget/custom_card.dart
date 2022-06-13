@@ -93,7 +93,9 @@ class _CustomCardState extends State<CustomCard> {
                               topLeft: Radius.circular(width / 25),
                               topRight: Radius.circular(width / 25)),
                           image: DecorationImage(
-                              image: NetworkImage(widget.data.fotoBarang),
+                              image: NetworkImage(widget.where != "pesanan"
+                                  ? widget.data.fotoBarang
+                                  : widget.data.item.fotoBarang),
                               fit: BoxFit.cover)),
                     ),
                     widget.where != "pesanan"
@@ -139,36 +141,50 @@ class _CustomCardState extends State<CustomCard> {
                         width: width / 40,
                       ),
                       Text(
-                        widget.data.namaBarang.length >= 12
-                            ? "${widget.data.namaBarang.substring(0, 10)}..."
-                            : widget.data.namaBarang,
+                        widget.data.namaToko.length >= 8
+                            ? "${widget.data.namaToko.substring(0, 7)}..."
+                            : widget.data.namaToko,
                         style: TextStyle(
                             fontFamily: "popinsemi", fontSize: width / 30),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: width / 30),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.data.namaBarang.length >= 15
-                            ? "${widget.data.namaBarang.substring(0, 12)}..."
-                            : widget.data.namaBarang,
-                        style: TextStyle(
-                            fontSize: width / 23, fontFamily: "popinsemi"),
-                      ),
-                      Text(
-                        CurrencyFormat.convertToIdr(widget.data.harga, 0),
-                        style: TextStyle(fontSize: width / 35, color: grayText),
-                      ),
-                      Text(
-                        widget.data.daerah,
-                        style: TextStyle(fontSize: width / 35, color: grayText),
-                      ),
-                    ],
+                Flexible(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width / 30),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            widget.where != "pesanan"
+                                ? widget.data.namaBarang
+                                : widget.data.item.namaBarang,
+                            style: TextStyle(
+                              fontSize: width / 23,
+                              fontFamily: "popinsemi",
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          CurrencyFormat.convertToIdr(
+                              widget.where != "pesanan"
+                                  ? widget.data.harga
+                                  : widget.data.item.harga,
+                              0),
+                          style:
+                              TextStyle(fontSize: width / 35, color: grayText),
+                        ),
+                        Text(
+                          widget.data.daerah,
+                          style:
+                              TextStyle(fontSize: width / 35, color: grayText),
+                        ),
+                      ],
+                    ),
                   ),
                 )
               ],

@@ -294,49 +294,61 @@ class _DashboardState extends State<Dashboard> {
         width: width / 1.2,
         child: _drawer(),
       ),
-      body: SafeArea(
-          child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(width / 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _header(),
-              SizedBox(
-                height: width / 10,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          setState(() {
+            getRekomendasi = ApiService().getRekomendasi();
+            getProfile = ApiService().getProfile();
+          });
+        },
+        child: ListView(
+          physics: AlwaysScrollableScrollPhysics(),
+          children: [
+            SafeArea(
+                child: Padding(
+              padding: EdgeInsets.all(width / 25),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _header(),
+                  SizedBox(
+                    height: width / 10,
+                  ),
+                  _discount(width),
+                  SizedBox(
+                    height: width / 20,
+                  ),
+                  Container(
+                    height: width / 15,
+                    width: width,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: kategori
+                          .map((e) => _kategori(width, e, context))
+                          .toList(),
+                    ),
+                  ),
+                  SizedBox(
+                    height: width / 20,
+                  ),
+                  Text(
+                    "Rekomendasi untuk mu",
+                    style: TextStyle(
+                        fontSize: width / 18, fontFamily: "popinsemi"),
+                  ),
+                  SizedBox(
+                    height: width / 20,
+                  ),
+                  Container(
+                    height: width / 1.4,
+                    child: _rekomendasiBuilder(),
+                  ),
+                ],
               ),
-              _discount(width),
-              SizedBox(
-                height: width / 20,
-              ),
-              Container(
-                height: width / 15,
-                width: width,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: kategori
-                      .map((e) => _kategori(width, e, context))
-                      .toList(),
-                ),
-              ),
-              SizedBox(
-                height: width / 20,
-              ),
-              Text(
-                "Rekomendasi untuk mu",
-                style: TextStyle(fontSize: width / 18, fontFamily: "popinsemi"),
-              ),
-              SizedBox(
-                height: width / 20,
-              ),
-              Container(
-                height: width / 1.4,
-                child: _rekomendasiBuilder(),
-              ),
-            ],
-          ),
+            ))
+          ],
         ),
-      )),
+      ),
     );
   }
 

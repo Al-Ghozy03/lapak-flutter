@@ -1,21 +1,21 @@
 // To parse required this JSON data, do
 //
-//     final pesanan = pesananFromJson(jsonString);
+//     final pesananModel = pesananModelFromJson(jsonString);
 
 import 'dart:convert';
 
-Pesanan pesananFromJson(String str) => Pesanan.fromJson(json.decode(str));
+PesananModel pesananModelFromJson(String str) => PesananModel.fromJson(json.decode(str));
 
-String pesananToJson(Pesanan data) => json.encode(data.toJson());
+String pesananModelToJson(PesananModel data) => json.encode(data.toJson());
 
-class Pesanan {
-    Pesanan({
+class PesananModel {
+    PesananModel({
         required this.data,
     });
 
     List<Datum> data;
 
-    factory Pesanan.fromJson(Map<String, dynamic> json) => Pesanan(
+    factory PesananModel.fromJson(Map<String, dynamic> json) => PesananModel(
         data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
     );
 
@@ -27,83 +27,119 @@ class Pesanan {
 class Datum {
     Datum({
         required this.id,
-        required this.userId,
-        required this.barangId,
+        required this.owner,
+        required this.namaToko,
+        required this.daerah,
+        required this.fotoToko,
+        required this.item,
+    });
+
+    int id;
+    int owner;
+    String namaToko;
+    String daerah;
+    String fotoToko;
+    Item item;
+
+    factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+        id: json["id"],
+        owner: json["owner"],
+        namaToko: json["nama_toko"],
+        daerah: json["daerah"],
+        fotoToko: json["foto_toko"],
+        item: Item.fromJson(json["item"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "id": id,
+        "owner": owner,
+        "nama_toko": namaToko,
+        "daerah": daerah,
+        "foto_toko": fotoToko,
+        "item": item.toJson(),
+    };
+}
+
+class Item {
+    Item({
+        required this.id,
         required this.storeId,
-        required this.totalBarang,
-        required this.totalHarga,
-        required this.alamat,
-        required this.isPaid,
         required this.namaBarang,
         required this.harga,
-        required this.daerah,
         required this.deskripsi,
         required this.kategori,
         required this.diskon,
         required this.fotoBarang,
-        required this.owner,
-        required this.namaToko,
-        required this.fotoToko,
+        required this.orderBarang,
     });
 
     int id;
-    int userId;
-    int barangId;
     int storeId;
-    int totalBarang;
-    int totalHarga;
-    String alamat;
-    int isPaid;
     String namaBarang;
     int harga;
-    String daerah;
     String deskripsi;
     String kategori;
     int diskon;
     String fotoBarang;
-    int owner;
-    String namaToko;
-    String fotoToko;
+    OrderBarang orderBarang;
 
-    factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+    factory Item.fromJson(Map<String, dynamic> json) => Item(
         id: json["id"],
-        userId: json["user_id"],
-        barangId: json["barang_id"],
         storeId: json["store_id"],
-        totalBarang: json["total_barang"],
-        totalHarga: json["total_harga"],
-        alamat: json["alamat"],
-        isPaid: json["is_paid"],
         namaBarang: json["nama_barang"],
         harga: json["harga"],
-        daerah: json["daerah"],
         deskripsi: json["deskripsi"],
         kategori: json["kategori"],
         diskon: json["diskon"],
         fotoBarang: json["foto_barang"],
-        owner: json["owner"],
-        namaToko: json["nama_toko"],
-        fotoToko: json["foto_toko"],
+        orderBarang: OrderBarang.fromJson(json["order_barang"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "id": id,
+        "store_id": storeId,
+        "nama_barang": namaBarang,
+        "harga": harga,
+        "deskripsi": deskripsi,
+        "kategori": kategori,
+        "diskon": diskon,
+        "foto_barang": fotoBarang,
+        "order_barang": orderBarang.toJson(),
+    };
+}
+
+class OrderBarang {
+    OrderBarang({
+        required this.id,
+        required this.userId,
+        required this.totalBarang,
+        required this.totalHarga,
+        required this.alamat,
+        required this.isPaid,
+    });
+
+    int id;
+    int userId;
+    int totalBarang;
+    String totalHarga;
+    String alamat;
+    bool isPaid;
+
+    factory OrderBarang.fromJson(Map<String, dynamic> json) => OrderBarang(
+        id: json["id"],
+        userId: json["user_id"],
+        totalBarang: json["total_barang"],
+        totalHarga: json["total_harga"],
+        alamat: json["alamat"],
+        isPaid: json["is_paid"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
         "user_id": userId,
-        "barang_id": barangId,
-        "store_id": storeId,
         "total_barang": totalBarang,
         "total_harga": totalHarga,
         "alamat": alamat,
         "is_paid": isPaid,
-        "nama_barang": namaBarang,
-        "harga": harga,
-        "daerah": daerah,
-        "deskripsi": deskripsi,
-        "kategori": kategori,
-        "diskon": diskon,
-        "foto_barang": fotoBarang,
-        "owner": owner,
-        "nama_toko": namaToko,
-        "foto_toko": fotoToko,
     };
 }

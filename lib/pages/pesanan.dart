@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_element
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_element, curly_braces_in_flow_control_structures
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
@@ -28,47 +28,59 @@ class _PesananPageState extends State<PesananPage> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      body: FutureBuilder(
-        future: getPesanan,
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return Text("loading");
-          } else if (snapshot.hasError) {
-            return Text("terjadi kesalahan");
-          } else {
-            if (snapshot.hasData) {
-              return SafeArea(
-                  child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.all(width / 25),
-                  child: Column(
-                    children: [
-                      _header(width),
-                      SizedBox(
-                        height: width / 15,
-                      ),
-                      _builder(snapshot.data, width)
-                    ],
-                  ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(width / 25),
+            child: Column(
+              children: [
+                _header(width),
+                FutureBuilder(
+                  future: getPesanan,
+                  builder: (context, AsyncSnapshot snapshot) {
+                    if (snapshot.connectionState != ConnectionState.done) {
+                      return Text("loading");
+                    } else if (snapshot.hasError) {
+                      return Text("terjadi kesalahan");
+                    } else {
+                      if (snapshot.hasData) {
+                        if (snapshot.data.data[0].item == null)
+                          return Center(
+                            child: Text("kosong"),
+                          );
+
+                        return _builder(snapshot.data, width);
+                      } else {
+                        return Text("kosong");
+                      }
+                    }
+                  },
                 ),
-              ));
-            } else {
-              return Text("kosong");
-            }
-          }
-        },
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _builder(Pesanan pesanan, width) {
-    return StaggeredGrid.count(
-      crossAxisCount: 2,
-      mainAxisSpacing: 2,
-      children: pesanan.data
-          .map((data) => CustomCard(data: data, where: "pesanan",))
-          .toList(),
-    );
+  Widget _builder(PesananModel pesanan, width) {
+    if (pesanan.data.isEmpty) {
+      return Center(
+        child: Text("kosong"),
+      );
+    } else {
+      return StaggeredGrid.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: 2,
+        children: pesanan.data
+            .map((data) => CustomCard(
+                  data: data,
+                  where: "pesanan",
+                ))
+            .toList(),
+      );
+    }
   }
 
   Widget _header(width) {

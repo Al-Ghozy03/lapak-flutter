@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, avoid_print, library_prefixes, no_leading_underscores_for_local_identifiers
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, prefer_const_constructors_in_immutables, use_key_in_widget_constructors, avoid_print, library_prefixes, no_leading_underscores_for_local_identifiers, must_be_immutable
 
 import 'dart:convert';
 
@@ -14,7 +14,8 @@ import 'package:socket_io_client/socket_io_client.dart' as Io;
 
 class Checkout extends StatefulWidget {
   final data;
-  Checkout({this.data});
+  var where;
+  Checkout({this.data, this.where});
 
   @override
   State<Checkout> createState() => _CheckoutState();
@@ -53,6 +54,7 @@ class _CheckoutState extends State<Checkout> {
           "alamat": alamat
         }),
         headers: headers);
+
     if (res.statusCode == 200) {
       var data = jsonDecode(res.body)["data"];
       socket.emit("send_notif", {
@@ -179,7 +181,11 @@ class _CheckoutState extends State<Checkout> {
                   width: width / 30,
                 ),
                 Text(
-                  alamat.text == "" ? _info.alamat : alamat.text,
+                  alamat.text == ""
+                      ? _info.alamat.length >= 31
+                          ? "${_info.alamat.substring(0, 30)}.."
+                          : _info.alamat
+                      : alamat.text,
                   style:
                       TextStyle(fontSize: width / 27, fontFamily: "popinsemi"),
                 ),
@@ -228,7 +234,7 @@ class _CheckoutState extends State<Checkout> {
                   height: width / 25,
                 ),
                 _paymentInfo(width, "Harga barang",
-                    CurrencyFormat.convertToIdr(widget.data.harga, 0)),
+                    CurrencyFormat.convertToIdr(widget.where == null? widget.data.harga:widget.data.item.harga, 0)),
                 SizedBox(
                   height: width / 50,
                 ),
@@ -237,7 +243,7 @@ class _CheckoutState extends State<Checkout> {
                   height: width / 50,
                 ),
                 _paymentInfo(width, "Total Harga",
-                    CurrencyFormat.convertToIdr(widget.data.harga * total, 0)),
+                    CurrencyFormat.convertToIdr(widget.where == null? widget.data.harga:widget.data.item.harga * total, 0)),
                 SizedBox(
                   height: width / 4,
                 ),
@@ -297,7 +303,7 @@ class _CheckoutState extends State<Checkout> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(width / 30),
               image: DecorationImage(
-                  image: NetworkImage(widget.data.fotoBarang),
+                  image: NetworkImage(widget.where == null? widget.data.fotoBarang:widget.data.item.fotoBarang),
                   fit: BoxFit.cover)),
         ),
         SizedBox(
@@ -308,11 +314,13 @@ class _CheckoutState extends State<Checkout> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.data.namaBarang,
+                widget.where == null
+                    ? widget.data.namaBarang
+                    : widget.data.item.namaBarang,
                 style: TextStyle(fontSize: width / 23, fontFamily: "popinsemi"),
               ),
               Text(
-                CurrencyFormat.convertToIdr(widget.data.harga, 0),
+                CurrencyFormat.convertToIdr(widget.where == null? widget.data.harga:widget.data.item.harga, 0),
                 style: TextStyle(color: grayText, fontSize: width / 35),
               ),
               Container(

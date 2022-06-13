@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, use_build_context_synchronously, library_prefixes, avoid_print, prefer_final_fields
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, prefer_typing_uninitialized_variables, use_key_in_widget_constructors, prefer_const_constructors_in_immutables, use_build_context_synchronously, library_prefixes, avoid_print, prefer_final_fields, must_be_immutable
 
 import 'dart:convert';
 
@@ -18,7 +18,8 @@ import 'package:socket_io_client/socket_io_client.dart' as Io;
 
 class Detail extends StatefulWidget {
   final data;
-  Detail({required this.data});
+  var where;
+  Detail({required this.data, this.where});
   @override
   State<Detail> createState() => _DetailState();
 }
@@ -97,6 +98,7 @@ class _DetailState extends State<Detail> {
                     Get.to(
                         Checkout(
                           data: widget.data,
+                          where: widget.where,
                         ),
                         transition: Transition.rightToLeft);
                   },
@@ -135,7 +137,9 @@ class _DetailState extends State<Detail> {
               expandedHeight: width / 1.1,
               flexibleSpace: FlexibleSpaceBar(
                 background: Image.network(
-                  widget.data.fotoBarang,
+                  widget.where == null
+                      ? widget.data.fotoBarang
+                      : widget.data.item.fotoBarang,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -176,7 +180,9 @@ class _DetailState extends State<Detail> {
                         children: [
                           Flexible(
                             child: Text(
-                              widget.data.namaBarang,
+                              widget.where == null
+                                  ? widget.data.namaBarang
+                                  : widget.data.item.namaBarang,
                               style: TextStyle(
                                   fontSize: width / 18,
                                   fontFamily: "popinsemi"),
@@ -206,7 +212,10 @@ class _DetailState extends State<Detail> {
                               _infoBarang(
                                   width,
                                   CurrencyFormat.convertToIdr(
-                                      widget.data.harga, 0),
+                                      widget.where == null
+                                          ? widget.data.harga
+                                          : widget.data.item.harga,
+                                      0),
                                   Iconsax.dollar_square),
                               SizedBox(
                                 height: width / 60,
@@ -230,7 +239,9 @@ class _DetailState extends State<Detail> {
                         height: width / 40,
                       ),
                       Text(
-                        widget.data.deskripsi,
+                        widget.where == null
+                            ? widget.data.deskripsi
+                            : widget.data.item.deskripsi,
                         style: TextStyle(fontSize: width / 30),
                       ),
                       SizedBox(

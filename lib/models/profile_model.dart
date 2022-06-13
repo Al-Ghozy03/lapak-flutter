@@ -31,10 +31,10 @@ class Data {
         required this.email,
         required this.password,
         required this.phone,
-        required this.storeId,
         required this.alamat,
         required this.photoProfile,
         required this.hasStore,
+        required this.storeId,
         required this.createdAt,
         required this.updatedAt,
     });
@@ -44,10 +44,10 @@ class Data {
     String email;
     String password;
     String phone;
-    int? storeId;
     String alamat;
     dynamic photoProfile;
     bool hasStore;
+    dynamic storeId;
     DateTime createdAt;
     DateTime updatedAt;
 
@@ -57,10 +57,10 @@ class Data {
         email: json["email"],
         password: json["password"],
         phone: json["phone"],
-        storeId: json["store_id"],
         alamat: json["alamat"],
         photoProfile: json["photo_profile"],
         hasStore: json["hasStore"],
+        storeId: json["store_id"],
         createdAt: DateTime.parse(json["createdAt"]),
         updatedAt: DateTime.parse(json["updatedAt"]),
     );
@@ -71,9 +71,10 @@ class Data {
         "email": email,
         "password": password,
         "phone": phone,
-        "store_id": storeId,
         "alamat": alamat,
         "photo_profile": photoProfile,
+        "hasStore": hasStore,
+        "store_id": storeId,
         "createdAt": createdAt.toIso8601String(),
         "updatedAt": updatedAt.toIso8601String(),
     };

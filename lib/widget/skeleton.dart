@@ -32,7 +32,7 @@ class Skeleton extends StatelessWidget {
             height: height / 5,
             radius: width / 20,
             highlightColor: Colors.grey.withOpacity(0.5),
-            baseColor: Colors.grey.withOpacity(0.3),
+            baseColor: Colors.grey.withOpacity(0.2),
           ),
           SizedBox(
             height: width / 30,
@@ -41,7 +41,7 @@ class Skeleton extends StatelessWidget {
             margin: EdgeInsets.symmetric(horizontal: width / 30),
             height: height / 50,
             decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(width)),
           )
         ],

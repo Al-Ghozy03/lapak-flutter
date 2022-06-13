@@ -1,5 +1,7 @@
 // ignore_for_file: unused_local_variable, avoid_print
 
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:lapak/models/cart_model.dart';
 import 'package:lapak/models/diskon_model.dart';
@@ -7,6 +9,7 @@ import 'package:lapak/models/kategori_model.dart';
 import 'package:lapak/models/list_chat_model.dart';
 import 'package:lapak/models/notif_model.dart';
 import 'package:lapak/models/pesanan_model.dart';
+import 'package:lapak/models/pesanan_model_null.dart';
 import 'package:lapak/models/profile_model.dart';
 import 'package:lapak/models/rekomendasi_model.dart';
 import 'package:lapak/models/search_model.dart';
@@ -20,7 +23,6 @@ Map<String, String> headers = {
 };
 
 class ApiService {
-
   Future getDiskon(String order) async {
     Uri url = Uri.parse("$baseUrl/barang/diskon-30?orderBy=$order");
     SharedPreferences storage = await SharedPreferences.getInstance();
@@ -32,6 +34,7 @@ class ApiService {
       print(res.statusCode);
     }
   }
+
   Future getNotification() async {
     Uri url = Uri.parse("$baseUrl/checkout/notif");
     SharedPreferences storage = await SharedPreferences.getInstance();
@@ -44,6 +47,7 @@ class ApiService {
       print(res.body);
     }
   }
+
   Future getListChat() async {
     Uri url = Uri.parse("$baseUrl/chat/list-chat");
     SharedPreferences storage = await SharedPreferences.getInstance();
@@ -62,7 +66,9 @@ class ApiService {
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
-      return pesananFromJson(res.body);
+      var data = jsonDecode(res.body)["data"];
+      if (data[0]["item"] == null) return pesananModelNullFromJson(res.body);
+      return pesananModelFromJson(res.body);
     } else {
       print(res.statusCode);
     }
