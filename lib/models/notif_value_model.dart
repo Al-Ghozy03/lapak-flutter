@@ -6,7 +6,8 @@ class Notif {
       required this.createdAt,
       required this.message,
       required this.to,
-      required this.name});
+      required this.name,
+      required this.isRead});
   int? id;
   int from;
   String message;
@@ -14,4 +15,5 @@ class Notif {
   String name;
   DateTime createdAt;
   int to;
+  bool isRead;
 }

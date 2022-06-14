@@ -137,9 +137,7 @@ class _DetailState extends State<Detail> {
               expandedHeight: width / 1.1,
               flexibleSpace: FlexibleSpaceBar(
                 background: Image.network(
-                  widget.where == null
-                      ? widget.data.fotoBarang
-                      : widget.data.item.fotoBarang,
+                  widget.data.fotoBarang,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -180,9 +178,7 @@ class _DetailState extends State<Detail> {
                         children: [
                           Flexible(
                             child: Text(
-                              widget.where == null
-                                  ? widget.data.namaBarang
-                                  : widget.data.item.namaBarang,
+                              widget.data.namaBarang,
                               style: TextStyle(
                                   fontSize: width / 18,
                                   fontFamily: "popinsemi"),
@@ -212,10 +208,7 @@ class _DetailState extends State<Detail> {
                               _infoBarang(
                                   width,
                                   CurrencyFormat.convertToIdr(
-                                      widget.where == null
-                                          ? widget.data.harga
-                                          : widget.data.item.harga,
-                                      0),
+                                      widget.data.harga, 0),
                                   Iconsax.dollar_square),
                               SizedBox(
                                 height: width / 60,
@@ -239,9 +232,7 @@ class _DetailState extends State<Detail> {
                         height: width / 40,
                       ),
                       Text(
-                        widget.where == null
-                            ? widget.data.deskripsi
-                            : widget.data.item.deskripsi,
+                        widget.data.deskripsi,
                         style: TextStyle(fontSize: width / 30),
                       ),
                       SizedBox(

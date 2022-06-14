@@ -234,7 +234,7 @@ class _CheckoutState extends State<Checkout> {
                   height: width / 25,
                 ),
                 _paymentInfo(width, "Harga barang",
-                    CurrencyFormat.convertToIdr(widget.where == null? widget.data.harga:widget.data.item.harga, 0)),
+                    CurrencyFormat.convertToIdr(widget.data.harga, 0)),
                 SizedBox(
                   height: width / 50,
                 ),
@@ -243,7 +243,7 @@ class _CheckoutState extends State<Checkout> {
                   height: width / 50,
                 ),
                 _paymentInfo(width, "Total Harga",
-                    CurrencyFormat.convertToIdr(widget.where == null? widget.data.harga:widget.data.item.harga * total, 0)),
+                    CurrencyFormat.convertToIdr(widget.data.harga, 0)),
                 SizedBox(
                   height: width / 4,
                 ),
@@ -303,7 +303,7 @@ class _CheckoutState extends State<Checkout> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(width / 30),
               image: DecorationImage(
-                  image: NetworkImage(widget.where == null? widget.data.fotoBarang:widget.data.item.fotoBarang),
+                  image: NetworkImage(widget.data.fotoBarang),
                   fit: BoxFit.cover)),
         ),
         SizedBox(
@@ -314,13 +314,11 @@ class _CheckoutState extends State<Checkout> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.where == null
-                    ? widget.data.namaBarang
-                    : widget.data.item.namaBarang,
+                widget.data.namaBarang,
                 style: TextStyle(fontSize: width / 23, fontFamily: "popinsemi"),
               ),
               Text(
-                CurrencyFormat.convertToIdr(widget.where == null? widget.data.harga:widget.data.item.harga, 0),
+                CurrencyFormat.convertToIdr(widget.data.harga, 0),
                 style: TextStyle(color: grayText, fontSize: width / 35),
               ),
               Container(

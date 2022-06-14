@@ -1,14 +1,15 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, must_be_immutable, use_key_in_widget_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, must_be_immutable, use_key_in_widget_constructors, avoid_print
 
 import 'dart:async';
 
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
+import 'package:lapak/models/detail_model.dart';
 import 'package:lapak/models/kategori_model.dart';
-import 'package:lapak/pages/detail.dart';
+import 'package:lapak/style/color.dart';
+import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/custom_card.dart';
 import 'package:lapak/widget/skeleton.dart';
 
@@ -65,9 +66,9 @@ class _KategoriPageState extends State<KategoriPage> {
                       setState(() {
                         selectedValue = newValue!;
                       });
-                      if(selectedValue == "Harga terendah"){
+                      if (selectedValue == "Harga terendah") {
                         changeFilter("asc");
-                      }else{
+                      } else {
                         changeFilter("desc");
                       }
                     },
@@ -91,8 +92,10 @@ class _KategoriPageState extends State<KategoriPage> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 2,
                       children: [
-                        Skeleton(
-                        )
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
                       ],
                     );
                   } else if (snapshot.hasError) {
@@ -101,11 +104,26 @@ class _KategoriPageState extends State<KategoriPage> {
                     if (snapshot.hasData) {
                       if (snapshot.data.data.length == 0) {
                         return Center(
-                          child: Text(
-                            "Kosong",
-                            style: TextStyle(fontSize: width / 20),
-                          ),
-                        );
+                            child: Column(
+                          children: [
+                            Image.asset(
+                              "assets/empty-folder.png",
+                              height: width / 1.5,
+                            ),
+                            Text(
+                              "Barang kosong",
+                              style: TextStyle(
+                                  fontSize: width / 20,
+                                  fontFamily: "popinsemi",
+                                  color: grayText),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              height: width / 1.9,
+                            ),
+                            Attribute()
+                          ],
+                        ));
                       }
                       return _card(width, snapshot.data);
                     } else {
@@ -113,7 +131,7 @@ class _KategoriPageState extends State<KategoriPage> {
                     }
                   }
                 },
-              )
+              ),
             ],
           ),
         ),
@@ -126,16 +144,20 @@ class _KategoriPageState extends State<KategoriPage> {
       crossAxisCount: 2,
       mainAxisSpacing: 2,
       children: kategori.data.map((data) {
-        return OpenContainer(
-          openBuilder: (context, action) {
-            return Detail(
-              data: data,
-            );
-          },
-          closedBuilder: (context, action) {
-            return CustomCard(data: data,where: "");
-          },
-        );
+        var value = DetailModel(
+            id: data.item.id,
+            storeId: data.id,
+            owner: data.owner,
+            namaToko: data.namaToko,
+            daerah: data.daerah,
+            fotoToko: data.fotoToko,
+            namaBarang: data.item.namaBarang,
+            harga: data.item.harga,
+            deskripsi: data.item.deskripsi,
+            kategori: data.item.kategori,
+            fotoBarang: data.item.fotoBarang,
+            diskon: data.item.diskon);
+        return CustomCard(data: value, where: "kategori");
       }).toList(),
     );
   }

@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:async/async.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -62,26 +63,32 @@ class _UpdateBarangState extends State<UpdateBarang> {
     req.fields["nama_barang"] = namaBarang.text;
     req.fields["harga"] = harga.text;
     req.fields["deskripsi"] = deskripsi.text;
-    req.fields["diskon"] = diskon.text == "" ? null.toString() : diskon.text;
+    req.fields["diskon"] = diskon.text.isEmpty ? 0.toString() : diskon.text;
     req.fields["kategori"] = selectedValue.toString();
     req.headers["Authorization"] = "Bearer ${storage.getString("token")}";
 
-    final res = await req.send();
-
-    if (res.statusCode == 200) {
-      setState(() {
-        isLoading = false;
+    await req.send().then((result) async {
+      http.Response.fromStream(result).then((res) {
+        if (res.statusCode == 200) {
+          setState(() {
+            isLoading = false;
+          });
+          Get.back();
+          return true;
+        } else {
+          setState(() {
+            isLoading = false;
+          });
+          print(res.statusCode);
+          print(res.body);
+          Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
+              snackPosition: SnackPosition.BOTTOM,
+              leftBarIndicatorColor: Colors.red,
+              backgroundColor: Colors.red.withOpacity(0.3));
+          return false;
+        }
       });
-      Navigator.of(context).pop();
-      return true;
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-      print(res.statusCode);
-      print(res.request);
-      return false;
-    }
+    });
   }
 
   @override

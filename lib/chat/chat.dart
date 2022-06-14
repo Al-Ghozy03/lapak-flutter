@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:iconsax/iconsax.dart';
@@ -10,6 +11,7 @@ import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/chat_model.dart';
 import 'package:lapak/models/message_model.dart';
+import 'package:lapak/style/color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as Io;
 import 'package:http/http.dart' as http;
@@ -27,6 +29,7 @@ class _ChatPageState extends State<ChatPage> {
   late Future getListMessage;
   List<ChatModel> messageList = [];
   ChatModel? chatModel;
+  bool isLoading = false;
   ScrollController scrollController = ScrollController();
 
   Future listMessage(String roomCode) async {
@@ -44,6 +47,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future sendMessage() async {
+    setState(() {
+      isLoading = true;
+    });
     Uri url = Uri.parse("$baseUrl/chat/send-message");
     SharedPreferences storage = await SharedPreferences.getInstance();
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
@@ -66,6 +72,7 @@ class _ChatPageState extends State<ChatPage> {
       socket.on("received_message", (data) {
         print(data);
         setStateIfMounted(() {
+          isLoading = false;
           messageList.add(ChatModel(
               id: jsonDecode(res.body)["data"]["id"],
               from: data["from"],
@@ -84,6 +91,9 @@ class _ChatPageState extends State<ChatPage> {
           duration: Duration(milliseconds: 400), curve: Curves.easeOut);
       return true;
     } else {
+      setState(() {
+        isLoading = false;
+      });
       print(res.statusCode);
       return false;
     }
@@ -104,7 +114,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void connectSocket() {
-    socket.onConnect((data) => print("connect $data, ${socket.json}"));
+    socket.onConnect((data) => print("connect"));
     socket.onConnectError((data) => print("error $data"));
     socket.onDisconnect((data) => print("disconnect"));
   }
@@ -162,25 +172,37 @@ class _ChatPageState extends State<ChatPage> {
           future: getProfile,
           builder: (context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
-              return Text("loading");
+              return _loadingState(width);
             } else if (snapshot.hasError) {
               return Text("terjadi kesalahan");
             } else {
               if (snapshot.hasData) {
                 return Row(
                   children: [
-                    CircleAvatar(),
+                    snapshot.data.data.photoProfile == null
+                        ? CircleAvatar(
+                            backgroundColor: grayBorder,
+                            child: Icon(
+                              Iconsax.user,
+                              color: grayText,
+                            ),
+                          )
+                        : CircleAvatar(
+                            backgroundColor: grayBorder,
+                            backgroundImage:
+                                NetworkImage(snapshot.data.data.photoProfile),
+                          ),
                     SizedBox(
                       width: width / 40,
                     ),
                     Text(
-                      snapshot.data.data.name.length >= 22
-                          ? "${snapshot.data.data.name.substring(0, 10)}..."
-                          : snapshot.data.data.name,
+                      snapshot.data.data.name,
                       style: TextStyle(
                           color: Colors.black,
                           fontFamily: "popinsemi",
                           fontSize: width / 20),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     )
                   ],
                 );
@@ -228,12 +250,49 @@ class _ChatPageState extends State<ChatPage> {
                 },
               ),
             )),
-            _sendArea(width)
+            _sendArea(width, isLoading)
           ],
         ),
       )),
     );
   }
+    Widget _loadingState(width) {
+    return Row(
+      children: [
+        FadeShimmer.round(
+          size: width / 9,
+          baseColor: Colors.grey.withOpacity(0.2),
+          highlightColor: Colors.grey.withOpacity(0.5),
+        ),
+        SizedBox(
+          width: width / 30,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FadeShimmer(
+              radius: width / 20,
+              width: width / 2,
+              height: width / 40,
+              baseColor: Colors.grey.withOpacity(0.2),
+              highlightColor: Colors.grey.withOpacity(0.5),
+            ),
+            SizedBox(
+              height: width / 70,
+            ),
+            FadeShimmer(
+              radius: width / 20,
+              width: width / 4,
+              height: width / 40,
+              baseColor: Colors.grey.withOpacity(0.2),
+              highlightColor: Colors.grey.withOpacity(0.5),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
 
   Widget _messageFromOther(width, message) {
     return Container(
@@ -269,7 +328,7 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _sendArea(width) {
+  Widget _sendArea(width, bool isLoading) {
     return Row(
       children: [
         Expanded(
@@ -285,12 +344,15 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
         ),
-        IconButton(
-          onPressed: () {
-            sendMessage();
-          },
-          icon: Icon(Iconsax.send_1),
-        )
+        isLoading
+            ? Transform.scale(
+                scale: width / 600, child: CircularProgressIndicator(color: grayText,))
+            : IconButton(
+                onPressed: () {
+                  sendMessage();
+                },
+                icon: Icon(Iconsax.send_1),
+              )
       ],
     );
   }

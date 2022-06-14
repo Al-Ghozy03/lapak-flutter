@@ -12,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
+import 'package:lapak/widget/attribute.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -76,6 +77,10 @@ class _CreateStoreState extends State<CreateStore> {
               });
               print(res.statusCode);
               print(res.body);
+              Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
+                  snackPosition: SnackPosition.BOTTOM,
+                  leftBarIndicatorColor: Colors.red,
+                  backgroundColor: Colors.red.withOpacity(0.3));
               return false;
             }
           })
@@ -205,7 +210,11 @@ class _CreateStoreState extends State<CreateStore> {
                             style: TextStyle(
                                 fontSize: width / 20, fontFamily: "popinsemi"),
                           )),
-              )
+              ),
+              SizedBox(
+                height: width / 20,
+              ),
+              Attribute()
             ],
           ),
         ),

@@ -27,55 +27,79 @@ class Kategori {
 class Datum {
     Datum({
         required this.id,
-        required this.storeId,
         required this.owner,
         required this.namaToko,
         required this.daerah,
         required this.fotoToko,
+        required this.item,
+    });
+
+    int id;
+    int owner;
+    String namaToko;
+    String daerah;
+    String fotoToko;
+    Item item;
+
+    factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+        id: json["id"],
+        owner: json["owner"],
+        namaToko: json["nama_toko"],
+        daerah: json["daerah"],
+        fotoToko: json["foto_toko"],
+        item: Item.fromJson(json["item"]),
+    );
+
+    Map<String, dynamic> toJson() => {
+        "id": id,
+        "owner": owner,
+        "nama_toko": namaToko,
+        "daerah": daerah,
+        "foto_toko": fotoToko,
+        "item": item.toJson(),
+    };
+}
+
+class Item {
+    Item({
+        required this.id,
+        required this.storeId,
         required this.namaBarang,
         required this.harga,
         required this.deskripsi,
         required this.kategori,
+        required this.diskon,
         required this.fotoBarang,
     });
 
     int id;
     int storeId;
-    int owner;
-    String namaToko;
-    String daerah;
-    String fotoToko;
     String namaBarang;
     int harga;
     String deskripsi;
     String kategori;
+    int diskon;
     String fotoBarang;
 
-    factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+    factory Item.fromJson(Map<String, dynamic> json) => Item(
         id: json["id"],
         storeId: json["store_id"],
-        owner: json["owner"],
-        namaToko: json["nama_toko"],
-        daerah: json["daerah"],
-        fotoToko: json["foto_toko"],
         namaBarang: json["nama_barang"],
         harga: json["harga"],
         deskripsi: json["deskripsi"],
         kategori: json["kategori"],
+        diskon: json["diskon"],
         fotoBarang: json["foto_barang"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
         "store_id": storeId,
-        "owner": owner,
-        "nama_toko": namaToko,
-        "daerah": daerah,
-        "foto_toko": fotoToko,
         "nama_barang": namaBarang,
         "harga": harga,
         "deskripsi": deskripsi,
         "kategori": kategori,
+        "diskon": diskon,
         "foto_barang": fotoBarang,
     };
 }

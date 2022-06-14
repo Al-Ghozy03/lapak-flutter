@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
+import 'package:lapak/models/detail_model.dart';
 import 'package:lapak/models/pesanan_model.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/custom_card.dart';
+import 'package:lapak/widget/skeleton.dart';
 
 class PesananPage extends StatefulWidget {
   const PesananPage({Key? key}) : super(key: key);
@@ -17,10 +19,10 @@ class PesananPage extends StatefulWidget {
 }
 
 class _PesananPageState extends State<PesananPage> {
-  late Future getPesanan;
+  late Stream getPesanan;
   @override
   void initState() {
-    getPesanan = ApiService().getPesanan();
+    getPesanan = Stream.periodic(Duration(seconds: 20)).asyncMap((event) => ApiService().getPesanan());
     super.initState();
   }
 
@@ -35,20 +37,26 @@ class _PesananPageState extends State<PesananPage> {
             child: Column(
               children: [
                 _header(width),
-                FutureBuilder(
-                  future: getPesanan,
+                StreamBuilder(
+                  stream: getPesanan,
                   builder: (context, AsyncSnapshot snapshot) {
-                    if (snapshot.connectionState != ConnectionState.done) {
-                      return Text("loading");
+                    if (snapshot.connectionState != ConnectionState.active) {
+                      return StaggeredGrid.count(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 2,
+                        children: [
+                          Skeleton(),
+                          Skeleton(),
+                          Skeleton(),
+                          Skeleton(),
+                          Skeleton(),
+                          Skeleton(),
+                        ],
+                      );
                     } else if (snapshot.hasError) {
                       return Text("terjadi kesalahan");
                     } else {
                       if (snapshot.hasData) {
-                        if (snapshot.data.data[0].item == null)
-                          return Center(
-                            child: Text("kosong"),
-                          );
-
                         return _builder(snapshot.data, width);
                       } else {
                         return Text("kosong");
@@ -66,19 +74,51 @@ class _PesananPageState extends State<PesananPage> {
 
   Widget _builder(PesananModel pesanan, width) {
     if (pesanan.data.isEmpty) {
-      return Center(
-        child: Text("kosong"),
+      return Container(
+        margin: EdgeInsets.symmetric(vertical: width / 3),
+        child: Column(
+          children: [
+            Image.asset(
+              "assets/note.png",
+              height: width / 2.3,
+            ),
+            Text(
+              "Kamu tidak barang yang dipesan",
+              style: TextStyle(
+                  fontSize: width / 20,
+                  fontFamily: "popinsemi",
+                  color: grayText),
+              textAlign: TextAlign.center,
+            )
+          ],
+        ),
       );
     } else {
       return StaggeredGrid.count(
         crossAxisCount: 2,
         mainAxisSpacing: 2,
-        children: pesanan.data
-            .map((data) => CustomCard(
-                  data: data,
-                  where: "pesanan",
-                ))
-            .toList(),
+        children: pesanan.data.map((data) {
+          var value = DetailModel(
+              id: data.item.orderBarang.id,
+              storeId: data.id,
+              owner: data.owner,
+              namaToko: data.namaToko,
+              daerah: data.daerah,
+              fotoToko: data.fotoToko,
+              namaBarang: data.item.namaBarang,
+              harga: data.item.harga,
+              deskripsi: data.item.deskripsi,
+              kategori: data.item.kategori,
+              fotoBarang: data.item.fotoBarang,
+              diskon: data.item.diskon,
+              totalBarang: data.item.orderBarang.totalBarang,
+              totalHarga: int.parse(data.item.orderBarang.totalHarga),
+              alamat: data.item.orderBarang.alamat);
+          return CustomCard(
+            data: value,
+            where: "pesanan",
+          );
+        }).toList(),
       );
     }
   }

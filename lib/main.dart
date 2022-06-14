@@ -6,6 +6,7 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/pages/auth/login.dart';
 import 'package:lapak/pages/dashboard.dart';
+import 'package:lapak/pages/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -23,6 +24,24 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+        title: "Lapak Online Shop",
+        theme: ThemeData(fontFamily: "popin"),
+        debugShowCheckedModeBanner: false,
+        home: SplashScreen());
+  }
+}
+
+class Decision extends StatefulWidget {
+  const Decision({super.key});
+
+  @override
+  State<Decision> createState() => _DecisionState();
+}
+
+class _DecisionState extends State<Decision> {
   var token;
   void getToken() async {
     SharedPreferences storage = await SharedPreferences.getInstance();
@@ -30,6 +49,7 @@ class _MyAppState extends State<MyApp> {
       token = storage.getString("token");
     });
   }
+
 
   @override
   void initState() {
@@ -39,11 +59,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: "Lapak Online Shop",
-      theme: ThemeData(fontFamily: "popin"),
-      debugShowCheckedModeBanner: false,
-      home: token == null ? Login() : Dashboard(),
+    return Scaffold(
+      body: token == null ? Login() : Dashboard(),
     );
   }
 }

@@ -1,10 +1,14 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, must_be_immutable, use_key_in_widget_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, must_be_immutable, use_key_in_widget_constructors, curly_braces_in_flow_control_structures
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/diskon_model.dart';
+import 'package:lapak/style/color.dart';
+import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/custom_card.dart';
 import 'package:lapak/widget/skeleton.dart';
 
@@ -16,12 +20,15 @@ class DiskonPage extends StatefulWidget {
 class _DiskonPageState extends State<DiskonPage> {
   String? selectedValue;
   List<String> dropDownChoice = ["Harga tertinggi", "Harga terendah"];
-  List kategori = ["", "", "", ""];
   late Future getDiskon;
   @override
   void initState() {
     getDiskon = ApiService().getDiskon("asc");
     super.initState();
+  }
+
+  FutureOr changeFilter(String value) {
+    getDiskon = ApiService().getDiskon(value);
   }
 
   @override
@@ -54,6 +61,11 @@ class _DiskonPageState extends State<DiskonPage> {
                       setState(() {
                         selectedValue = newValue!;
                       });
+                      if (selectedValue == "Harga terendah") {
+                        changeFilter("asc");
+                      } else {
+                        changeFilter("desc");
+                      }
                     },
                     items: dropDownChoice.map((e) {
                       return DropdownMenuItem(
@@ -88,6 +100,28 @@ class _DiskonPageState extends State<DiskonPage> {
                     );
                   } else {
                     if (snapshot.hasData) {
+                      if (snapshot.data.data.length == 0)
+                        return Center(
+                            child: Column(
+                          children: [
+                            Image.asset(
+                              "assets/empty-folder.png",
+                              height: width / 1.5,
+                            ),
+                            Text(
+                              "Barang kosong",
+                              style: TextStyle(
+                                  fontSize: width / 20,
+                                  fontFamily: "popinsemi",
+                                  color: grayText),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              height: width / 1.9,
+                            ),
+                            Attribute()
+                          ],
+                        ));
                       return _card(width, snapshot.data);
                     } else {
                       return Center(

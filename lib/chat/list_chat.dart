@@ -52,7 +52,7 @@ class _ListChatPageState extends State<ListChatPage> {
             children: [
               _header(width),
               SizedBox(
-                height: width / 30,
+                height: width / 12,
               ),
               _listBuilder(width, height)
             ],

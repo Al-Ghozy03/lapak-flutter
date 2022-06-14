@@ -1,10 +1,11 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/pages/store/create_store.dart';
 import 'package:lapak/style/color.dart';
+import 'package:lapak/widget/attribute.dart';
 
 class EmptyStore extends StatelessWidget {
   const EmptyStore({Key? key}) : super(key: key);
@@ -42,7 +43,7 @@ class EmptyStore extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(width / 40))),
                   onPressed: () {
-                    Get.to(CreateStore(),transition: Transition.rightToLeft);
+                    Get.off(CreateStore(), transition: Transition.rightToLeft);
                   },
                   child: Text(
                     "Buat toko",
@@ -52,11 +53,15 @@ class EmptyStore extends StatelessWidget {
                         fontFamily: "popinsemi"),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
       )),
+      bottomNavigationBar: Container(
+        height: width / 6,
+        child: Attribute(),
+      ),
     );
   }
 

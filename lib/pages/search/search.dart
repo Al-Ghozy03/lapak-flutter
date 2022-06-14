@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:lapak/api/api_service.dart';
 import 'package:lapak/pages/search/search_result.dart';
 
 class SearchPage extends StatefulWidget {
@@ -13,6 +14,12 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  late Future value;
+@override
+  void initState() {
+    value = ApiService().getPesanan();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -40,9 +47,11 @@ class _SearchPageState extends State<SearchPage> {
                         if (value.isEmpty) {
                           return;
                         } else {
-                          Get.to(SearchResult(
-                            search: value,
-                          ),transition: Transition.rightToLeft);
+                          Get.to(
+                              SearchResult(
+                                search: value,
+                              ),
+                              transition: Transition.rightToLeft);
                         }
                       },
                       style: TextStyle(fontSize: width / 30),
@@ -61,7 +70,6 @@ class _SearchPageState extends State<SearchPage> {
               SizedBox(
                 height: width / 30,
               ),
-              _searchResult(width),
             ],
           ),
         ),
@@ -69,17 +77,17 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _searchResult(width) {
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Color.fromARGB(255, 230, 230, 230),
-        child: Icon(
-          Iconsax.search_normal_1,
-          size: width / 20,
-          color: Colors.grey,
-        ),
-      ),
-      title: Text("sepatu bekas"),
-    );
-  }
+  // Widget _searchResult(width) {
+  //   return ListTile(
+  //     leading: CircleAvatar(
+  //       backgroundColor: Color.fromARGB(255, 230, 230, 230),
+  //       child: Icon(
+  //         Iconsax.search_normal_1,
+  //         size: width / 20,
+  //         color: Colors.grey,
+  //       ),
+  //     ),
+  //     title: Text("sepatu bekas"),
+  //   );
+  // }
 }

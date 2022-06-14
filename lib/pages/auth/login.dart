@@ -56,6 +56,10 @@ class _LoginState extends State<Login> {
         isLoading = false;
         errorMessage = jsonDecode(res.body)["message"];
       });
+      Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
+          snackPosition: SnackPosition.BOTTOM,
+          leftBarIndicatorColor: Colors.red,
+          backgroundColor: Colors.red.withOpacity(0.3));
     }
   }
 
@@ -92,7 +96,7 @@ class _LoginState extends State<Login> {
               Center(
                 child: InkWell(
                   onTap: () =>
-                      Get.off(Register(), transition: Transition.rightToLeft),
+                      Get.to(Register(), transition: Transition.rightToLeft),
                   child: RichText(
                       text: TextSpan(
                           style: TextStyle(

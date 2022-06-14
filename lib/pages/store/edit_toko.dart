@@ -73,6 +73,14 @@ class _EditTokoState extends State<EditToko> {
           });
           print(res.statusCode);
           print(res.body);
+          Get.snackbar(
+                      "Gagal",
+                      "terjadi kesalahan, silahkan coba lagi",
+                      snackPosition: SnackPosition.BOTTOM,
+                      leftBarIndicatorColor: Colors.red,
+                      backgroundColor:Colors.red.withOpacity(0.3) 
+                    );
+                    return false;
         }
       });
     });

@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CustomCard extends StatefulWidget {
   CustomCard({Key? key, required this.data, this.where}) : super(key: key);
   final data;
-  String? where;
+  var where;
 
   @override
   State<CustomCard> createState() => _CustomCardState();
@@ -52,6 +52,11 @@ class _CustomCardState extends State<CustomCard> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return OpenContainer(
@@ -63,6 +68,7 @@ class _CustomCardState extends State<CustomCard> {
         }
         return Detail(
           data: widget.data,
+          where: widget.where,
         );
       },
       closedBuilder: (context, action) {
@@ -93,9 +99,7 @@ class _CustomCardState extends State<CustomCard> {
                               topLeft: Radius.circular(width / 25),
                               topRight: Radius.circular(width / 25)),
                           image: DecorationImage(
-                              image: NetworkImage(widget.where != "pesanan"
-                                  ? widget.data.fotoBarang
-                                  : widget.data.item.fotoBarang),
+                              image: NetworkImage(widget.data.fotoBarang),
                               fit: BoxFit.cover)),
                     ),
                     widget.where != "pesanan"
@@ -110,14 +114,15 @@ class _CustomCardState extends State<CustomCard> {
                                   color: Colors.black.withOpacity(0.5)),
                               child: IconButton(
                                 onPressed: () {
-                                  if (widget.where == "") {
-                                    addToCart(widget.data.id);
-                                  } else {
+                                  if (widget.where == "cart") {
                                     deleteFromCart(widget.data.id);
+                                  } else {
+                                    addToCart( widget.data.id);
                                   }
                                 },
                                 icon: Icon(
-                                  widget.where == ""
+                                  widget.where == "" ||
+                                          widget.where == "kategori"
                                       ? Iconsax.shop_add
                                       : Iconsax.trash,
                                   color: Colors.white,
@@ -158,9 +163,7 @@ class _CustomCardState extends State<CustomCard> {
                       children: [
                         Flexible(
                           child: Text(
-                            widget.where != "pesanan"
-                                ? widget.data.namaBarang
-                                : widget.data.item.namaBarang,
+                            widget.data.namaBarang,
                             style: TextStyle(
                               fontSize: width / 23,
                               fontFamily: "popinsemi",
@@ -170,11 +173,7 @@ class _CustomCardState extends State<CustomCard> {
                           ),
                         ),
                         Text(
-                          CurrencyFormat.convertToIdr(
-                              widget.where != "pesanan"
-                                  ? widget.data.harga
-                                  : widget.data.item.harga,
-                              0),
+                          CurrencyFormat.convertToIdr(widget.data.harga, 0),
                           style:
                               TextStyle(fontSize: width / 35, color: grayText),
                         ),

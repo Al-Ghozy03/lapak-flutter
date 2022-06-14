@@ -1,17 +1,17 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors, must_be_immutable, sized_box_for_whitespace, avoid_print, unused_field
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors, must_be_immutable, sized_box_for_whitespace, avoid_print, unused_field, curly_braces_in_flow_control_structures
 import 'dart:async';
 import 'dart:convert';
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
+import 'package:lapak/models/detail_model.dart';
 import 'package:lapak/models/search_model.dart';
-import 'package:lapak/pages/detail.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/rupiah_format.dart';
+import 'package:lapak/widget/attribute.dart';
+import 'package:lapak/widget/custom_card.dart';
 import 'package:lapak/widget/skeleton.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -28,7 +28,6 @@ class _SearchResultState extends State<SearchResult> {
   String? selectedValue;
   List<String> dropDownChoice = ["Harga tertinggi", "Harga terendah"];
   TextEditingController search = TextEditingController();
-  late Search _search;
   late Future getResult;
   int userId = 0;
   void getUserId() async {
@@ -148,6 +147,28 @@ class _SearchResultState extends State<SearchResult> {
                     );
                   } else {
                     if (snapshot.hasData) {
+                      if (snapshot.data.data.length == 0)
+                        return Center(
+                            child: Column(
+                          children: [
+                            Image.asset(
+                              "assets/empty-folder.png",
+                              height: width / 1.5,
+                            ),
+                            Text(
+                              "Barang kosong",
+                              style: TextStyle(
+                                  fontSize: width / 20,
+                                  fontFamily: "popinsemi",
+                                  color: grayText),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              height: width / 1.3,
+                            ),
+                            Attribute()
+                          ],
+                        ));
                       return Column(
                         children: [
                           Row(
@@ -205,129 +226,24 @@ class _SearchResultState extends State<SearchResult> {
       crossAxisCount: 2,
       mainAxisSpacing: 2,
       children: data.data.map((data) {
-        return _customCard(width, data);
+        var value = DetailModel(
+            id: data.item.id,
+            storeId: data.id,
+            owner: data.owner,
+            namaToko: data.namaToko,
+            daerah: data.daerah,
+            fotoToko: data.fotoToko,
+            namaBarang: data.item.namaBarang,
+            harga: data.item.harga,
+            deskripsi: data.item.deskripsi,
+            kategori: data.item.kategori,
+            fotoBarang: data.item.fotoBarang,
+            diskon: data.item.diskon);
+        return CustomCard(
+          data: value,
+          where: "",
+        );
       }).toList(),
-    );
-  }
-
-  Widget _customCard(width, data) {
-    return OpenContainer(
-      openBuilder: (context, action) {
-        return Detail(data: data,where: "search",);
-      },
-      closedBuilder: (context, action) {
-        return Container(
-            margin: EdgeInsets.all(10),
-            width: width / 2,
-            height: width / 1.5,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(width / 25),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: Offset(0, 3))
-                ]),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      width: width,
-                      height: width / 3,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(width / 25),
-                              topRight: Radius.circular(width / 25)),
-                          image: DecorationImage(
-                              image: NetworkImage(data.item.fotoBarang),
-                              fit: BoxFit.cover)),
-                    ),
-                    Positioned(
-                      top: width / 50,
-                      left: width / 3.2,
-                      child: Container(
-                        height: width / 12,
-                        width: width / 12,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(width),
-                            color: Colors.black.withOpacity(0.5)),
-                        child: IconButton(
-                          onPressed: () {
-                            if (data.owner == userId) {
-                              deleteBarang(data.item.id);
-                            } else {
-                              addToCart(data.item.id);
-                            }
-                          },
-                          icon: Icon(
-                            data.owner != userId
-                                ? Iconsax.shop_add
-                                : Iconsax.trash,
-                            color: Colors.white,
-                            size: width / 25,
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: width / 30, vertical: width / 50),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(data.fotoToko),
-                      ),
-                      SizedBox(
-                        width: width / 40,
-                      ),
-                      Text(
-                        data.namaToko.length >= 8
-                            ? "${data.namaToko.substring(0, 7)}..."
-                            : data.namaToko,
-                        style: TextStyle(
-                            fontFamily: "popinsemi", fontSize: width / 30),
-                      ),
-                    ],
-                  ),
-                ),
-                Flexible(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width / 30),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            data.item.namaBarang.length >= 15
-                                ? "${data.item.namaBarang.substring(0, 12)}..."
-                                : data.item.namaBarang,
-                            style: TextStyle(
-                                fontSize: width / 23, fontFamily: "popinsemi"),
-                          ),
-                        ),
-                        Text(
-                          CurrencyFormat.convertToIdr(data.item.harga, 0),
-                          style:
-                              TextStyle(fontSize: width / 35, color: grayText),
-                        ),
-                        Text(
-                          data.daerah,
-                          style:
-                              TextStyle(fontSize: width / 35, color: grayText),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ));
-      },
     );
   }
 }

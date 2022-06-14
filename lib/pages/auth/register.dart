@@ -73,14 +73,18 @@ class _RegisterState extends State<Register> {
       setState(() {
         isLoading = false;
         print(data["message"]);
-        if(data["message"] == "email sudah digunakan"){
+        if (data["message"] == "email sudah digunakan") {
           errorEmail = data["message"];
           errorPhone = "";
-        }else{
+        } else {
           errorPhone = data["message"];
           errorEmail = "";
         }
       });
+      Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
+          snackPosition: SnackPosition.BOTTOM,
+          leftBarIndicatorColor: Colors.red,
+          backgroundColor: Colors.red.withOpacity(0.3));
       return false;
     }
   }
@@ -241,6 +245,7 @@ class _RegisterState extends State<Register> {
         TextField(
           controller: phone,
           keyboardType: TextInputType.phone,
+          maxLength: 12,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
@@ -293,7 +298,7 @@ class _RegisterState extends State<Register> {
                   primary: blueTheme,
                   padding: EdgeInsets.symmetric(vertical: width / 67),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(width/50))),
+                      borderRadius: BorderRadius.circular(width / 50))),
               child: isLoading
                   ? CircularProgressIndicator(
                       color: Colors.white,

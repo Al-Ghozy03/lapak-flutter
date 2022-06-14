@@ -33,15 +33,17 @@ class Datum {
         required this.to,
         required this.createdAt,
         required this.photoProfile,
+        required this.isRead
     });
 
     int notifId;
     int from;
-    String name;
-    String message;
     int to;
+    String message;
+    String name;
     DateTime createdAt;
     dynamic photoProfile;
+    bool isRead;
 
     factory Datum.fromJson(Map<String, dynamic> json) => Datum(
         notifId: json["notif_id"],
@@ -51,6 +53,7 @@ class Datum {
         to: json["to"],
         createdAt: DateTime.parse(json["created_at"]),
         photoProfile: json["photo_profile"],
+        isRead: json["is_read"]
     );
 
     Map<String, dynamic> toJson() => {
@@ -59,6 +62,7 @@ class Datum {
         "name": name,
         "message": message,
         "to": to,
+        "is_read": isRead,
         "created_at": createdAt.toIso8601String(),
         "photo_profile": photoProfile,
     };

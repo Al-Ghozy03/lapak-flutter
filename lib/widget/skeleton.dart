@@ -11,6 +11,7 @@ class Skeleton extends StatelessWidget {
     return Container(
       margin:
           EdgeInsets.symmetric(horizontal: width / 40, vertical: width / 40),
+      padding: EdgeInsets.all(width / 40),
       height: height / 3,
       width: width,
       decoration: BoxDecoration(
@@ -29,21 +30,31 @@ class Skeleton extends StatelessWidget {
         children: [
           FadeShimmer(
             width: width,
-            height: height / 5,
-            radius: width / 20,
-            highlightColor: Colors.grey.withOpacity(0.5),
+            height: height / 6,
+            radius: width / 50,
             baseColor: Colors.grey.withOpacity(0.2),
+            highlightColor: Colors.grey.withOpacity(0.5),
           ),
           SizedBox(
             height: width / 30,
           ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: width / 30),
-            height: height / 50,
-            decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(width)),
-          )
+          FadeShimmer(
+            width: width,
+            height: height / 75,
+            radius: width,
+            baseColor: Colors.grey.withOpacity(0.2),
+            highlightColor: Colors.grey.withOpacity(0.5),
+          ),
+          SizedBox(
+            height: width / 50,
+          ),
+          FadeShimmer(
+            width: width / 5,
+            height: height / 75,
+            radius: width,
+            baseColor: Colors.grey.withOpacity(0.2),
+            highlightColor: Colors.grey.withOpacity(0.5),
+          ),
         ],
       ),
     );

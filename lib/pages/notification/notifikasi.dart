@@ -2,7 +2,9 @@
 
 import 'dart:convert';
 
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:iconsax/iconsax.dart';
@@ -10,6 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
+import 'package:lapak/models/notif_model.dart';
 import 'package:lapak/models/notif_value_model.dart';
 import 'package:lapak/style/color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,6 +29,7 @@ class Notifikasi extends StatefulWidget {
 class _NotifikasiState extends State<Notifikasi> {
   late Future getNotif;
   List<Notif> notif = [];
+  bool isLoading = false;
   void setStateIfAmount(f) {
     if (mounted) setState(f);
   }
@@ -47,6 +51,28 @@ class _NotifikasiState extends State<Notifikasi> {
     socket.onConnect((data) => print("connect"));
     socket.onConnectError((data) => print("error $data"));
     socket.onDisconnect((data) => print("disconnect"));
+  }
+
+  Future getNotification() async {
+    setState(() {
+      isLoading = true;
+    });
+    Uri url = Uri.parse("$baseUrl/checkout/notif");
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    headers["Authorization"] = "Bearer ${storage.getString("token")}";
+    final res = await http.get(url, headers: headers);
+    if (res.statusCode == 200) {
+      setState(() {
+        isLoading = false;
+      });
+      return notificationFromJson(res.body);
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      print(res.statusCode);
+      print(res.body);
+    }
   }
 
   Future generateCode(int id) async {
@@ -83,7 +109,7 @@ class _NotifikasiState extends State<Notifikasi> {
   void initState() {
     getUserId();
     connectSocket();
-    getNotif = ApiService().getNotification();
+    getNotif = getNotification();
     getNotif.then((value) {
       value.data.map((data) {
         setStateIfAmount(() {
@@ -94,9 +120,11 @@ class _NotifikasiState extends State<Notifikasi> {
               message: data.message,
               to: data.to,
               id: data.notifId,
-              createdAt: data.createdAt));
+              createdAt: data.createdAt,
+              isRead: data.isRead));
         });
       }).toList();
+      socket.emit("see_notif", userId);
     });
     super.initState();
   }
@@ -117,54 +145,58 @@ class _NotifikasiState extends State<Notifikasi> {
               SizedBox(
                 height: width / 25,
               ),
-              notif.isEmpty
-                  ? Container(
-                      margin: EdgeInsets.only(top: width / 6),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Image.asset(
-                              "assets/no-alarm.png",
-                              height: width / 1.6,
+              isLoading
+                  ? _loadingState(width)
+                  : notif.isEmpty
+                      ? Container(
+                          margin: EdgeInsets.only(top: width / 6),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Image.asset(
+                                  "assets/no-alarm.png",
+                                  height: width / 1.6,
+                                ),
+                                SizedBox(
+                                  height: width / 20,
+                                ),
+                                Text(
+                                  "Kamu tidak memiliki notifikasi apapun",
+                                  style: TextStyle(
+                                      fontSize: width / 20,
+                                      fontFamily: "popinsemi",
+                                      color: grayText),
+                                  textAlign: TextAlign.center,
+                                )
+                              ],
                             ),
-                            SizedBox(
-                              height: width / 20,
-                            ),
-                            Text(
-                              "Kamu tidak memiliki notifikasi apapun",
-                              style: TextStyle(
-                                  fontSize: width / 20,
-                                  fontFamily: "popinsemi",
-                                  color: grayText),
-                              textAlign: TextAlign.center,
-                            )
-                          ],
-                        ),
-                      ),
-                    )
-                  : Container(
-                      height: height,
-                      child: GroupedListView<dynamic, DateTime>(
-                        elements: notif,
-                        groupBy: (data) => DateTime(data.createdAt.year,
-                            data.createdAt.month, data.createdAt.day),
-                        groupSeparatorBuilder: (DateTime date) => Container(
-                          margin: EdgeInsets.symmetric(vertical: width / 60),
-                          child: Text(
-                            DateFormat.yMEd().format(date).toString() ==
-                                    DateFormat.yMEd().format(DateTime.now())
-                                ? "Hari ini"
-                                : DateFormat.yMEd().format(date).toString(),
-                            style: TextStyle(
-                                fontFamily: "popinsemi", fontSize: width / 27),
                           ),
-                        ),
-                        order: GroupedListOrder.DESC,
-                        itemBuilder: (context, dynamic data) {
-                          return _notifikasi(width, data);
-                        },
-                      ),
-                    )
+                        )
+                      : Container(
+                          height: height,
+                          child: GroupedListView<dynamic, DateTime>(
+                            elements: notif,
+                            groupBy: (data) => DateTime(data.createdAt.year,
+                                data.createdAt.month, data.createdAt.day),
+                            groupSeparatorBuilder: (DateTime date) => Container(
+                              margin:
+                                  EdgeInsets.symmetric(vertical: width / 60),
+                              child: Text(
+                                DateFormat.yMEd().format(date).toString() ==
+                                        DateFormat.yMEd().format(DateTime.now())
+                                    ? "Hari ini"
+                                    : DateFormat.yMEd().format(date).toString(),
+                                style: TextStyle(
+                                    fontFamily: "popinsemi",
+                                    fontSize: width / 27),
+                              ),
+                            ),
+                            order: GroupedListOrder.DESC,
+                            itemBuilder: (context, dynamic data) {
+                              return _notifikasi(width, data);
+                            },
+                          ),
+                        )
             ],
           ),
         )),
@@ -172,16 +204,170 @@ class _NotifikasiState extends State<Notifikasi> {
     );
   }
 
-  Widget _notifikasi(
-    width,
-    data,
-  ) {
+  Widget _loadingState(width) {
+    return StaggeredGrid.count(
+      crossAxisCount: 1,
+      mainAxisSpacing: width / 30,
+      children: [
+        Row(
+          children: [
+            FadeShimmer.round(
+              size: width / 7,
+              baseColor: Colors.grey.withOpacity(0.2),
+              highlightColor: Colors.grey.withOpacity(0.5),
+            ),
+            SizedBox(
+              width: width / 30,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FadeShimmer(
+                  radius: width / 20,
+                  width: width / 2,
+                  height: width / 40,
+                  baseColor: Colors.grey.withOpacity(0.2),
+                  highlightColor: Colors.grey.withOpacity(0.5),
+                ),
+                SizedBox(
+                  height: width / 70,
+                ),
+                FadeShimmer(
+                  radius: width / 20,
+                  width: width / 4,
+                  height: width / 40,
+                  baseColor: Colors.grey.withOpacity(0.2),
+                  highlightColor: Colors.grey.withOpacity(0.5),
+                ),
+              ],
+            )
+          ],
+        ),
+        Row(
+          children: [
+            FadeShimmer.round(
+              size: width / 7,
+              baseColor: Colors.grey.withOpacity(0.2),
+              highlightColor: Colors.grey.withOpacity(0.5),
+            ),
+            SizedBox(
+              width: width / 30,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FadeShimmer(
+                  radius: width / 20,
+                  width: width / 2,
+                  height: width / 40,
+                  baseColor: Colors.grey.withOpacity(0.2),
+                  highlightColor: Colors.grey.withOpacity(0.5),
+                ),
+                SizedBox(
+                  height: width / 70,
+                ),
+                FadeShimmer(
+                  radius: width / 20,
+                  width: width / 4,
+                  height: width / 40,
+                  baseColor: Colors.grey.withOpacity(0.2),
+                  highlightColor: Colors.grey.withOpacity(0.5),
+                ),
+              ],
+            )
+          ],
+        ),
+        Row(
+          children: [
+            FadeShimmer.round(
+              size: width / 7,
+              baseColor: Colors.grey.withOpacity(0.2),
+              highlightColor: Colors.grey.withOpacity(0.5),
+            ),
+            SizedBox(
+              width: width / 30,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FadeShimmer(
+                  radius: width / 20,
+                  width: width / 2,
+                  height: width / 40,
+                  baseColor: Colors.grey.withOpacity(0.2),
+                  highlightColor: Colors.grey.withOpacity(0.5),
+                ),
+                SizedBox(
+                  height: width / 70,
+                ),
+                FadeShimmer(
+                  radius: width / 20,
+                  width: width / 4,
+                  height: width / 40,
+                  baseColor: Colors.grey.withOpacity(0.2),
+                  highlightColor: Colors.grey.withOpacity(0.5),
+                ),
+              ],
+            )
+          ],
+        ),
+        Row(
+          children: [
+            FadeShimmer.round(
+              size: width / 7,
+              baseColor: Colors.grey.withOpacity(0.2),
+              highlightColor: Colors.grey.withOpacity(0.5),
+            ),
+            SizedBox(
+              width: width / 30,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FadeShimmer(
+                  radius: width / 20,
+                  width: width / 2,
+                  height: width / 40,
+                  baseColor: Colors.grey.withOpacity(0.2),
+                  highlightColor: Colors.grey.withOpacity(0.5),
+                ),
+                SizedBox(
+                  height: width / 70,
+                ),
+                FadeShimmer(
+                  radius: width / 20,
+                  width: width / 4,
+                  height: width / 40,
+                  baseColor: Colors.grey.withOpacity(0.2),
+                  highlightColor: Colors.grey.withOpacity(0.5),
+                ),
+              ],
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _notifikasi(width, data) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: width / 50),
       child: InkWell(
         onTap: () => generateCode(data.from),
         child: Row(
           children: [
+            !data.isRead
+                ? Align(
+                    alignment: Alignment.centerRight,
+                    child: CircleAvatar(
+                      minRadius: width / 80,
+                      maxRadius: width / 80,
+                    ),
+                  )
+                : Container(),
+            SizedBox(
+              width: width / 40,
+            ),
             data.photoProfile == null
                 ? CircleAvatar(
                     maxRadius: width / 17,
@@ -214,7 +400,7 @@ class _NotifikasiState extends State<Notifikasi> {
                         style: TextStyle(fontFamily: "popinsemi")),
                     TextSpan(text: " ${data.message}")
                   ])),
-            )
+            ),
           ],
         ),
       ),

@@ -13,7 +13,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
-import 'package:lapak/models/model_store.dart';
+import 'package:lapak/models/detail_model.dart';
 import 'package:lapak/models/store_model.dart';
 import 'package:lapak/pages/detail.dart';
 import 'package:lapak/pages/store/create_barang.dart';
@@ -47,11 +47,15 @@ class _TokoState extends State<Toko> {
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
     final res = await http.delete(url, headers: headers);
     if (res.statusCode == 200) {
-      print("berhasil hapus");
+      Get.back();
       return true;
     } else {
       print(res.statusCode);
       print("gagal");
+      Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
+          snackPosition: SnackPosition.BOTTOM,
+          leftBarIndicatorColor: Colors.red,
+          backgroundColor: Colors.red.withOpacity(0.3));
     }
   }
 
@@ -64,6 +68,8 @@ class _TokoState extends State<Toko> {
     });
   }
 
+  String orderBy = "";
+
   Future generateCode(int to) async {
     Uri url = Uri.parse("$baseUrl/chat/generate-code/$to");
     SharedPreferences storage = await SharedPreferences.getInstance();
@@ -71,9 +77,9 @@ class _TokoState extends State<Toko> {
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
       if (jsonDecode(res.body)["code"]["room_code"] != null) {
-        socket.emit("join_room",{
+        socket.emit("join_room", {
           "room_code": jsonDecode(res.body)["code"]["room_code"],
-          "from":userId
+          "from": userId
         });
         Get.to(
             ChatPage(
@@ -81,8 +87,8 @@ class _TokoState extends State<Toko> {
             transition: Transition.rightToLeft);
       } else {
         socket.emit("join_room", {
-          "room_code":jsonDecode(res.body)["code"]["code"],
-          "from":userId
+          "room_code": jsonDecode(res.body)["code"]["code"],
+          "from": userId
         });
         Get.to(ChatPage(to: to, roomCode: jsonDecode(res.body)["code"]["code"]),
             transition: Transition.rightToLeft);
@@ -96,8 +102,8 @@ class _TokoState extends State<Toko> {
   @override
   void initState() {
     getUserId();
-    getStore = Stream.periodic(Duration(seconds: 3))
-        .asyncMap((event) => ApiService().getStoreInfo(widget.storeId));
+    getStore = Stream.periodic(Duration(seconds: 15)).asyncMap(
+        (event) => ApiService().getStoreInfo(widget.storeId, orderBy));
     super.initState();
   }
 
@@ -216,6 +222,8 @@ class _TokoState extends State<Toko> {
                             store.data.namaToko,
                             style: TextStyle(
                                 fontSize: width / 18, fontFamily: "popinsemi"),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                             store.data.daerah,
@@ -267,21 +275,6 @@ class _TokoState extends State<Toko> {
                               fontSize: width / 25,
                             ),
                           ),
-                          DropdownButton(
-                            hint: Text("Urutkan"),
-                            value: selectedValue,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedValue = newValue!;
-                              });
-                            },
-                            items: ["Harga terendah", "Harga tertinggi"]
-                                .map((e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(e),
-                                    ))
-                                .toList(),
-                          ),
                         ],
                       ),
                       SizedBox(
@@ -307,11 +300,23 @@ class _TokoState extends State<Toko> {
                                   .toList(),
                             )
                           : Center(
-                              child: Text(
-                              "Belum memiliki produk",
-                              style: TextStyle(
-                                  fontSize: width / 20, color: grayText),
-                            ))
+                              child: Column(
+                                children: [
+                                  Image.asset(
+                                    "assets/open-box.png",
+                                    height: width / 2.3,
+                                  ),
+                                  Text(
+                                    "Toko belum mempunyai barang",
+                                    style: TextStyle(
+                                        fontSize: width / 20,
+                                        fontFamily: "popinsemi",
+                                        color: grayText),
+                                    textAlign: TextAlign.center,
+                                  )
+                                ],
+                              ),
+                            )
                     ],
                   ),
                 ),
@@ -343,7 +348,7 @@ class _TokoState extends State<Toko> {
   }
 
   Widget _card(width, data, Map info) {
-    var value = MoreStore(
+    var value = DetailModel(
         id: data.id,
         storeId: data.storeId,
         owner: info["owner"],
@@ -484,11 +489,11 @@ class _TokoState extends State<Toko> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        data.namaBarang.length >= 15
-                            ? "${data.namaBarang.substring(0, 12)}..."
-                            : data.namaBarang,
+                        data.namaBarang,
                         style: TextStyle(
                             fontSize: width / 23, fontFamily: "popinsemi"),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         CurrencyFormat.convertToIdr(data.harga, 0),
@@ -577,7 +582,7 @@ class _TokoState extends State<Toko> {
               child: CircleAvatar(
                 minRadius: width / 9,
                 maxRadius: width / 9,
-                backgroundColor: Colors.grey,
+                backgroundColor: grayBorder,
               ),
             ),
             centerTitle: true,
@@ -654,21 +659,6 @@ class _TokoState extends State<Toko> {
                           style: TextStyle(
                             fontSize: width / 25,
                           ),
-                        ),
-                        DropdownButton(
-                          hint: Text("Urutkan"),
-                          value: selectedValue,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValue = newValue!;
-                            });
-                          },
-                          items: ["Harga terendah", "Harga tertinggi"]
-                              .map((e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e),
-                                  ))
-                              .toList(),
                         ),
                       ],
                     ),

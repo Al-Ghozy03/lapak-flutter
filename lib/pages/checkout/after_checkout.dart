@@ -45,7 +45,6 @@ class _AfterCheckoutState extends State<AfterCheckout> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.data.item.harga);
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SafeArea(
@@ -84,12 +83,12 @@ class _AfterCheckoutState extends State<AfterCheckout> {
                   height: width / 25,
                 ),
                 _paymentInfo(width, "Harga barang",
-                    CurrencyFormat.convertToIdr(widget.data.item.harga, 0)),
+                    CurrencyFormat.convertToIdr(widget.data.harga, 0)),
                 SizedBox(
                   height: width / 50,
                 ),
                 _paymentInfo(width, "Total barang",
-                    widget.data.item.orderBarang.totalBarang.toString()),
+                    widget.data.totalBarang.toString()),
                 SizedBox(
                   height: width / 50,
                 ),
@@ -97,7 +96,7 @@ class _AfterCheckoutState extends State<AfterCheckout> {
                 //     width,
                 //     "Total Harga",
                 //     CurrencyFormat.convertToIdr(
-                //         widget.data.item.orderBarang.totalHarga.toString(), 0)),
+                //         widget.data.totalHarga.toString(), 0)),
                 SizedBox(
                   height: width / 50,
                 ),
@@ -108,7 +107,7 @@ class _AfterCheckoutState extends State<AfterCheckout> {
                   width: width,
                   child: ElevatedButton(
                       onPressed: () {
-                        barangSampai(widget.data.item.orderBarang.id);
+                        barangSampai(widget.data.id);
                       },
                       style: ElevatedButton.styleFrom(
                           primary: blueTheme,
@@ -172,7 +171,7 @@ class _AfterCheckoutState extends State<AfterCheckout> {
               width: width / 30,
             ),
             Text(
-              widget.data.item.orderBarang.alamat,
+              widget.data.alamat,
               style: TextStyle(fontSize: width / 27, fontFamily: "popinsemi"),
             ),
           ],
@@ -190,7 +189,7 @@ class _AfterCheckoutState extends State<AfterCheckout> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(width / 30),
               image: DecorationImage(
-                  image: NetworkImage(widget.data.item.fotoBarang),
+                  image: NetworkImage(widget.data.fotoBarang),
                   fit: BoxFit.cover)),
         ),
         SizedBox(
@@ -201,11 +200,11 @@ class _AfterCheckoutState extends State<AfterCheckout> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.data.item.namaBarang,
+                widget.data.namaBarang,
                 style: TextStyle(fontSize: width / 23, fontFamily: "popinsemi"),
               ),
               // Text(
-              //   CurrencyFormat.convertToIdr(widget.data.item.harga, 0),
+              //   CurrencyFormat.convertToIdr(widget.data.harga, 0),
               //   style: TextStyle(color: grayText, fontSize: width / 35),
               // ),
             ],

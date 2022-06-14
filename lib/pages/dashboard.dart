@@ -1,9 +1,13 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, unused_local_variable, avoid_unnecessary_containers, sized_box_for_whitespace, unnecessary_new, no_leading_underscores_for_local_identifiers
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously, unused_local_variable, avoid_unnecessary_containers, sized_box_for_whitespace, unnecessary_new, no_leading_underscores_for_local_identifiers, avoid_print
+
+import 'dart:convert';
 
 import 'package:animations/animations.dart';
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/list_chat.dart';
 import 'package:lapak/models/rekomendasi_model.dart';
@@ -19,8 +23,10 @@ import 'package:lapak/pages/search/search.dart';
 import 'package:lapak/pages/store/empty_store.dart';
 import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
+import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -31,17 +37,58 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   List<String> kategori = [
-    "Elektronik",
-    "Makanan",
-    "Fashion",
-    "Aksesoris",
-    "Buku"
+    "elektronik",
+    "makanan",
+    "fashion",
+    "aksesoris",
+    "buku"
   ];
   late Future getRekomendasi;
   late Rekomendasi rekomendasi;
   late Future getProfile;
+  int userId = 0;
+  int lengthNotif = 0;
+
+  void getUserId() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    setState(() {
+      userId = Jwt.parseJwt(storage.getString("token").toString())["id"];
+    });
+  }
+
+  Future notifLength() async {
+    Uri url = Uri.parse("$baseUrl/checkout/counter/$userId");
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    headers["Authorization"] = "Bearer ${storage.getString("token")}";
+    final res = await http.get(url, headers: headers);
+    if (res.statusCode == 200) {
+      var length = jsonDecode(res.body)["length"];
+      setState(() {
+        lengthNotif = length;
+      });
+      return true;
+    } else {
+      print(res.statusCode);
+      return false;
+    }
+  }
+
+  Future addToCart(id) async {
+    Uri url = Uri.parse("$baseUrl/cart/add/$id");
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    headers["Authorization"] = "Bearer ${storage.getString("token")}";
+    final res = await http.post(url, headers: headers);
+    if (res.statusCode == 200) {
+      print("berhasil");
+    } else {
+      print(res.statusCode);
+      print(jsonDecode(res.body));
+    }
+  }
+
   @override
   void initState() {
+    getUserId();
     getRekomendasi = ApiService().getRekomendasi();
     getProfile = ApiService().getProfile();
     super.initState();
@@ -53,7 +100,6 @@ class _DashboardState extends State<Dashboard> {
     final height = MediaQuery.of(context).size.height;
     bool hasStore = false;
     GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
-
     Widget _rekomendasiBuilder() {
       return Container(
         height: width / 1.3,
@@ -264,14 +310,20 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
                 ),
-                IconButton(
-                    onPressed: () {
-                      Get.to(Notifikasi(), transition: Transition.rightToLeft);
-                    },
-                    icon: Icon(
-                      Iconsax.notification,
-                      size: width / 20,
-                    )),
+                Badge(
+                  showBadge: lengthNotif == 0 ? false : true,
+                  position:
+                      BadgePosition.topEnd(top: width / 67, end: width / 60),
+                  child: IconButton(
+                      onPressed: () {
+                        Get.to(Notifikasi(),
+                            transition: Transition.rightToLeft);
+                      },
+                      icon: Icon(
+                        Iconsax.notification,
+                        size: width / 20,
+                      )),
+                ),
                 IconButton(
                     onPressed: () {
                       Get.to(ListChatPage(),
@@ -300,6 +352,8 @@ class _DashboardState extends State<Dashboard> {
             getRekomendasi = ApiService().getRekomendasi();
             getProfile = ApiService().getProfile();
           });
+          getUserId();
+          notifLength();
         },
         child: ListView(
           physics: AlwaysScrollableScrollPhysics(),
@@ -343,6 +397,10 @@ class _DashboardState extends State<Dashboard> {
                     height: width / 1.4,
                     child: _rekomendasiBuilder(),
                   ),
+                  SizedBox(
+                    height: width / 10,
+                  ),
+                  Attribute()
                 ],
               ),
             ))
@@ -399,7 +457,9 @@ class _DashboardState extends State<Dashboard> {
                               borderRadius: BorderRadius.circular(width),
                               color: Colors.black.withOpacity(0.5)),
                           child: IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              addToCart(data.data[i].id);
+                            },
                             icon: Icon(
                               Iconsax.shop_add,
                               color: Colors.white,
@@ -422,8 +482,8 @@ class _DashboardState extends State<Dashboard> {
                           width: width / 40,
                         ),
                         Text(
-                          data.data[i].namaToko.length >= 15
-                              ? "${data.data[i].namaToko.substring(0, 14)}..."
+                          data.data[i].namaToko.length >= 10
+                              ? "${data.data[i].namaToko.substring(0, 9)}..."
                               : data.data[i].namaToko,
                           style: TextStyle(
                               fontFamily: "popinsemi", fontSize: width / 30),
@@ -437,11 +497,11 @@ class _DashboardState extends State<Dashboard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          data.data[i].namaBarang.length >= 28
-                              ? "${data.data[i].namaBarang.substring(0, 27)}..."
-                              : data.data[i].namaBarang,
+                          data.data[i].namaBarang,
                           style: TextStyle(
                               fontSize: width / 23, fontFamily: "popinsemi"),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         Row(
                           children: [
