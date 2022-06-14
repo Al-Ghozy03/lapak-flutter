@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.lapak">
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="lapak"
+        android:label="Lapak Online Shop"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

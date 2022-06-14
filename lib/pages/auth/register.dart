@@ -65,8 +65,7 @@ class _RegisterState extends State<Register> {
           "photo_profile": jsonDecode(res.body)["data"]["photo_profile"],
         });
         sharedPreferences.setString("info", jsonEncode(info));
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Dashboard()));
+        Get.off(Dashboard(), transition: Transition.rightToLeft);
       });
     } else {
       var data = jsonDecode(res.body);

@@ -48,7 +48,7 @@ class _LoginState extends State<Login> {
           "photo_profile": jsonDecode(res.body)["data"]["photo_profile"],
         });
         sharedPreferences.setString("info", jsonEncode(info));
-        Get.to(Dashboard(), transition: Transition.rightToLeft);
+        Get.off(Dashboard(), transition: Transition.rightToLeft);
       });
     } else {
       print(res.body);
