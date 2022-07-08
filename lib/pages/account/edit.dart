@@ -165,11 +165,9 @@ class _EditProfileState extends State<EditProfile> {
                 controller: name,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width/30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -182,13 +180,12 @@ class _EditProfileState extends State<EditProfile> {
               ),
               TextField(
                 controller: email,
+                keyboardType: TextInputType.emailAddress,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width/30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -215,11 +212,9 @@ class _EditProfileState extends State<EditProfile> {
                     iconSize: width / 20,
                     color: !hidden ? Color(0xff4C82F6) : Colors.grey,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width/30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -232,13 +227,12 @@ class _EditProfileState extends State<EditProfile> {
               ),
               TextField(
                 controller: phone,
+                keyboardType: TextInputType.phone,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width/30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -253,11 +247,9 @@ class _EditProfileState extends State<EditProfile> {
                 controller: alamat,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width/30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),

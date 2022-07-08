@@ -11,7 +11,7 @@ class Attribute extends StatelessWidget {
     return Center(
       child: RichText(
           text: TextSpan(
-              style: TextStyle(color: Colors.black, fontFamily: "popin"),
+              style: TextStyle(color: Colors.black, fontFamily: "popin",fontSize: MediaQuery.of(context).size.width/40),
               children: [
             TextSpan(text: "Illustration from "),
             TextSpan(

@@ -20,6 +20,7 @@ import 'package:lapak/pages/store/create_barang.dart';
 import 'package:lapak/pages/store/edit_barang.dart';
 import 'package:lapak/pages/store/edit_toko.dart';
 import 'package:lapak/style/color.dart';
+import 'package:lapak/widget/error.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:lapak/widget/skeleton.dart';
 import 'package:material_dialogs/material_dialogs.dart';
@@ -37,25 +38,38 @@ class Toko extends StatefulWidget {
 class _TokoState extends State<Toko> {
   String? selectedValue;
   CustomPopupMenuController controller = CustomPopupMenuController();
-  late Stream getStore;
+  late Future getStore;
   Io.Socket socket = Io.io(baseUrl, <String, dynamic>{
     "transports": ["websocket"],
   });
+  bool isLoading = false;
+
   Future deleteBarang(int id) async {
+    setState(() {
+      isLoading = true;
+    });
     Uri url = Uri.parse("$baseUrl/barang/delete/$id");
     SharedPreferences storage = await SharedPreferences.getInstance();
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
     final res = await http.delete(url, headers: headers);
     if (res.statusCode == 200) {
+      setState(() {
+        isLoading = false;
+      });
       Get.back();
       return true;
     } else {
+      setState(() {
+        isLoading = false;
+      });
       print(res.statusCode);
       print("gagal");
-      Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
-          snackPosition: SnackPosition.BOTTOM,
-          leftBarIndicatorColor: Colors.red,
-          backgroundColor: Colors.red.withOpacity(0.3));
+      Get.snackbar(
+        "Gagal",
+        "terjadi kesalahan, silahkan coba lagi",
+        snackPosition: SnackPosition.BOTTOM,
+        leftBarIndicatorColor: Colors.red,
+      );
     }
   }
 
@@ -102,8 +116,7 @@ class _TokoState extends State<Toko> {
   @override
   void initState() {
     getUserId();
-    getStore = Stream.periodic(Duration(seconds: 15)).asyncMap(
-        (event) => ApiService().getStoreInfo(widget.storeId, orderBy));
+    getStore = ApiService().getStoreInfo(widget.storeId, orderBy);
     super.initState();
   }
 
@@ -125,46 +138,36 @@ class _TokoState extends State<Toko> {
             actions: [
               store.data.owner != userId
                   ? Text("")
-                  : CustomPopupMenu(
-                      menuBuilder: () => ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: EdgeInsets.all(width / 50),
-                          color: Colors.white,
-                          child: IntrinsicWidth(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                InkWell(
-                                  onTap: () => Get.to(
-                                      CreateBarang(id: store.data.id),
-                                      transition: Transition.rightToLeft),
-                                  child: Text(
-                                    "Buat barang",
-                                    style: TextStyle(fontSize: width / 40),
+                  : PopupMenuButton(
+                      onSelected: (value) {
+                        if (value == 1) {
+                          Get.to(CreateBarang(id: store.data.id),
+                                  transition: Transition.rightToLeft)
+                              ?.then((value) {
+                            setState(() {
+                              getStore = ApiService()
+                                  .getStoreInfo(widget.storeId, orderBy);
+                            });
+                          });
+                        }
+                        if (value == 2) {
+                          Get.to(
+                                  EditToko(
+                                    data: store.data,
                                   ),
-                                ),
-                                SizedBox(height: width / 60),
-                                InkWell(
-                                  onTap: () => Get.to(
-                                      EditToko(
-                                        data: store.data,
-                                      ),
-                                      transition: Transition.rightToLeft),
-                                  child: Text(
-                                    "Edit toko",
-                                    style: TextStyle(fontSize: width / 40),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      pressType: PressType.singleClick,
-                      controller: controller,
-                      barrierColor: Colors.white.withOpacity(0),
-                      child: Icon(Iconsax.more),
+                                  transition: Transition.rightToLeft)
+                              ?.then((value) {
+                            setState(() {
+                              getStore = ApiService()
+                                  .getStoreInfo(widget.storeId, orderBy);
+                            });
+                          });
+                        }
+                      },
+                      itemBuilder: (context) => [
+                        PopupMenuItem(value: 1, child: Text("Buat barang")),
+                        PopupMenuItem(value: 2, child: Text("Edit toko")),
+                      ],
                     ),
             ],
             title: Text("Toko"),
@@ -300,22 +303,8 @@ class _TokoState extends State<Toko> {
                                   .toList(),
                             )
                           : Center(
-                              child: Column(
-                                children: [
-                                  Image.asset(
-                                    "assets/open-box.png",
-                                    height: width / 2.3,
-                                  ),
-                                  Text(
-                                    "Toko belum mempunyai barang",
-                                    style: TextStyle(
-                                        fontSize: width / 20,
-                                        fontFamily: "popinsemi",
-                                        color: grayText),
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
-                              ),
+                              child: LottieBuilder.asset(
+                                  "assets/json/93134-not-found.json"),
                             )
                     ],
                   ),
@@ -328,13 +317,13 @@ class _TokoState extends State<Toko> {
     }
 
     return Scaffold(
-      body: StreamBuilder(
-        stream: getStore,
+      body: FutureBuilder(
+        future: getStore,
         builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState != ConnectionState.active) {
+          if (snapshot.connectionState != ConnectionState.done) {
             return _loadingState(width, height);
           } else if (snapshot.hasError) {
-            return Text("terjadi kesalahan");
+            return Error();
           } else {
             if (snapshot.hasData) {
               return _builder(snapshot.data);
@@ -362,6 +351,8 @@ class _TokoState extends State<Toko> {
         daerah: info["daerah"],
         diskon: data.diskon);
     return OpenContainer(
+      openElevation: 0,
+      closedElevation: 0,
       openBuilder: (context, action) {
         return Detail(
           data: value,
@@ -399,66 +390,53 @@ class _TokoState extends State<Toko> {
                     ),
                     info["owner"] != userId
                         ? Text("")
-                        : Positioned(
-                            top: width / 50,
-                            left: width / 3.2,
-                            child: CustomPopupMenu(
-                                barrierColor: Colors.black.withOpacity(0),
-                                menuBuilder: () => ClipRRect(
-                                      borderRadius:
-                                          BorderRadius.circular(width / 50),
-                                      child: Container(
-                                        padding: EdgeInsets.all(width / 50),
-                                        decoration: BoxDecoration(
-                                          color: Color.fromARGB(
-                                              255, 245, 245, 245),
-                                        ),
-                                        child: IntrinsicWidth(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              InkWell(
-                                                onTap: () => Get.to(
-                                                    UpdateBarang(
-                                                      data: value,
-                                                    ),
-                                                    transition:
-                                                        Transition.rightToLeft),
-                                                child: Text(
-                                                  "Edit",
-                                                  style: TextStyle(
-                                                      fontSize: width / 40),
-                                                ),
-                                              ),
-                                              SizedBox(height: width / 60),
-                                              InkWell(
-                                                onTap: () => _dialogDelete(
-                                                    context, width, data.id),
-                                                child: Text(
-                                                  "Hapus",
-                                                  style: TextStyle(
-                                                      fontSize: width / 40),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                pressType: PressType.singleClick,
-                                child: Container(
-                                  height: width / 12,
-                                  width: width / 12,
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(width),
-                                      color: Colors.black.withOpacity(0.5)),
-                                  child: Icon(
-                                    Iconsax.more4,
-                                    color: Colors.white,
-                                  ),
-                                )),
+                        : Align(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              height: width / 10,
+                              width: width / 10,
+                              decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(width)),
+                              child: PopupMenuButton(
+                                onSelected: (val) {
+                                  if (val == 1) {
+                                    Get.to(
+                                            UpdateBarang(
+                                              data: value,
+                                            ),
+                                            transition: Transition.rightToLeft)
+                                        ?.then((value) {
+                                      setState(() {
+                                        getStore = ApiService().getStoreInfo(
+                                            widget.storeId, orderBy);
+                                      });
+                                    });
+                                  } else {
+                                    _dialogDelete(context, width, data.id);
+                                  }
+                                },
+                                icon: Icon(
+                                  Icons.more_vert,
+                                  color: Colors.white,
+                                  size: width / 20,
+                                ),
+                                itemBuilder: (context) => [
+                                  PopupMenuItem(
+                                      value: 1,
+                                      child: Text(
+                                        "Edit barang",
+                                        style: TextStyle(fontSize: width / 30),
+                                      )),
+                                  PopupMenuItem(
+                                      value: 2,
+                                      child: Text(
+                                        "Delete barang",
+                                        style: TextStyle(fontSize: width / 30),
+                                      )),
+                                ],
+                              ),
+                            ),
                           ),
                   ],
                 ),
@@ -541,7 +519,12 @@ class _TokoState extends State<Toko> {
                   padding: EdgeInsets.symmetric(vertical: width / 80),
                   primary: blueTheme),
               onPressed: () {
-                deleteBarang(id);
+                deleteBarang(id).then((value) {
+                  setState(() {
+                    getStore =
+                        ApiService().getStoreInfo(widget.storeId, orderBy);
+                  });
+                });
               },
               child: Text(
                 "Hapus",
@@ -561,7 +544,7 @@ class _TokoState extends State<Toko> {
               },
               icon: Icon(Iconsax.arrow_left)),
           actions: [
-            Icon(Iconsax.more),
+            Icon(Icons.more_vert),
           ],
           title: Text("Toko"),
           centerTitle: true,

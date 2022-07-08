@@ -60,7 +60,7 @@ class _SearchPageState extends State<SearchPage> {
                           suffixIcon: Icon(Iconsax.search_normal_1),
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(
-                              vertical: 0, horizontal: width / 35),
+                              horizontal: width / 40),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(width / 30))),
                     ),

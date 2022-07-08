@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_typing_uninitialized_variables, avoid_print, must_be_immutable
+// ignore_for_file: prefer_const_constructors, prefer_typing_uninitialized_variables, avoid_print, must_be_immutable, prefer_const_literals_to_create_immutables
 
 import 'dart:async';
 import 'dart:convert';
@@ -18,7 +18,6 @@ class CustomCard extends StatefulWidget {
   CustomCard({Key? key, required this.data, this.where}) : super(key: key);
   final data;
   var where;
-
   @override
   State<CustomCard> createState() => _CustomCardState();
 }
@@ -37,20 +36,6 @@ class _CustomCardState extends State<CustomCard> {
     }
   }
 
-  Future deleteFromCart(id) async {
-    Uri url = Uri.parse("$baseUrl/cart/delete/$id");
-    SharedPreferences storage = await SharedPreferences.getInstance();
-    headers["Authorization"] = "Bearer ${storage.getString("token")}";
-    final res = await http.delete(url, headers: headers);
-    if (res.statusCode == 200) {
-      print("berhasil");
-    } else {
-      print(res.statusCode);
-      print(res.body);
-      print("gagal");
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -60,6 +45,8 @@ class _CustomCardState extends State<CustomCard> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return OpenContainer(
+      openElevation: 0,
+      closedElevation: 0,
       openBuilder: (context, action) {
         if (widget.where == "pesanan") {
           return AfterCheckout(
@@ -75,7 +62,7 @@ class _CustomCardState extends State<CustomCard> {
         return Container(
             margin: EdgeInsets.all(10),
             width: width / 2,
-            height: width / 1.5,
+            height: width / 1.4,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width / 25),
                 color: Colors.white,
@@ -105,7 +92,7 @@ class _CustomCardState extends State<CustomCard> {
                     widget.where != "pesanan"
                         ? Positioned(
                             top: width / 50,
-                            left: width / 3.2,
+                            left: width / 3.4,
                             child: Container(
                               height: width / 12,
                               width: width / 12,
@@ -114,11 +101,7 @@ class _CustomCardState extends State<CustomCard> {
                                   color: Colors.black.withOpacity(0.5)),
                               child: IconButton(
                                 onPressed: () {
-                                  if (widget.where == "cart") {
-                                    deleteFromCart(widget.data.id);
-                                  } else {
-                                    addToCart( widget.data.id);
-                                  }
+                                  addToCart(widget.data.id);
                                 },
                                 icon: Icon(
                                   widget.where == "" ||
@@ -173,10 +156,47 @@ class _CustomCardState extends State<CustomCard> {
                           ),
                         ),
                         Text(
-                          CurrencyFormat.convertToIdr(widget.data.harga, 0),
+                          CurrencyFormat.convertToIdr(
+                              widget.data.diskon == 0
+                                  ? widget.data.harga
+                                  : (0.5 * widget.data.harga) -
+                                      widget.data.diskon,
+                              0),
                           style:
                               TextStyle(fontSize: width / 35, color: grayText),
                         ),
+                        widget.data.diskon == 0
+                            ? Container()
+                            : Row(
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: width / 200),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: width / 50,
+                                        vertical: width / 200),
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(width / 90),
+                                        color: Colors.blue.withOpacity(0.7)),
+                                    child: Text(
+                                      "${widget.data.diskon}%",
+                                      style: TextStyle(
+                                          fontSize: width / 35,
+                                          color: Colors.white),
+                                    ),
+                                  ),
+                                  SizedBox(width: width / 40),
+                                  Text(
+                                    CurrencyFormat.convertToIdr(
+                                        widget.data.harga, 0),
+                                    style: TextStyle(
+                                        fontSize: width / 35,
+                                        color: Colors.grey.withOpacity(0.6),
+                                        decoration: TextDecoration.lineThrough),
+                                  ),
+                                ],
+                              ),
                         Text(
                           widget.data.daerah,
                           style:

@@ -13,6 +13,7 @@ import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/custom_card.dart';
 import 'package:lapak/widget/skeleton.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -25,8 +26,6 @@ class SearchResult extends StatefulWidget {
 }
 
 class _SearchResultState extends State<SearchResult> {
-  String? selectedValue;
-  List<String> dropDownChoice = ["Harga tertinggi", "Harga terendah"];
   TextEditingController search = TextEditingController();
   late Future getResult;
   int userId = 0;
@@ -149,26 +148,7 @@ class _SearchResultState extends State<SearchResult> {
                     if (snapshot.hasData) {
                       if (snapshot.data.data.length == 0)
                         return Center(
-                            child: Column(
-                          children: [
-                            Image.asset(
-                              "assets/empty-folder.png",
-                              height: width / 1.5,
-                            ),
-                            Text(
-                              "Barang kosong",
-                              style: TextStyle(
-                                  fontSize: width / 20,
-                                  fontFamily: "popinsemi",
-                                  color: grayText),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(
-                              height: width / 1.3,
-                            ),
-                            Attribute()
-                          ],
-                        ));
+                            child: LottieBuilder.asset("assets/json/93134-not-found.json"));
                       return Column(
                         children: [
                           Row(
@@ -177,26 +157,6 @@ class _SearchResultState extends State<SearchResult> {
                               Text(
                                 "Show ${snapshot.data.data.length} result",
                                 style: TextStyle(color: grayText),
-                              ),
-                              DropdownButton(
-                                hint: Text("Select by"),
-                                value: selectedValue,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedValue = newValue!;
-                                  });
-                                  if (selectedValue == "Harga terendah") {
-                                    changeResult("asc");
-                                  } else {
-                                    changeResult("desc");
-                                  }
-                                },
-                                items: dropDownChoice.map((e) {
-                                  return DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e),
-                                  );
-                                }).toList(),
                               ),
                             ],
                           ),

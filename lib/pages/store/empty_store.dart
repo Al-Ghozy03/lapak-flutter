@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/pages/store/create_store.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/attribute.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 
 class EmptyStore extends StatelessWidget {
   const EmptyStore({Key? key}) : super(key: key);
@@ -21,12 +21,7 @@ class EmptyStore extends StatelessWidget {
           child: Column(
             children: [
               _header(context, width),
-              Container(
-                height: width,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage("assets/5999193.jpg"))),
-              ),
+              LottieBuilder.asset("assets/json/99778-my-store-animated.json"),
               Text(
                 "Kamu belum memiliki toko",
                 style: TextStyle(color: grayText, fontSize: width / 26),
@@ -58,10 +53,6 @@ class EmptyStore extends StatelessWidget {
           ),
         ),
       )),
-      bottomNavigationBar: Container(
-        height: width / 6,
-        child: Attribute(),
-      ),
     );
   }
 

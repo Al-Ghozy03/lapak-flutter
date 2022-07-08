@@ -12,6 +12,7 @@ import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/custom_card.dart';
 import 'package:lapak/widget/skeleton.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 
 class KategoriPage extends StatefulWidget {
   String kategori;
@@ -21,8 +22,6 @@ class KategoriPage extends StatefulWidget {
 }
 
 class _KategoriPageState extends State<KategoriPage> {
-  String? selectedValue;
-  List<String> dropDownChoice = ["Harga tertinggi", "Harga terendah"];
   late Kategori kategori;
   late Future getKategori;
 
@@ -40,6 +39,7 @@ class _KategoriPageState extends State<KategoriPage> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
           child: SingleChildScrollView(
         child: Padding(
@@ -59,26 +59,6 @@ class _KategoriPageState extends State<KategoriPage> {
                     style: TextStyle(
                         fontFamily: "popinsemi", fontSize: width / 20),
                   ),
-                  DropdownButton(
-                    hint: Text("Select by"),
-                    value: selectedValue,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValue = newValue!;
-                      });
-                      if (selectedValue == "Harga terendah") {
-                        changeFilter("asc");
-                      } else {
-                        changeFilter("desc");
-                      }
-                    },
-                    items: dropDownChoice.map((e) {
-                      return DropdownMenuItem(
-                        value: e,
-                        child: Text(e),
-                      );
-                    }).toList(),
-                  )
                 ],
               ),
               SizedBox(
@@ -104,26 +84,7 @@ class _KategoriPageState extends State<KategoriPage> {
                     if (snapshot.hasData) {
                       if (snapshot.data.data.length == 0) {
                         return Center(
-                            child: Column(
-                          children: [
-                            Image.asset(
-                              "assets/empty-folder.png",
-                              height: width / 1.5,
-                            ),
-                            Text(
-                              "Barang kosong",
-                              style: TextStyle(
-                                  fontSize: width / 20,
-                                  fontFamily: "popinsemi",
-                                  color: grayText),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(
-                              height: width / 1.9,
-                            ),
-                            Attribute()
-                          ],
-                        ));
+                            child:LottieBuilder.asset("assets/json/93134-not-found.json"));
                       }
                       return _card(width, snapshot.data);
                     } else {

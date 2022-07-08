@@ -3,9 +3,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/info_model.dart';
+import 'package:lapak/pages/pesanan.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -65,7 +67,7 @@ class _CheckoutState extends State<Checkout> {
       setState(() {
         isLoading = false;
       });
-      print(res.statusCode);
+      Get.to(PesananPage(),transition: Transition.rightToLeft);
       return true;
     } else {
       setState(() {
@@ -233,8 +235,14 @@ class _CheckoutState extends State<Checkout> {
                 SizedBox(
                   height: width / 25,
                 ),
-                _paymentInfo(width, "Harga barang",
-                    CurrencyFormat.convertToIdr(widget.data.harga, 0)),
+                _paymentInfo(
+                    width,
+                    "Harga barang",
+                    CurrencyFormat.convertToIdr(
+                        widget.data.diskon == null || widget.data.diskon == 0
+                            ? widget.data.harga
+                            : (0.5 * widget.data.harga) - widget.data.diskon,
+                        0)),
                 SizedBox(
                   height: width / 50,
                 ),
@@ -242,8 +250,15 @@ class _CheckoutState extends State<Checkout> {
                 SizedBox(
                   height: width / 50,
                 ),
-                _paymentInfo(width, "Total Harga",
-                    CurrencyFormat.convertToIdr(widget.data.harga, 0)),
+                _paymentInfo(
+                    width,
+                    "Total Harga",
+                    CurrencyFormat.convertToIdr(
+                        widget.data.diskon == null || widget.data.diskon == 0
+                            ? widget.data.harga * total
+                            : ((0.5 * widget.data.harga) - widget.data.diskon) *
+                                total,
+                        0)),
                 SizedBox(
                   height: width / 4,
                 ),
@@ -318,7 +333,11 @@ class _CheckoutState extends State<Checkout> {
                 style: TextStyle(fontSize: width / 23, fontFamily: "popinsemi"),
               ),
               Text(
-                CurrencyFormat.convertToIdr(widget.data.harga, 0),
+                CurrencyFormat.convertToIdr(
+                    widget.data.diskon == null || widget.data.diskon == 0
+                        ? widget.data.harga
+                        : (0.5 * widget.data.harga) - widget.data.diskon,
+                    0),
                 style: TextStyle(color: grayText, fontSize: width / 35),
               ),
               Container(

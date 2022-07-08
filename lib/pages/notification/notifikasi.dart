@@ -15,6 +15,7 @@ import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/notif_model.dart';
 import 'package:lapak/models/notif_value_model.dart';
 import 'package:lapak/style/color.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as Io;
@@ -151,26 +152,8 @@ class _NotifikasiState extends State<Notifikasi> {
                       ? Container(
                           margin: EdgeInsets.only(top: width / 6),
                           child: Center(
-                            child: Column(
-                              children: [
-                                Image.asset(
-                                  "assets/no-alarm.png",
-                                  height: width / 1.6,
-                                ),
-                                SizedBox(
-                                  height: width / 20,
-                                ),
-                                Text(
-                                  "Kamu tidak memiliki notifikasi apapun",
-                                  style: TextStyle(
-                                      fontSize: width / 20,
-                                      fontFamily: "popinsemi",
-                                      color: grayText),
-                                  textAlign: TextAlign.center,
-                                )
-                              ],
-                            ),
-                          ),
+                              child: LottieBuilder.asset(
+                                  "assets/json/4021-no-notification-state.json")),
                         )
                       : Container(
                           height: height,

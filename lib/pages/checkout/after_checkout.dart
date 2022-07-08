@@ -92,11 +92,11 @@ class _AfterCheckoutState extends State<AfterCheckout> {
                 SizedBox(
                   height: width / 50,
                 ),
-                // _paymentInfo(
-                //     width,
-                //     "Total Harga",
-                //     CurrencyFormat.convertToIdr(
-                //         widget.data.totalHarga.toString(), 0)),
+                _paymentInfo(
+                    width,
+                    "Total Harga",
+                    CurrencyFormat.convertToIdr(
+                        widget.data.totalHarga, 0)),
                 SizedBox(
                   height: width / 50,
                 ),

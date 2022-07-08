@@ -11,6 +11,7 @@ import 'package:lapak/pages/auth/register.dart';
 import 'package:lapak/pages/dashboard.dart';
 import 'package:lapak/style/color.dart';
 import 'package:http/http.dart' as http;
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -26,7 +27,6 @@ class _LoginState extends State<Login> {
   TextEditingController password = TextEditingController();
   String errorMessage = "";
   bool isLoading = false;
-
   Future loginHandle() async {
     setState(() {
       isLoading = true;
@@ -56,11 +56,12 @@ class _LoginState extends State<Login> {
         isLoading = false;
         errorMessage = jsonDecode(res.body)["message"];
       });
-      Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
-          snackPosition: SnackPosition.BOTTOM,
-          leftBarIndicatorColor: Colors.red,
-          backgroundColor: Colors.red.withOpacity(0.3));
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -68,6 +69,7 @@ class _LoginState extends State<Login> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
           child: SingleChildScrollView(
         child: Padding(
@@ -82,13 +84,7 @@ class _LoginState extends State<Login> {
                     fontFamily: "popinsemi",
                     color: blueTheme),
               ),
-              Container(
-                decoration: BoxDecoration(
-                    image:
-                        DecorationImage(image: AssetImage("assets/login.jpg"))),
-                width: width,
-                height: height / 2.6,
-              ),
+              LottieBuilder.asset("assets/json/72883-login-page.json"),
               _form(width),
               SizedBox(
                 height: width / 30,
@@ -130,13 +126,12 @@ class _LoginState extends State<Login> {
           controller: email,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: grayBorder, width: 3)),
+            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
+          keyboardType: TextInputType.emailAddress,
         ),
         Text(errorMessage == "password salah" ? "" : errorMessage,
             style: TextStyle(
@@ -165,11 +160,9 @@ class _LoginState extends State<Login> {
               iconSize: width / 20,
               color: !isShow ? Color(0xff4C82F6) : Colors.grey,
             ),
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: grayBorder, width: 3)),
+            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
@@ -184,10 +177,9 @@ class _LoginState extends State<Login> {
         Container(
           width: width,
           child: ElevatedButton(
-              onPressed: () {
-                loginHandle();
-              },
+              onPressed: () => loginHandle(),
               style: ElevatedButton.styleFrom(
+                  elevation: 0,
                   primary: blueTheme,
                   padding: EdgeInsets.symmetric(vertical: width / 67),
                   shape: RoundedRectangleBorder(

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:lapak/api/api_service.dart';
-import 'package:lapak/models/profile_model.dart';
 import 'package:lapak/pages/account/edit.dart';
 import 'package:lapak/style/color.dart';
 
@@ -20,14 +19,11 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String? selectedValue;
   CustomPopupMenuController controller = CustomPopupMenuController();
-
-  late Profile profile;
-  late Stream getProfile;
+  late Future getProfile;
 
   @override
   void initState() {
-    getProfile = Stream.periodic(Duration(seconds: 5))
-        .asyncMap((event) => ApiService().getProfile());
+    getProfile = ApiService().getProfile();
     super.initState();
   }
 
@@ -36,16 +32,15 @@ class _ProfilePageState extends State<ProfilePage> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: StreamBuilder(
-        stream: getProfile,
+      backgroundColor: Colors.white,
+      body: FutureBuilder(
+        future: getProfile,
         builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState != ConnectionState.active) {
+          if (snapshot.connectionState != ConnectionState.done) {
             print(snapshot.connectionState);
             return _loadingState(width, height);
           } else if (snapshot.hasError) {
-            return Center(
-              child: Text("Terjadi kesalahan"),
-            );
+            return _loadingState(width, height);
           } else {
             if (snapshot.hasData) {
               return SafeArea(
@@ -58,35 +53,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         },
                         icon: Icon(Iconsax.arrow_left)),
                     actions: [
-                      CustomPopupMenu(
-                        menuBuilder: () => ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            padding: EdgeInsets.all(width / 50),
-                            color: Colors.white,
-                            child: IntrinsicWidth(
-                              child: Column(
-                                children: [
-                                  InkWell(
-                                    onTap: () => Get.to(
-                                        EditProfile(
-                                          data: snapshot.data.data,
-                                        ),
-                                        transition: Transition.rightToLeft),
-                                    child: Text(
-                                      "Edit",
-                                      style: TextStyle(fontSize: width / 40),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        pressType: PressType.singleClick,
-                        controller: controller,
-                        barrierColor: Colors.white.withOpacity(0),
-                        child: Icon(Iconsax.more),
+                      PopupMenuButton(
+                        onSelected: (value) {
+                          Get.to(EditProfile(data: snapshot.data.data),transition: Transition.rightToLeftWithFade)
+                              ?.then((value) {
+                            setState(() {
+                              getProfile = ApiService().getProfile();
+                            });
+                          });
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                              value: 1,
+                              child: Text("Edit"))
+                        ],
                       ),
                     ],
                     title: Text("Profile"),
@@ -189,9 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ));
             } else {
-              return Center(
-                child: Text("kosong"),
-              );
+              return _loadingState(width, height);
             }
           }
         },
@@ -210,7 +188,7 @@ class _ProfilePageState extends State<ProfilePage> {
               },
               icon: Icon(Iconsax.arrow_left)),
           actions: [
-            Icon(Iconsax.more),
+            Icon(Icons.more_vert),
           ],
           title: Text("Profile"),
           centerTitle: true,

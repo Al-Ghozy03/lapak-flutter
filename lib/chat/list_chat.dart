@@ -10,6 +10,8 @@ import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/list_chat_model.dart';
 import 'package:lapak/style/color.dart';
+import 'package:lapak/widget/error.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as Io;
 
@@ -79,7 +81,7 @@ class _ListChatPageState extends State<ListChatPage> {
             ],
           );
         } else if (snapshot.hasError) {
-          return Text("terjadi kesalahan");
+          return Error();
         } else {
           if (snapshot.hasData) {
             return _list(width, snapshot.data, height);
@@ -132,26 +134,7 @@ class _ListChatPageState extends State<ListChatPage> {
     return Container(
       height: height * 1.2,
       child: chat.data.isEmpty
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  "assets/chat.png",
-                  height: width / 1.5,
-                ),
-                SizedBox(
-                  height: width / 30,
-                ),
-                Text(
-                  "Kamu tidak memiliki pesan apapun",
-                  style: TextStyle(
-                      fontSize: width / 20,
-                      fontFamily: "popinsemi",
-                      color: grayText),
-                  textAlign: TextAlign.center,
-                )
-              ],
-            )
+          ? LottieBuilder.asset("assets/json/59839-commnet-animation.json")
           : ListView.separated(
               itemBuilder: (context, i) {
                 return InkWell(

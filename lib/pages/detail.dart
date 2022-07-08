@@ -89,6 +89,7 @@ class _DetailState extends State<Detail> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
+      backgroundColor: Colors.white,
       bottomNavigationBar: widget.data.owner != userId
           ? Container(
               padding: EdgeInsets.all(width / 25),
@@ -124,11 +125,9 @@ class _DetailState extends State<Detail> {
               floating: true,
               stretch: true,
               leading: Container(
-                width: width / 10,
-                height: width / 10,
                 decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(100)),
+                    borderRadius: BorderRadius.circular(width)),
                 child: IconButton(
                   icon: Icon(Iconsax.arrow_left),
                   onPressed: () => Navigator.pop(context),
@@ -205,11 +204,59 @@ class _DetailState extends State<Detail> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _infoBarang(
-                                  width,
-                                  CurrencyFormat.convertToIdr(
-                                      widget.data.harga, 0),
-                                  Iconsax.dollar_square),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Iconsax.dollar_circle,
+                                    color: grayText,
+                                    size: width / 22,
+                                  ),
+                                  SizedBox(
+                                    width: width / 50,
+                                  ),
+                                  widget.data.diskon == null ||
+                                          widget.data.diskon == 0
+                                      ? Text(
+                                          CurrencyFormat.convertToIdr(
+                                              widget.data.harga, 0),
+                                          style: TextStyle(
+                                              color: grayText,
+                                              fontSize: width / 30),
+                                        )
+                                      : RichText(
+                                          text: TextSpan(
+                                              style: TextStyle(
+                                                  fontFamily: "popin",
+                                                  fontSize: width / 33,
+                                                  color: grayText),
+                                              children: [
+                                              TextSpan(
+                                                  text: CurrencyFormat
+                                                      .convertToIdr(
+                                                          widget.data.harga, 0),
+                                                  style: TextStyle(
+                                                      decoration: TextDecoration
+                                                          .lineThrough,
+                                                      color: Colors.grey
+                                                          .withOpacity(0.6),
+                                                      fontSize: width / 40)),
+                                              TextSpan(
+                                                  text:
+                                                      "   ${CurrencyFormat.convertToIdr((0.5 * widget.data.harga) - widget.data.diskon, 0)}")
+                                            ]))
+                                ],
+                              ),
+                              SizedBox(
+                                height: widget.data.diskon == null ||
+                                        widget.data.diskon == 0
+                                    ? 0
+                                    : width / 60,
+                              ),
+                              widget.data.diskon == null ||
+                                      widget.data.diskon == 0
+                                  ? Container()
+                                  : _infoBarang(width, "${widget.data.diskon}%",
+                                      Iconsax.discount_circle),
                               SizedBox(
                                 height: width / 60,
                               ),

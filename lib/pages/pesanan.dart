@@ -9,7 +9,9 @@ import 'package:lapak/models/detail_model.dart';
 import 'package:lapak/models/pesanan_model.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/custom_card.dart';
+import 'package:lapak/widget/error.dart';
 import 'package:lapak/widget/skeleton.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 
 class PesananPage extends StatefulWidget {
   const PesananPage({Key? key}) : super(key: key);
@@ -19,10 +21,10 @@ class PesananPage extends StatefulWidget {
 }
 
 class _PesananPageState extends State<PesananPage> {
-  late Stream getPesanan;
+  late Future getPesanan;
   @override
   void initState() {
-    getPesanan = Stream.periodic(Duration(seconds: 20)).asyncMap((event) => ApiService().getPesanan());
+    getPesanan = ApiService().getPesanan();
     super.initState();
   }
 
@@ -30,6 +32,7 @@ class _PesananPageState extends State<PesananPage> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -37,10 +40,11 @@ class _PesananPageState extends State<PesananPage> {
             child: Column(
               children: [
                 _header(width),
-                StreamBuilder(
-                  stream: getPesanan,
+                SizedBox(height: width / 20),
+                FutureBuilder(
+                  future: getPesanan,
                   builder: (context, AsyncSnapshot snapshot) {
-                    if (snapshot.connectionState != ConnectionState.active) {
+                    if (snapshot.connectionState != ConnectionState.done) {
                       return StaggeredGrid.count(
                         crossAxisCount: 2,
                         mainAxisSpacing: 2,
@@ -49,12 +53,10 @@ class _PesananPageState extends State<PesananPage> {
                           Skeleton(),
                           Skeleton(),
                           Skeleton(),
-                          Skeleton(),
-                          Skeleton(),
                         ],
                       );
                     } else if (snapshot.hasError) {
-                      return Text("terjadi kesalahan");
+                      return Error();
                     } else {
                       if (snapshot.hasData) {
                         return _builder(snapshot.data, width);
@@ -74,25 +76,7 @@ class _PesananPageState extends State<PesananPage> {
 
   Widget _builder(PesananModel pesanan, width) {
     if (pesanan.data.isEmpty) {
-      return Container(
-        margin: EdgeInsets.symmetric(vertical: width / 3),
-        child: Column(
-          children: [
-            Image.asset(
-              "assets/note.png",
-              height: width / 2.3,
-            ),
-            Text(
-              "Kamu tidak barang yang dipesan",
-              style: TextStyle(
-                  fontSize: width / 20,
-                  fontFamily: "popinsemi",
-                  color: grayText),
-              textAlign: TextAlign.center,
-            )
-          ],
-        ),
-      );
+      return LottieBuilder.asset("assets/json/lf20_ioskgmiv.json");
     } else {
       return StaggeredGrid.count(
         crossAxisCount: 2,

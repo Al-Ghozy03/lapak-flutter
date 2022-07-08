@@ -125,11 +125,9 @@ class _UpdateBarangState extends State<UpdateBarang> {
                 controller: namaBarang,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -145,11 +143,9 @@ class _UpdateBarangState extends State<UpdateBarang> {
                 controller: harga,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -165,11 +161,10 @@ class _UpdateBarangState extends State<UpdateBarang> {
                 controller: deskripsi,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: width / 40, vertical: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -192,11 +187,9 @@ class _UpdateBarangState extends State<UpdateBarang> {
                       style: TextStyle(fontSize: width / 30),
                     ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),

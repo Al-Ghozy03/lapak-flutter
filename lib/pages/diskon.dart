@@ -11,6 +11,7 @@ import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/custom_card.dart';
 import 'package:lapak/widget/skeleton.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 
 class DiskonPage extends StatefulWidget {
   @override
@@ -54,26 +55,26 @@ class _DiskonPageState extends State<DiskonPage> {
                     style: TextStyle(
                         fontFamily: "popinsemi", fontSize: width / 20),
                   ),
-                  DropdownButton(
-                    hint: Text("Select by"),
-                    value: selectedValue,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValue = newValue!;
-                      });
-                      if (selectedValue == "Harga terendah") {
-                        changeFilter("asc");
-                      } else {
-                        changeFilter("desc");
-                      }
-                    },
-                    items: dropDownChoice.map((e) {
-                      return DropdownMenuItem(
-                        value: e,
-                        child: Text(e),
-                      );
-                    }).toList(),
-                  )
+                  // DropdownButton(
+                  //   hint: Text("Select by"),
+                  //   value: selectedValue,
+                  //   onChanged: (String? newValue) {
+                  //     setState(() {
+                  //       selectedValue = newValue!;
+                  //     });
+                  //     if (selectedValue == "Harga terendah") {
+                  //       changeFilter("asc");
+                  //     } else {
+                  //       changeFilter("desc");
+                  //     }
+                  //   },
+                  //   items: dropDownChoice.map((e) {
+                  //     return DropdownMenuItem(
+                  //       value: e,
+                  //       child: Text(e),
+                  //     );
+                  //   }).toList(),
+                  // )
                 ],
               ),
               SizedBox(
@@ -102,26 +103,7 @@ class _DiskonPageState extends State<DiskonPage> {
                     if (snapshot.hasData) {
                       if (snapshot.data.data.length == 0)
                         return Center(
-                            child: Column(
-                          children: [
-                            Image.asset(
-                              "assets/empty-folder.png",
-                              height: width / 1.5,
-                            ),
-                            Text(
-                              "Barang kosong",
-                              style: TextStyle(
-                                  fontSize: width / 20,
-                                  fontFamily: "popinsemi",
-                                  color: grayText),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(
-                              height: width / 1.9,
-                            ),
-                            Attribute()
-                          ],
-                        ));
+                            child:LottieBuilder.asset("assets/json/93134-not-found.json"));
                       return _card(width, snapshot.data);
                     } else {
                       return Center(
@@ -161,7 +143,7 @@ class _DiskonPageState extends State<DiskonPage> {
             },
             icon: Icon(Iconsax.arrow_left)),
         Text(
-          "Kategori",
+          "Diskon",
           style: TextStyle(
             fontSize: width / 15,
             fontFamily: "popinsemi",

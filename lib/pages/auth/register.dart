@@ -9,6 +9,7 @@ import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/info_model.dart';
 import 'package:lapak/pages/dashboard.dart';
 import 'package:lapak/style/color.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -94,6 +95,7 @@ class _RegisterState extends State<Register> {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
           child: SingleChildScrollView(
         child: Padding(
@@ -115,13 +117,7 @@ class _RegisterState extends State<Register> {
                       color: blueTheme),
                 ),
               ]),
-              Container(
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage("assets/register.jpg"))),
-                width: width,
-                height: height / 2.6,
-              ),
+             LottieBuilder.asset("assets/json/63787-secure-login.json"),
               _form(width),
               SizedBox(
                 height: width / 30,
@@ -162,11 +158,9 @@ class _RegisterState extends State<Register> {
           keyboardType: TextInputType.emailAddress,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: grayBorder, width: 3)),
+            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(width/30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
@@ -186,13 +180,12 @@ class _RegisterState extends State<Register> {
           controller: name,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: grayBorder, width: 3)),
+            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(width/30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
+          keyboardType: TextInputType.name,
         ),
         Text(errorName,
             style: TextStyle(
@@ -211,6 +204,7 @@ class _RegisterState extends State<Register> {
           style: TextStyle(fontSize: width / 33),
           obscureText: isShow,
           decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
             suffixIcon: IconButton(
               onPressed: () {
                 setState(() {
@@ -221,11 +215,8 @@ class _RegisterState extends State<Register> {
               iconSize: width / 20,
               color: !isShow ? Color(0xff4C82F6) : Colors.grey,
             ),
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: grayBorder, width: 3)),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(width/30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
@@ -247,11 +238,9 @@ class _RegisterState extends State<Register> {
           maxLength: 12,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: grayBorder, width: 3)),
+            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(width/30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
@@ -261,7 +250,7 @@ class _RegisterState extends State<Register> {
                 fontSize: width / 33,
                 fontStyle: FontStyle.italic)),
         SizedBox(
-          height: width / 15,
+          height: width / 40,
         ),
         _label("Alamat", width),
         SizedBox(
@@ -271,11 +260,9 @@ class _RegisterState extends State<Register> {
           controller: alamat,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-                borderSide: BorderSide(color: grayBorder, width: 3)),
+            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(width/30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),

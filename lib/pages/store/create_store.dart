@@ -12,7 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:lapak/api/api_service.dart';
 import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/attribute.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -112,11 +112,9 @@ class _CreateStoreState extends State<CreateStore> {
                 controller: namaToko,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width/30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -131,56 +129,62 @@ class _CreateStoreState extends State<CreateStore> {
                 controller: daerah,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: grayBorder, width: 3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(width/30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
               Stack(
-                alignment: Alignment.center,
                 children: [
                   InkWell(
-                    onTap: () async => await getImage(),
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: width / 10),
-                      height: width / 1.5,
-                      decoration: BoxDecoration(
-                          image: path != null
-                              ? DecorationImage(image: FileImage(path!))
-                              : DecorationImage(
-                                  image: AssetImage("assets/08973278.png"))),
-                    ),
+                    onTap: () async => path == null? await getImage():null,
+                    child: path == null
+                        ? LottieBuilder.asset(
+                            "assets/json/63534-image-preloader.json")
+                        : Container(
+                            margin: EdgeInsets.symmetric(vertical: width / 10),
+                            height: width / 1.5,
+                            decoration: BoxDecoration(
+                                image:
+                                    DecorationImage(image: FileImage(path!))),
+                          ),
                   ),
-                  Positioned(
-                    top: width / 1.3,
-                    child: Center(
-                      child: path == null
-                          ? Text(
-                              "Masukan foto toko",
-                              style: TextStyle(
-                                  color: grayText,
-                                  fontFamily: "popinmedium",
-                                  fontSize: width / 25),
-                            )
-                          : OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.red, width: width / 300),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: width / 25)),
-                              onPressed: () {
-                                setState(() {
-                                  path = null;
-                                });
-                              },
-                              child: Text(
-                                "Cancel",
-                                style: TextStyle(
-                                    fontSize: width / 20, color: Colors.red),
-                              )),
+                  path == null
+                      ? Container()
+                      : InkWell(
+                          onTap: () {
+                            setState(() {
+                              path = null;
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(top: width / 20),
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: CircleAvatar(
+                                minRadius: width / 24,
+                                maxRadius: width / 24,
+                                backgroundColor: Colors.black.withOpacity(0.3),
+                                child: Icon(
+                                  Icons.cancel,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                  Container(
+                    margin: EdgeInsets.only(top: width / 1.3),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        path == null ? " Masukan foto toko" : "",
+                        style: TextStyle(
+                            color: grayText,
+                            fontFamily: "popinmedium",
+                            fontSize: width / 25),
+                      ),
                     ),
                   ),
                 ],
@@ -211,10 +215,6 @@ class _CreateStoreState extends State<CreateStore> {
                                 fontSize: width / 20, fontFamily: "popinsemi"),
                           )),
               ),
-              SizedBox(
-                height: width / 20,
-              ),
-              Attribute()
             ],
           ),
         ),

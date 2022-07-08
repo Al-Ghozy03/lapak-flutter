@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:animations/animations.dart';
 import 'package:badges/badges.dart';
+import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
@@ -25,6 +26,7 @@ import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/rupiah_format.dart';
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -125,7 +127,23 @@ class _DashboardState extends State<Dashboard> {
                         itemCount: 5),
                   );
                 } else if (snapshot.hasError) {
-                  return Text("error");
+                  return Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        LottieBuilder.asset(
+                          "assets/94900-error.json",
+                          height: width / 2,
+                        ),
+                        Text(
+                          "Something went wrong",
+                          style: TextStyle(
+                              fontSize: width / 20, fontFamily: "popinsemi"),
+                        )
+                      ],
+                    ),
+                  );
                 } else {
                   if (snapshot.hasData) {
                     return Container(
@@ -157,11 +175,195 @@ class _DashboardState extends State<Dashboard> {
           future: getProfile,
           builder: (context, AsyncSnapshot snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
-              return CircleAvatar(
-                backgroundColor: Colors.grey,
+              return Padding(
+                padding: EdgeInsets.all(width / 25),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        FadeShimmer.round(
+                          size: width / 5,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: width / 25),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FadeShimmer(
+                              radius: width,
+                              width: width / 2,
+                              height: width / 36,
+                              baseColor: Colors.grey.withOpacity(0.5),
+                              highlightColor: Colors.grey.withOpacity(0.3),
+                            ),
+                            SizedBox(height: width / 40),
+                            FadeShimmer(
+                              radius: width,
+                              width: width / 3,
+                              height: width / 36,
+                              baseColor: Colors.grey.withOpacity(0.5),
+                              highlightColor: Colors.grey.withOpacity(0.3),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                    SizedBox(height: width / 20),
+                    Divider(),
+                    SizedBox(height: width / 20),
+                    Row(
+                      children: [
+                        FadeShimmer.round(
+                          size: width / 20,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: width / 25),
+                        FadeShimmer(
+                          radius: width,
+                          width: width / 3,
+                          height: width / 36,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: width / 20),
+                    Row(
+                      children: [
+                        FadeShimmer.round(
+                          size: width / 20,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: width / 25),
+                        FadeShimmer(
+                          radius: width,
+                          width: width / 3,
+                          height: width / 36,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: width / 20),
+                    Row(
+                      children: [
+                        FadeShimmer.round(
+                          size: width / 20,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: width / 25),
+                        FadeShimmer(
+                          radius: width,
+                          width: width / 3,
+                          height: width / 36,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: width / 20),
+                  ],
+                ),
               );
             } else if (snapshot.hasError) {
-              return Text("Error");
+              return Padding(
+                padding: EdgeInsets.all(width / 25),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        FadeShimmer.round(
+                          size: width / 5,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: width / 25),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FadeShimmer(
+                              radius: width,
+                              width: width / 2,
+                              height: width / 36,
+                              baseColor: Colors.grey.withOpacity(0.5),
+                              highlightColor: Colors.grey.withOpacity(0.3),
+                            ),
+                            SizedBox(height: width / 40),
+                            FadeShimmer(
+                              radius: width,
+                              width: width / 3,
+                              height: width / 36,
+                              baseColor: Colors.grey.withOpacity(0.5),
+                              highlightColor: Colors.grey.withOpacity(0.3),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                    SizedBox(height: width / 20),
+                    Divider(),
+                    SizedBox(height: width / 20),
+                    Row(
+                      children: [
+                        FadeShimmer.round(
+                          size: width / 20,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: width / 25),
+                        FadeShimmer(
+                          radius: width,
+                          width: width / 3,
+                          height: width / 36,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: width / 20),
+                    Row(
+                      children: [
+                        FadeShimmer.round(
+                          size: width / 20,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: width / 25),
+                        FadeShimmer(
+                          radius: width,
+                          width: width / 3,
+                          height: width / 36,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: width / 20),
+                    Row(
+                      children: [
+                        FadeShimmer.round(
+                          size: width / 20,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: width / 25),
+                        FadeShimmer(
+                          radius: width,
+                          width: width / 3,
+                          height: width / 36,
+                          baseColor: Colors.grey.withOpacity(0.5),
+                          highlightColor: Colors.grey.withOpacity(0.3),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: width / 20),
+                  ],
+                ),
+              );
             } else {
               if (snapshot.hasData) {
                 return ListView(
@@ -228,16 +430,36 @@ class _DashboardState extends State<Dashboard> {
                     SizedBox(
                       height: width / 20,
                     ),
-                    _choice(
-                        width,
-                        Iconsax.shop,
-                        "Toko kamu",
-                        snapshot.data.data.storeId == null
-                            ? EmptyStore()
-                            : Toko(
-                                storeId: snapshot.data.data?.storeId,
-                              ),
-                        context),
+                    InkWell(
+                      onTap: () {
+                        Get.to(
+                                snapshot.data.data.storeId == null
+                                    ? EmptyStore()
+                                    : Toko(
+                                        storeId: snapshot.data.data?.storeId,
+                                      ),
+                                transition: Transition.rightToLeft)
+                            ?.then((value) {
+                          setState(() {
+                            getProfile = ApiService().getProfile();
+                          });
+                        });
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Iconsax.shop, size: width / 16),
+                          SizedBox(
+                            width: width / 25,
+                          ),
+                          Text(
+                            "Toko kamu",
+                            style: TextStyle(
+                                fontFamily: "PopinMedium",
+                                fontSize: width / 34),
+                          ),
+                        ],
+                      ),
+                    ),
                     SizedBox(
                       height: width / 40,
                     ),
@@ -277,7 +499,100 @@ class _DashboardState extends State<Dashboard> {
                   ],
                 );
               } else {
-                return Text("kosong");
+                return Padding(
+                  padding: EdgeInsets.all(width / 25),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          FadeShimmer.round(
+                            size: width / 5,
+                            baseColor: Colors.grey.withOpacity(0.5),
+                            highlightColor: Colors.grey.withOpacity(0.3),
+                          ),
+                          SizedBox(width: width / 25),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              FadeShimmer(
+                                radius: width,
+                                width: width / 2,
+                                height: width / 36,
+                                baseColor: Colors.grey.withOpacity(0.5),
+                                highlightColor: Colors.grey.withOpacity(0.3),
+                              ),
+                              SizedBox(height: width / 40),
+                              FadeShimmer(
+                                radius: width,
+                                width: width / 3,
+                                height: width / 36,
+                                baseColor: Colors.grey.withOpacity(0.5),
+                                highlightColor: Colors.grey.withOpacity(0.3),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(height: width / 20),
+                      Divider(),
+                      SizedBox(height: width / 20),
+                      Row(
+                        children: [
+                          FadeShimmer.round(
+                            size: width / 20,
+                            baseColor: Colors.grey.withOpacity(0.5),
+                            highlightColor: Colors.grey.withOpacity(0.3),
+                          ),
+                          SizedBox(width: width / 25),
+                          FadeShimmer(
+                            radius: width,
+                            width: width / 3,
+                            height: width / 36,
+                            baseColor: Colors.grey.withOpacity(0.5),
+                            highlightColor: Colors.grey.withOpacity(0.3),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: width / 20),
+                      Row(
+                        children: [
+                          FadeShimmer.round(
+                            size: width / 20,
+                            baseColor: Colors.grey.withOpacity(0.5),
+                            highlightColor: Colors.grey.withOpacity(0.3),
+                          ),
+                          SizedBox(width: width / 25),
+                          FadeShimmer(
+                            radius: width,
+                            width: width / 3,
+                            height: width / 36,
+                            baseColor: Colors.grey.withOpacity(0.5),
+                            highlightColor: Colors.grey.withOpacity(0.3),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: width / 20),
+                      Row(
+                        children: [
+                          FadeShimmer.round(
+                            size: width / 20,
+                            baseColor: Colors.grey.withOpacity(0.5),
+                            highlightColor: Colors.grey.withOpacity(0.3),
+                          ),
+                          SizedBox(width: width / 25),
+                          FadeShimmer(
+                            radius: width,
+                            width: width / 3,
+                            height: width / 36,
+                            baseColor: Colors.grey.withOpacity(0.5),
+                            highlightColor: Colors.grey.withOpacity(0.3),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: width / 20),
+                    ],
+                  ),
+                );
               }
             }
           },
@@ -298,15 +613,18 @@ class _DashboardState extends State<Dashboard> {
             child: Row(
               children: [
                 Container(
+                  width: width / 9,
+                  height: width / 9,
                   decoration: BoxDecoration(
                       color: blueTheme,
-                      borderRadius: BorderRadius.circular(13)),
+                      borderRadius: BorderRadius.circular(width / 30)),
                   child: IconButton(
                     onPressed: () => Get.to(SearchPage(),
                         transition: Transition.rightToLeft),
                     icon: Icon(
                       Iconsax.search_normal_1,
                       color: Colors.white,
+                      size: width / 20,
                     ),
                   ),
                 ),
@@ -413,6 +731,8 @@ class _DashboardState extends State<Dashboard> {
   Widget _card(width, Rekomendasi data, int i) {
     if (data.data.isNotEmpty) {
       return OpenContainer(
+        openElevation: 0,
+        closedElevation: 0,
         openBuilder: (context, action) {
           return Detail(
             data: data.data[i],
@@ -476,6 +796,8 @@ class _DashboardState extends State<Dashboard> {
                     child: Row(
                       children: [
                         CircleAvatar(
+                          minRadius: width / 25,
+                          maxRadius: width / 25,
                           backgroundImage: NetworkImage(data.data[0].fotoToko),
                         ),
                         SizedBox(
@@ -503,15 +825,51 @@ class _DashboardState extends State<Dashboard> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        Row(
-                          children: [
-                            Text(
-                              "${CurrencyFormat.convertToIdr(data.data[i].harga, 0)} . ${data.data[i].daerah}",
-                              style: TextStyle(
-                                  fontSize: width / 35, color: grayText),
-                            )
-                          ],
-                        )
+                        Text(
+                          CurrencyFormat.convertToIdr(
+                              data.data[i].diskon == 0
+                                  ? data.data[i].harga
+                                  : (0.5 * data.data[i].harga) -
+                                      data.data[i].diskon,
+                              0),
+                          style:
+                              TextStyle(fontSize: width / 35, color: grayText),
+                        ),
+                        data.data[i].diskon == 0
+                            ? Container()
+                            : Row(
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: width / 200),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: width / 50,
+                                        vertical: width / 200),
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(width / 90),
+                                        color: Colors.blue.withOpacity(0.7)),
+                                    child: Text(
+                                      "${data.data[i].diskon}%",
+                                      style: TextStyle(
+                                          fontSize: width / 35,
+                                          color: Colors.white),
+                                    ),
+                                  ),
+                                  SizedBox(width: width / 40),
+                                  Text(
+                                    CurrencyFormat.convertToIdr(
+                                        data.data[i].harga, 0),
+                                    style: TextStyle(
+                                        fontSize: width / 35, color: Colors.grey.withOpacity(0.6),decoration: TextDecoration.lineThrough),
+                                  ),
+                                ],
+                              ),
+                        Text(
+                          data.data[i].daerah,
+                          style:
+                              TextStyle(fontSize: width / 35, color: grayText),
+                        ),
                       ],
                     ),
                   )
@@ -531,8 +889,9 @@ class _DashboardState extends State<Dashboard> {
       children: [
         ElevatedButton(
             style: ElevatedButton.styleFrom(
+                elevation: 0,
                 primary: Colors.white,
-                side: BorderSide(width: 2, color: Color(0xff898989)),
+                side: BorderSide(width: 1, color: Color(0xff898989)),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(width)),
                 padding: EdgeInsets.symmetric(horizontal: width / 27)),
@@ -586,16 +945,16 @@ class _DashboardState extends State<Dashboard> {
                   style: ElevatedButton.styleFrom(
                       primary: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular((10))),
+                          borderRadius: BorderRadius.circular((width / 40))),
                       padding: EdgeInsets.symmetric(
-                          horizontal: width / 30, vertical: width / 80)),
+                          horizontal: width / 18, vertical: width / 90)),
                   onPressed: () =>
                       Get.to(DiskonPage(), transition: Transition.rightToLeft),
                   child: Text("Get now",
                       style: TextStyle(
                           color: blueTheme,
                           fontFamily: "popinsemi",
-                          fontSize: width / 30)))
+                          fontSize: width / 25)))
             ],
           ),
           Image.asset(
