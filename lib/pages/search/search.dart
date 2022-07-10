@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/pages/search/search_result.dart';
 
 class SearchPage extends StatefulWidget {
@@ -43,6 +43,7 @@ class _SearchPageState extends State<SearchPage> {
                   Container(
                     width: width / 1.3,
                     child: TextField(
+                      autofocus: true,
                       onSubmitted: (value) {
                         if (value.isEmpty) {
                           return;
@@ -76,18 +77,4 @@ class _SearchPageState extends State<SearchPage> {
       )),
     );
   }
-
-  // Widget _searchResult(width) {
-  //   return ListTile(
-  //     leading: CircleAvatar(
-  //       backgroundColor: Color.fromARGB(255, 230, 230, 230),
-  //       child: Icon(
-  //         Iconsax.search_normal_1,
-  //         size: width / 20,
-  //         color: Colors.grey,
-  //       ),
-  //     ),
-  //     title: Text("sepatu bekas"),
-  //   );
-  // }
 }

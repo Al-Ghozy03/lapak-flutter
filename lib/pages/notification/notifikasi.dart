@@ -10,7 +10,7 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/notif_model.dart';
 import 'package:lapak/models/notif_value_model.dart';

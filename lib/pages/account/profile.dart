@@ -5,7 +5,7 @@ import 'package:fade_shimmer/fade_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/pages/account/edit.dart';
 import 'package:lapak/style/color.dart';
 

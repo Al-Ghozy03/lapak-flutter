@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/pages/store/toko.dart';
 import 'package:lapak/style/color.dart';
 import 'package:material_dialogs/material_dialogs.dart';

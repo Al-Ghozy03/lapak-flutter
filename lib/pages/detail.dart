@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/pages/checkout/checkout.dart';
 import 'package:lapak/pages/store/toko.dart';
@@ -15,6 +15,7 @@ import 'package:lapak/widget/rupiah_format.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as Io;
+import 'package:toast/toast.dart';
 
 class Detail extends StatefulWidget {
   final data;
@@ -45,6 +46,7 @@ class _DetailState extends State<Detail> {
   }
 
   Future generateCode() async {
+    Toast.show("Mohon tunggu sebentar", gravity: Toast.bottom);
     Uri url = Uri.parse("$baseUrl/chat/generate-code/${widget.data.owner}");
     SharedPreferences storage = await SharedPreferences.getInstance();
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
@@ -130,7 +132,7 @@ class _DetailState extends State<Detail> {
                     borderRadius: BorderRadius.circular(width)),
                 child: IconButton(
                   icon: Icon(Iconsax.arrow_left),
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => Get.back(),
                 ),
               ),
               expandedHeight: width / 1.1,
@@ -148,8 +150,8 @@ class _DetailState extends State<Detail> {
                     height: width / 7,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(35),
-                            topRight: Radius.circular(35)),
+                            topLeft: Radius.circular(width / 15),
+                            topRight: Radius.circular(width / 15)),
                         color: Colors.white),
                     child: Center(
                       child: Container(
@@ -269,6 +271,8 @@ class _DetailState extends State<Detail> {
                                 Toko(storeId: widget.data.storeId),
                                 transition: Transition.rightToLeft),
                             child: CircleAvatar(
+                              maxRadius: width / 25,
+                              minRadius: width / 25,
                               backgroundImage:
                                   NetworkImage(widget.data.fotoToko),
                             ),

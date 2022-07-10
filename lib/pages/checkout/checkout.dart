@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/models/info_model.dart';
 import 'package:lapak/pages/pesanan.dart';
 import 'package:lapak/style/color.dart';
@@ -61,13 +61,13 @@ class _CheckoutState extends State<Checkout> {
       var data = jsonDecode(res.body)["data"];
       socket.emit("send_notif", {
         "from": data["user_id"],
-        "message": "memesan ${widget.data.namaBarang}",
+        "message": "memesan $totalBarang ${widget.data.namaBarang}",
         "to": widget.data.owner,
       });
       setState(() {
         isLoading = false;
       });
-      Get.to(PesananPage(),transition: Transition.rightToLeft);
+      Get.to(PesananPage(), transition: Transition.rightToLeft);
       return true;
     } else {
       setState(() {

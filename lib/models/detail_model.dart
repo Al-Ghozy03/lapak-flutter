@@ -26,7 +26,7 @@ class DetailModel {
   String deskripsi;
   String kategori;
   String fotoBarang;
-  int? diskon;
+  int diskon;
   int? totalBarang;
   int? totalHarga;
   String? alamat;

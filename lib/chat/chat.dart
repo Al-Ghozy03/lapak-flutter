@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_prefixes, unnecessary_this, unused_field, deprecated_member_use, prefer_collection_literals, avoid_print, use_key_in_widget_constructors, must_be_immutable, unused_local_variable, unused_element, invalid_return_type_for_catch_error, sized_box_for_whitespace
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, library_prefixes, unnecessary_this, unused_field, deprecated_member_use, prefer_collection_literals, avoid_print, use_key_in_widget_constructors, must_be_immutable, unused_local_variable, unused_element, invalid_return_type_for_catch_error, sized_box_for_whitespace, prefer_final_fields
 
 import 'dart:convert';
 
@@ -8,9 +8,11 @@ import 'package:grouped_list/grouped_list.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:lapak/api/api_service.dart';
 import 'package:lapak/models/chat_model.dart';
+import 'package:lapak/models/info_model.dart';
 import 'package:lapak/models/message_model.dart';
+import 'package:lapak/service/api_service.dart';
+import 'package:lapak/service/notification_service.dart';
 import 'package:lapak/style/color.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as Io;
@@ -29,8 +31,19 @@ class _ChatPageState extends State<ChatPage> {
   late Future getListMessage;
   List<ChatModel> messageList = [];
   ChatModel? chatModel;
-  bool isLoading = false;
   ScrollController scrollController = ScrollController();
+  Info _info = Info(name: "", alamat: "");
+
+  void getInfo() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    Map<String, dynamic> info = {};
+    String infoStr = storage.getString("info").toString();
+
+    setState(() {
+      info = jsonDecode(infoStr) as Map<String, dynamic>;
+      _info = Info.fromJson(info);
+    });
+  }
 
   Future listMessage(String roomCode) async {
     Uri url = Uri.parse("$baseUrl/chat/list-message/$roomCode");
@@ -46,65 +59,13 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  Future sendMessage() async {
-    setState(() {
-      isLoading = true;
-    });
-    Uri url = Uri.parse("$baseUrl/chat/send-message");
-    SharedPreferences storage = await SharedPreferences.getInstance();
-    headers["Authorization"] = "Bearer ${storage.getString("token")}";
-    final res = await http.post(url,
-        body: jsonEncode({
-          "from": sender,
-          "to": widget.to,
-          "message": messageController.text,
-          "room_code": widget.roomCode
-        }),
-        headers: headers);
-    if (res.statusCode == 200) {
-      socket.emit("send_message", {
-        "from": sender,
-        "to": widget.to,
-        "message": messageController.text,
-        "room_code": widget.roomCode,
-        "is_read": false
-      });
-      socket.on("received_message", (data) {
-        print(data);
-        setStateIfMounted(() {
-          isLoading = false;
-          messageList.add(ChatModel(
-              id: jsonDecode(res.body)["data"]["id"],
-              from: data["from"],
-              to: data["to"],
-              message: data["message"],
-              roomCode: data["room_code"],
-              isRead: data["is_read"],
-              createdAt:
-                  DateTime.parse(jsonDecode(res.body)["data"]["createdAt"]),
-              updatedAt:
-                  DateTime.parse(jsonDecode(res.body)["data"]["updatedAt"])));
-        });
-      });
-      messageController.clear();
-      scrollController.animateTo(scrollController.position.maxScrollExtent,
-          duration: Duration(milliseconds: 400), curve: Curves.easeOut);
-      return true;
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-      print(res.statusCode);
-      return false;
-    }
-  }
-
   TextEditingController messageController = TextEditingController();
   Io.Socket socket = Io.io(baseUrl, <String, dynamic>{
     "transports": ["websocket"],
   });
   String token = "";
   int sender = 0;
+  String user = "";
   void getSender() async {
     SharedPreferences storage = await SharedPreferences.getInstance();
     setState(() {
@@ -125,13 +86,33 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void initState() {
+    getInfo();
+    socket.on("received_message", (data) {
+      if (data["to"] == sender) {
+        NotificationService.showNotification(
+            title: "Pesan baru dari $user",
+            body: data["message"],
+            payload: "message");
+      } else {
+        print("not showing notif");
+      }
+      setStateIfMounted(() {
+        messageList.add(ChatModel(
+            from: data["from"],
+            to: data["to"],
+            message: data["message"],
+            roomCode: data["room_code"],
+            isRead: data["is_read"],
+            createdAt: DateTime.parse(data["createdAt"]),
+            updatedAt: DateTime.parse(data["updatedAt"])));
+      });
+    });
     getProfile = ApiService().getProfileChat(widget.to);
     getListMessage = listMessage(widget.roomCode);
     getListMessage.then((value) {
       value.data.map((e) {
         setState(() {
           messageList.add(ChatModel(
-              id: e.id,
               from: e.from,
               to: e.to,
               message: e.message,
@@ -177,6 +158,7 @@ class _ChatPageState extends State<ChatPage> {
               return Text("terjadi kesalahan");
             } else {
               if (snapshot.hasData) {
+                user = snapshot.data.data.name;
                 return Row(
                   children: [
                     snapshot.data.data.photoProfile == null
@@ -216,47 +198,46 @@ class _ChatPageState extends State<ChatPage> {
         backgroundColor: Color(0xffF4F4F4),
       ),
       body: SafeArea(
-          child: Padding(
-        padding: EdgeInsets.all(width / 25),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-                child: Container(
-              height: height,
-              child: GroupedListView<dynamic, DateTime>(
-                controller: scrollController,
-                elements: messageList,
-                groupBy: (data) => DateTime(data.createdAt.year,
-                    data.createdAt.month, data.createdAt.day),
-                groupSeparatorBuilder: (DateTime date) => Center(
-                    child: Text(
-                  DateFormat.yMEd().format(date).toString() ==
-                          DateFormat.yMEd().format(DateTime.now())
-                      ? "Hari ini"
-                      : DateFormat.yMEd().format(date).toString(),
-                  style: TextStyle(fontSize: width / 35),
-                )),
-                order: GroupedListOrder.ASC,
-                itemBuilder: (context, dynamic data) {
-                  return Align(
-                    alignment: data.from == sender
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
-                    child: data.from == sender
-                        ? _messageFromMe(width, data.message, data.isRead)
-                        : _messageFromOther(width, data.message),
-                  );
-                },
-              ),
-            )),
-            _sendArea(width, isLoading)
-          ],
-        ),
+          child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+              child: Container(
+            padding: EdgeInsets.all(width / 25),
+            height: height,
+            child: GroupedListView<dynamic, DateTime>(
+              controller: scrollController,
+              elements: messageList,
+              groupBy: (data) => DateTime(data.createdAt.year,
+                  data.createdAt.month, data.createdAt.day),
+              groupSeparatorBuilder: (DateTime date) => Center(
+                  child: Text(
+                DateFormat.yMEd().format(date).toString() ==
+                        DateFormat.yMEd().format(DateTime.now())
+                    ? "Hari ini"
+                    : DateFormat.yMEd().format(date).toString(),
+                style: TextStyle(fontSize: width / 35),
+              )),
+              order: GroupedListOrder.ASC,
+              itemBuilder: (context, dynamic data) {
+                return Align(
+                  alignment: data.from == sender
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                  child: data.from == sender
+                      ? _messageFromMe(width, data.message, data.isRead)
+                      : _messageFromOther(width, data.message),
+                );
+              },
+            ),
+          )),
+          _sendArea(width)
+        ],
       )),
     );
   }
-    Widget _loadingState(width) {
+
+  Widget _loadingState(width) {
     return Row(
       children: [
         FadeShimmer.round(
@@ -293,7 +274,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-
   Widget _messageFromOther(width, message) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: width / 60),
@@ -328,32 +308,44 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _sendArea(width, bool isLoading) {
-    return Row(
-      children: [
-        Expanded(
-          child: TextField(
-            controller: messageController,
-            decoration: InputDecoration(
-              hintText: 'Write a message...',
-              contentPadding: EdgeInsets.symmetric(horizontal: width / 50),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(width / 20)),
-              filled: true,
-              fillColor: Color(0xffE8E8E8),
+  Widget _sendArea(width) {
+    return Container(
+      padding:
+          EdgeInsets.symmetric(vertical: width / 25, horizontal: width / 40),
+      color: Color.fromARGB(255, 236, 236, 236).withOpacity(0.3),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              maxLines: null,
+              controller: messageController,
+              decoration: InputDecoration(
+                hintText: 'Write a message...',
+                contentPadding: EdgeInsets.symmetric(horizontal: width / 50),
+              ),
             ),
           ),
-        ),
-        isLoading
-            ? Transform.scale(
-                scale: width / 600, child: CircularProgressIndicator(color: grayText,))
-            : IconButton(
-                onPressed: () {
-                  sendMessage();
-                },
-                icon: Icon(Iconsax.send_1),
-              )
-      ],
+          IconButton(
+            onPressed: () {
+              socket.emit("send_message", {
+                "from": sender,
+                "to": widget.to,
+                "message": messageController.text,
+                "room_code": widget.roomCode,
+                "is_read": false,
+                "createdAt": DateTime.now().toString(),
+                "updatedAt": DateTime.now().toString(),
+              });
+              messageController.clear();
+              scrollController.animateTo(
+                  scrollController.position.maxScrollExtent,
+                  duration: Duration(milliseconds: 400),
+                  curve: Curves.easeOut);
+            },
+            icon: Icon(Iconsax.send_1),
+          )
+        ],
+      ),
     );
   }
 }

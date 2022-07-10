@@ -1,7 +1,6 @@
 class ChatModel {
   ChatModel(
-      {required this.id,
-      required this.from,
+      {required this.from,
       required this.to,
       required this.message,
       required this.roomCode,
@@ -9,7 +8,6 @@ class ChatModel {
       required this.updatedAt,
       required this.isRead});
 
-  int id;
   int from;
   int to;
   String message;

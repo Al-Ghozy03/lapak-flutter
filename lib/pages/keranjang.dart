@@ -1,10 +1,10 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, curly_braces_in_flow_control_structures
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, curly_braces_in_flow_control_structures, avoid_print
 
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/models/cart_model.dart';
 import 'package:lapak/pages/detail.dart';
 import 'package:lapak/style/color.dart';
@@ -208,6 +208,8 @@ class _KeranjangState extends State<Keranjang> {
                         child: Row(
                           children: [
                             CircleAvatar(
+                              maxRadius: width / 25,
+                              minRadius: width / 25,
                               backgroundImage: NetworkImage(data.fotoToko),
                             ),
                             SizedBox(

@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/style/color.dart';
 import 'package:http/http.dart' as http;
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -83,8 +84,7 @@ class _EditProfileState extends State<EditProfile> {
           print(res.body);
           Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
               snackPosition: SnackPosition.BOTTOM,
-              leftBarIndicatorColor: Colors.red,
-              backgroundColor: Colors.red.withOpacity(0.3));
+              leftBarIndicatorColor: Colors.red);
         }
       });
     });
@@ -165,9 +165,9 @@ class _EditProfileState extends State<EditProfile> {
                 controller: name,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -183,9 +183,9 @@ class _EditProfileState extends State<EditProfile> {
                 keyboardType: TextInputType.emailAddress,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -212,9 +212,9 @@ class _EditProfileState extends State<EditProfile> {
                     iconSize: width / 20,
                     color: !hidden ? Color(0xff4C82F6) : Colors.grey,
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -230,9 +230,9 @@ class _EditProfileState extends State<EditProfile> {
                 keyboardType: TextInputType.phone,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -247,9 +247,9 @@ class _EditProfileState extends State<EditProfile> {
                 controller: alamat,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -260,6 +260,35 @@ class _EditProfileState extends State<EditProfile> {
                 width: width,
                 child: ElevatedButton(
                     onPressed: () {
+                      if (email.text.isEmpty ||
+                          name.text.isEmpty ||
+                          phone.text.isEmpty ||
+                          alamat.text.isEmpty) {
+                        Dialogs.materialDialog(
+                            context: context,
+                            lottieBuilder: LottieBuilder.asset(
+                                "assets/json/94900-error.json"),
+                            title: "Terjadi kesalahan",
+                            titleStyle: TextStyle(
+                                fontFamily: "popinsemi",
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 20),
+                            msg: "Semua field harus diisi",
+                            msgStyle: TextStyle(color: grayText),
+                            actions: [
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      primary: blueTheme,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              width / 40))),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text("Ok"))
+                            ]);
+                        return;
+                      }
                       updateProfile(_image);
                     },
                     style: ElevatedButton.styleFrom(

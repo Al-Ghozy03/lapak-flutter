@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/models/info_model.dart';
 import 'package:lapak/pages/dashboard.dart';
 import 'package:lapak/style/color.dart';
@@ -81,10 +81,6 @@ class _RegisterState extends State<Register> {
           errorEmail = "";
         }
       });
-      Get.snackbar("Gagal", "terjadi kesalahan, silahkan coba lagi",
-          snackPosition: SnackPosition.BOTTOM,
-          leftBarIndicatorColor: Colors.red,
-          backgroundColor: Colors.red.withOpacity(0.3));
       return false;
     }
   }
@@ -117,7 +113,7 @@ class _RegisterState extends State<Register> {
                       color: blueTheme),
                 ),
               ]),
-             LottieBuilder.asset("assets/json/63787-secure-login.json"),
+              LottieBuilder.asset("assets/json/63787-secure-login.json"),
               _form(width),
               SizedBox(
                 height: width / 30,
@@ -158,9 +154,9 @@ class _RegisterState extends State<Register> {
           keyboardType: TextInputType.emailAddress,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(width/30),
+                borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
@@ -180,9 +176,9 @@ class _RegisterState extends State<Register> {
           controller: name,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(width/30),
+                borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
           keyboardType: TextInputType.name,
@@ -204,7 +200,7 @@ class _RegisterState extends State<Register> {
           style: TextStyle(fontSize: width / 33),
           obscureText: isShow,
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             suffixIcon: IconButton(
               onPressed: () {
                 setState(() {
@@ -216,7 +212,7 @@ class _RegisterState extends State<Register> {
               color: !isShow ? Color(0xff4C82F6) : Colors.grey,
             ),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(width/30),
+                borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
@@ -238,9 +234,9 @@ class _RegisterState extends State<Register> {
           maxLength: 12,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(width/30),
+                borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
@@ -260,9 +256,9 @@ class _RegisterState extends State<Register> {
           controller: alamat,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(width/30),
+                borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
           ),
         ),
@@ -278,6 +274,35 @@ class _RegisterState extends State<Register> {
           width: width,
           child: ElevatedButton(
               onPressed: () {
+                if (email.text.isEmpty ||
+                    name.text.isEmpty ||
+                    password.text.isEmpty ||
+                    phone.text.isEmpty ||
+                    alamat.text.isEmpty) {
+                  Dialogs.materialDialog(
+                      context: context,
+                      lottieBuilder:
+                          LottieBuilder.asset("assets/json/94900-error.json"),
+                      title: "Terjadi kesalahan",
+                      titleStyle: TextStyle(
+                          fontFamily: "popinsemi",
+                          fontSize: MediaQuery.of(context).size.width / 20),
+                      msg: "Semua field harus diisi",
+                      msgStyle: TextStyle(color: grayText),
+                      actions: [
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: blueTheme,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(width / 40))),
+                            onPressed: () {
+                              Get.back();
+                            },
+                            child: Text("Ok"))
+                      ]);
+                  return;
+                }
                 registerHandle();
               },
               style: ElevatedButton.styleFrom(

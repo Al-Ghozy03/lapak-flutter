@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/chat/list_chat.dart';
 import 'package:lapak/models/rekomendasi_model.dart';
 import 'package:lapak/pages/auth/login.dart';
@@ -23,6 +23,7 @@ import 'package:lapak/pages/account/profile.dart';
 import 'package:lapak/pages/search/search.dart';
 import 'package:lapak/pages/store/empty_store.dart';
 import 'package:lapak/pages/store/toko.dart';
+import 'package:lapak/service/notification_service.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/rupiah_format.dart';
@@ -93,6 +94,7 @@ class _DashboardState extends State<Dashboard> {
     getUserId();
     getRekomendasi = ApiService().getRekomendasi();
     getProfile = ApiService().getProfile();
+    notifLength();
     super.initState();
   }
 
@@ -149,6 +151,7 @@ class _DashboardState extends State<Dashboard> {
                     return Container(
                       width: width,
                       child: ListView.separated(
+                          physics: BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, i) {
                             return _card(width, snapshot.data, i);
@@ -861,7 +864,9 @@ class _DashboardState extends State<Dashboard> {
                                     CurrencyFormat.convertToIdr(
                                         data.data[i].harga, 0),
                                     style: TextStyle(
-                                        fontSize: width / 35, color: Colors.grey.withOpacity(0.6),decoration: TextDecoration.lineThrough),
+                                        fontSize: width / 35,
+                                        color: Colors.grey.withOpacity(0.6),
+                                        decoration: TextDecoration.lineThrough),
                                   ),
                                 ],
                               ),

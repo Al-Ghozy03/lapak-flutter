@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/style/color.dart';
 import 'package:http/http.dart' as http;
+import 'package:material_dialogs/material_dialogs.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -156,9 +157,9 @@ class _EditTokoState extends State<EditToko> {
                 controller: name,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -173,9 +174,9 @@ class _EditTokoState extends State<EditToko> {
                 controller: daerah,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
+                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -186,6 +187,32 @@ class _EditTokoState extends State<EditToko> {
                 width: width,
                 child: ElevatedButton(
                     onPressed: () {
+                      if (name.text.isEmpty || daerah.text.isEmpty) {
+                        Dialogs.materialDialog(
+                            context: context,
+                            lottieBuilder: LottieBuilder.asset(
+                                "assets/json/94900-error.json"),
+                            title: "Terjadi kesalahan",
+                            titleStyle: TextStyle(
+                                fontFamily: "popinsemi",
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 20),
+                            msg: "Semua field harus diisi",
+                            msgStyle: TextStyle(color: grayText),
+                            actions: [
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      primary: blueTheme,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              width / 40))),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text("Ok"))
+                            ]);
+                        return;
+                      }
                       updateProfile(_image);
                     },
                     style: ElevatedButton.styleFrom(

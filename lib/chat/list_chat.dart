@@ -6,9 +6,9 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:lapak/api/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/list_chat_model.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/error.dart';
 import 'package:material_dialogs/material_dialogs.dart';
@@ -175,6 +175,7 @@ class _ListChatPageState extends State<ListChatPage> {
                               : CircleAvatar(
                                   maxRadius: width / 17,
                                   minRadius: width / 17,
+                                  backgroundColor: grayText,
                                   backgroundImage:
                                       NetworkImage(chat.data[i].photoProfile),
                                 ),

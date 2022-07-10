@@ -11,7 +11,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:jwt_decode/jwt_decode.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/detail_model.dart';
 import 'package:lapak/models/store_model.dart';
@@ -317,6 +317,7 @@ class _TokoState extends State<Toko> {
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: FutureBuilder(
         future: getStore,
         builder: (context, AsyncSnapshot snapshot) {
@@ -361,7 +362,7 @@ class _TokoState extends State<Toko> {
       closedBuilder: (context, action) {
         return Container(
             margin: EdgeInsets.all(10),
-            height: width / 1.5,
+            height: width / 1.4,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(width / 25),
                 color: Colors.white,
@@ -446,6 +447,8 @@ class _TokoState extends State<Toko> {
                   child: Row(
                     children: [
                       CircleAvatar(
+                        maxRadius: width / 25,
+                        minRadius: width / 25,
                         backgroundImage: NetworkImage(value.fotoToko),
                       ),
                       SizedBox(
@@ -474,9 +477,44 @@ class _TokoState extends State<Toko> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        CurrencyFormat.convertToIdr(data.harga, 0),
+                        CurrencyFormat.convertToIdr(
+                            data.diskon == 0
+                                ? data.harga
+                                : (0.5 * data.harga) - data.diskon,
+                            0),
                         style: TextStyle(fontSize: width / 35, color: grayText),
                       ),
+                      data.diskon == 0
+                          ? Container()
+                          : Row(
+                              children: [
+                                Container(
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: width / 200),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: width / 50,
+                                      vertical: width / 200),
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(width / 90),
+                                      color: Colors.blue.withOpacity(0.7)),
+                                  child: Text(
+                                    "${data.diskon}%",
+                                    style: TextStyle(
+                                        fontSize: width / 35,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                                SizedBox(width: width / 40),
+                                Text(
+                                  CurrencyFormat.convertToIdr(data.harga, 0),
+                                  style: TextStyle(
+                                      fontSize: width / 35,
+                                      color: Colors.grey.withOpacity(0.6),
+                                      decoration: TextDecoration.lineThrough),
+                                ),
+                              ],
+                            ),
                       Text(
                         info["daerah"],
                         style: TextStyle(fontSize: width / 35, color: grayText),

@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:lapak/api/api_service.dart';
+import 'package:lapak/service/api_service.dart';
 import 'package:lapak/models/info_model.dart';
 import 'package:lapak/pages/auth/register.dart';
 import 'package:lapak/pages/dashboard.dart';
@@ -177,7 +177,34 @@ class _LoginState extends State<Login> {
         Container(
           width: width,
           child: ElevatedButton(
-              onPressed: () => loginHandle(),
+              onPressed: () {
+                if (email.text.isEmpty || password.text.isEmpty) {
+                  Dialogs.materialDialog(
+                      context: context,
+                      lottieBuilder:
+                          LottieBuilder.asset("assets/json/94900-error.json"),
+                      title: "Terjadi kesalahan",
+                      titleStyle: TextStyle(
+                          fontFamily: "popinsemi",
+                          fontSize: MediaQuery.of(context).size.width / 20),
+                      msg: "Semua field harus diisi",
+                      msgStyle: TextStyle(color: grayText),
+                      actions: [
+                        ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: blueTheme,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(width / 40))),
+                            onPressed: () {
+                              Get.back();
+                            },
+                            child: Text("Ok"))
+                      ]);
+                  return;
+                }
+                loginHandle();
+              },
               style: ElevatedButton.styleFrom(
                   elevation: 0,
                   primary: blueTheme,
