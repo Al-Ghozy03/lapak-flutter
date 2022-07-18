@@ -165,7 +165,6 @@ class _EditProfileState extends State<EditProfile> {
                 controller: name,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -183,7 +182,6 @@ class _EditProfileState extends State<EditProfile> {
                 keyboardType: TextInputType.emailAddress,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -212,7 +210,6 @@ class _EditProfileState extends State<EditProfile> {
                     iconSize: width / 20,
                     color: !hidden ? Color(0xff4C82F6) : Colors.grey,
                   ),
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -230,7 +227,6 @@ class _EditProfileState extends State<EditProfile> {
                 keyboardType: TextInputType.phone,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -247,7 +243,6 @@ class _EditProfileState extends State<EditProfile> {
                 controller: alamat,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -274,18 +269,24 @@ class _EditProfileState extends State<EditProfile> {
                                 fontSize:
                                     MediaQuery.of(context).size.width / 20),
                             msg: "Semua field harus diisi",
-                            msgStyle: TextStyle(color: grayText),
+                            msgStyle: TextStyle(
+                                color: grayText, fontSize: width / 30),
                             actions: [
                               ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                      primary: blueTheme,
+                                      backgroundColor: blueTheme,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: width / 67),
                                       shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                              width / 40))),
+                                              width / 50))),
                                   onPressed: () {
                                     Get.back();
                                   },
-                                  child: Text("Ok"))
+                                  child: Text(
+                                    "Ok",
+                                    style: TextStyle(fontSize: width / 30),
+                                  ))
                             ]);
                         return;
                       }

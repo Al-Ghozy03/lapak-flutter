@@ -157,7 +157,6 @@ class _EditTokoState extends State<EditToko> {
                 controller: name,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -174,7 +173,6 @@ class _EditTokoState extends State<EditToko> {
                 controller: daerah,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -198,18 +196,24 @@ class _EditTokoState extends State<EditToko> {
                                 fontSize:
                                     MediaQuery.of(context).size.width / 20),
                             msg: "Semua field harus diisi",
-                            msgStyle: TextStyle(color: grayText),
+                            msgStyle: TextStyle(
+                                color: grayText, fontSize: width / 30),
                             actions: [
                               ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                      primary: blueTheme,
+                                      backgroundColor: blueTheme,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: width / 67),
                                       shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                              width / 40))),
+                                              width / 50))),
                                   onPressed: () {
                                     Get.back();
                                   },
-                                  child: Text("Ok"))
+                                  child: Text(
+                                    "Ok",
+                                    style: TextStyle(fontSize: width / 30),
+                                  ))
                             ]);
                         return;
                       }
@@ -256,7 +260,7 @@ class _EditTokoState extends State<EditToko> {
             },
             icon: Icon(Iconsax.arrow_left)),
         Text(
-          "Edit",
+          "Toko",
           style: TextStyle(
             fontSize: width / 15,
             fontFamily: "popinsemi",

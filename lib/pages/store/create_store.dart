@@ -112,9 +112,8 @@ class _CreateStoreState extends State<CreateStore> {
                 controller: namaToko,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
@@ -129,16 +128,15 @@ class _CreateStoreState extends State<CreateStore> {
                 controller: daerah,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width/40),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(width/30),
+                      borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
                 ),
               ),
               Stack(
                 children: [
                   InkWell(
-                    onTap: () async => path == null? await getImage():null,
+                    onTap: () async => path == null ? await getImage() : null,
                     child: path == null
                         ? LottieBuilder.asset(
                             "assets/json/63534-image-preloader.json")
@@ -196,6 +194,40 @@ class _CreateStoreState extends State<CreateStore> {
                 width: width,
                 child: ElevatedButton(
                     onPressed: () {
+                      if (namaToko.text.isEmpty ||
+                          daerah.text.isEmpty ||
+                          _image == null) {
+                        Dialogs.materialDialog(
+                            context: context,
+                            lottieBuilder: LottieBuilder.asset(
+                                "assets/json/94900-error.json"),
+                            title: "Terjadi kesalahan",
+                            titleStyle: TextStyle(
+                                fontFamily: "popinsemi",
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 20),
+                            msg: "Semua field harus diisi",
+                            msgStyle: TextStyle(
+                                color: grayText, fontSize: width / 30),
+                            actions: [
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: blueTheme,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: width / 67),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              width / 50))),
+                                  onPressed: () {
+                                    Get.back();
+                                  },
+                                  child: Text(
+                                    "Ok",
+                                    style: TextStyle(fontSize: width / 30),
+                                  ))
+                            ]);
+                        return;
+                      }
                       createStore(_image!, context);
                     },
                     style: ElevatedButton.styleFrom(

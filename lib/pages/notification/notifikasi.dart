@@ -14,6 +14,7 @@ import 'package:lapak/service/api_service.dart';
 import 'package:lapak/chat/chat.dart';
 import 'package:lapak/models/notif_model.dart';
 import 'package:lapak/models/notif_value_model.dart';
+import 'package:lapak/service/notification_service.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -108,6 +109,12 @@ class _NotifikasiState extends State<Notifikasi> {
 
   @override
   void initState() {
+    socket.on("received_notif", (data) {
+      if (data["to"] == userId) {
+        NotificationService.showNotification(
+            title: "Pesanan baru", body: "${data["user"]} ${data["message"]}");
+      }
+    });
     getUserId();
     connectSocket();
     getNotif = getNotification();
@@ -120,7 +127,6 @@ class _NotifikasiState extends State<Notifikasi> {
               from: data.from,
               message: data.message,
               to: data.to,
-              id: data.notifId,
               createdAt: data.createdAt,
               isRead: data.isRead));
         });
@@ -151,9 +157,18 @@ class _NotifikasiState extends State<Notifikasi> {
                   : notif.isEmpty
                       ? Container(
                           margin: EdgeInsets.only(top: width / 6),
-                          child: Center(
-                              child: LottieBuilder.asset(
-                                  "assets/json/4021-no-notification-state.json")),
+                          child: Column(
+                            children: [
+                              LottieBuilder.asset(
+                                  "assets/json/4021-no-notification-state.json"),
+                              Text("Tidak ada notifikasi",
+                                  style: TextStyle(
+                                      fontSize: width / 18,
+                                      color: grayText,
+                                      fontFamily: "popinsemi"),
+                                  textAlign: TextAlign.center)
+                            ],
+                          ),
                         )
                       : Container(
                           height: height,

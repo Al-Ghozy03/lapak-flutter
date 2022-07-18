@@ -140,14 +140,31 @@ class _SearchResultState extends State<SearchResult> {
                       ],
                     );
                   } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text("terjadi kesalahan"),
+                    return StaggeredGrid.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 2,
+                      children: [
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
+                      ],
                     );
                   } else {
                     if (snapshot.hasData) {
                       if (snapshot.data.data.length == 0)
-                        return Center(
-                            child: LottieBuilder.asset("assets/json/93134-not-found.json"));
+                        return Column(
+                          children: [
+                            LottieBuilder.asset(
+                                "assets/json/93134-not-found.json"),
+                            Text("Barang tidak ditemukan",
+                                style: TextStyle(
+                                    fontSize: width / 18,
+                                    color: grayText,
+                                    fontFamily: "popinsemi"),
+                                textAlign: TextAlign.center)
+                          ],
+                        );
                       return Column(
                         children: [
                           Row(

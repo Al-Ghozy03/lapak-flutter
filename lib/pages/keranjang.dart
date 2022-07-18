@@ -135,8 +135,17 @@ class _KeranjangState extends State<Keranjang> {
 
   Widget _card(width, Cart cart) {
     if (cart.data.isEmpty)
-      return LottieBuilder.asset("assets/json/85220-cart.json",
-          height: width / 1);
+      return Column(
+        children: [
+          LottieBuilder.asset("assets/json/85220-cart.json"),
+          Text("Tidak ada barang di keranjang",
+              style: TextStyle(
+                  fontSize: width / 18,
+                  color: grayText,
+                  fontFamily: "popinsemi"),
+              textAlign: TextAlign.center)
+        ],
+      );
     return StaggeredGrid.count(
       mainAxisSpacing: 2,
       crossAxisCount: 2,

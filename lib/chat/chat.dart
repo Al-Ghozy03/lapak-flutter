@@ -155,7 +155,7 @@ class _ChatPageState extends State<ChatPage> {
             if (snapshot.connectionState != ConnectionState.done) {
               return _loadingState(width);
             } else if (snapshot.hasError) {
-              return Text("terjadi kesalahan");
+              return _loadingState(width);
             } else {
               if (snapshot.hasData) {
                 user = snapshot.data.data.name;

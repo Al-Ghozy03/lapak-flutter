@@ -61,6 +61,7 @@ class _CheckoutState extends State<Checkout> {
       var data = jsonDecode(res.body)["data"];
       socket.emit("send_notif", {
         "from": data["user_id"],
+        "user": _info.name,
         "message": "memesan $totalBarang ${widget.data.namaBarang}",
         "to": widget.data.owner,
       });
@@ -123,7 +124,7 @@ class _CheckoutState extends State<Checkout> {
                         Navigator.of(context).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                          primary: blueTheme,
+                          backgroundColor: blueTheme,
                           padding: EdgeInsets.symmetric(vertical: width / 50),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(width / 50))),
@@ -270,7 +271,7 @@ class _CheckoutState extends State<Checkout> {
                             alamat.text != "" ? alamat.text : _info.alamat);
                       },
                       style: ElevatedButton.styleFrom(
-                          primary: blueTheme,
+                          backgroundColor: blueTheme,
                           padding: EdgeInsets.symmetric(vertical: width / 50),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(width / 50))),

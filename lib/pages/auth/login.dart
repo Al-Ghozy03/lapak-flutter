@@ -126,7 +126,6 @@ class _LoginState extends State<Login> {
           controller: email,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -160,7 +159,6 @@ class _LoginState extends State<Login> {
               iconSize: width / 20,
               color: !isShow ? Color(0xff4C82F6) : Colors.grey,
             ),
-            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -188,26 +186,31 @@ class _LoginState extends State<Login> {
                           fontFamily: "popinsemi",
                           fontSize: MediaQuery.of(context).size.width / 20),
                       msg: "Semua field harus diisi",
-                      msgStyle: TextStyle(color: grayText),
+                      msgStyle:
+                          TextStyle(color: grayText, fontSize: width / 30),
                       actions: [
                         ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                primary: blueTheme,
+                                backgroundColor: blueTheme,
+                                padding:
+                                    EdgeInsets.symmetric(vertical: width / 67),
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
-                                        BorderRadius.circular(width / 40))),
+                                        BorderRadius.circular(width / 50))),
                             onPressed: () {
                               Get.back();
                             },
-                            child: Text("Ok"))
+                            child: Text(
+                              "Ok",
+                              style: TextStyle(fontSize: width / 30),
+                            ))
                       ]);
                   return;
                 }
                 loginHandle();
               },
               style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  primary: blueTheme,
+                  elevation: 0, backgroundColor: blueTheme,
                   padding: EdgeInsets.symmetric(vertical: width / 67),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(width / 50))),

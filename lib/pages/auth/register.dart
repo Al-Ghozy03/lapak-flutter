@@ -154,7 +154,6 @@ class _RegisterState extends State<Register> {
           keyboardType: TextInputType.emailAddress,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -176,7 +175,6 @@ class _RegisterState extends State<Register> {
           controller: name,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -200,7 +198,6 @@ class _RegisterState extends State<Register> {
           style: TextStyle(fontSize: width / 33),
           obscureText: isShow,
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             suffixIcon: IconButton(
               onPressed: () {
                 setState(() {
@@ -234,7 +231,6 @@ class _RegisterState extends State<Register> {
           maxLength: 12,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -256,7 +252,6 @@ class _RegisterState extends State<Register> {
           controller: alamat,
           style: TextStyle(fontSize: width / 33),
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(width / 30),
                 borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -288,25 +283,31 @@ class _RegisterState extends State<Register> {
                           fontFamily: "popinsemi",
                           fontSize: MediaQuery.of(context).size.width / 20),
                       msg: "Semua field harus diisi",
-                      msgStyle: TextStyle(color: grayText),
+                      msgStyle:
+                          TextStyle(color: grayText, fontSize: width / 30),
                       actions: [
                         ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                                primary: blueTheme,
+                                backgroundColor: blueTheme,
+                                padding:
+                                    EdgeInsets.symmetric(vertical: width / 67),
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
-                                        BorderRadius.circular(width / 40))),
+                                        BorderRadius.circular(width / 50))),
                             onPressed: () {
                               Get.back();
                             },
-                            child: Text("Ok"))
+                            child: Text(
+                              "Ok",
+                              style: TextStyle(fontSize: width / 30),
+                            ))
                       ]);
                   return;
                 }
                 registerHandle();
               },
               style: ElevatedButton.styleFrom(
-                  primary: blueTheme,
+                  backgroundColor: blueTheme,
                   padding: EdgeInsets.symmetric(vertical: width / 67),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(width / 50))),

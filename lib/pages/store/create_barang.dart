@@ -113,7 +113,6 @@ class _CreateBarangState extends State<CreateBarang> {
                 controller: namaBarang,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -131,7 +130,6 @@ class _CreateBarangState extends State<CreateBarang> {
                 controller: harga,
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -168,7 +166,6 @@ class _CreateBarangState extends State<CreateBarang> {
                 style: TextStyle(fontSize: width / 33),
                 decoration: InputDecoration(
                   hintText: "Opsional",
-                  contentPadding: EdgeInsets.symmetric(horizontal: width / 40),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(width / 30),
                       borderSide: BorderSide(color: grayBorder, width: 3)),
@@ -279,18 +276,24 @@ class _CreateBarangState extends State<CreateBarang> {
                                 fontSize:
                                     MediaQuery.of(context).size.width / 20),
                             msg: "Semua field harus diisi",
-                            msgStyle: TextStyle(color: grayText),
+                            msgStyle: TextStyle(
+                                color: grayText, fontSize: width / 30),
                             actions: [
                               ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                      primary: blueTheme,
+                                      backgroundColor: blueTheme,
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: width / 67),
                                       shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                              width / 40))),
+                                              width / 50))),
                                   onPressed: () {
                                     Get.back();
                                   },
-                                  child: Text("Ok"))
+                                  child: Text(
+                                    "Ok",
+                                    style: TextStyle(fontSize: width / 30),
+                                  ))
                             ]);
                         return;
                       }
@@ -337,7 +340,7 @@ class _CreateBarangState extends State<CreateBarang> {
             },
             icon: Icon(Iconsax.arrow_left)),
         Text(
-          "Toko",
+          "Barang",
           style: TextStyle(
             fontSize: width / 15,
             fontFamily: "popinsemi",

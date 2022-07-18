@@ -10,7 +10,6 @@ import 'package:lapak/models/pesanan_model.dart';
 import 'package:lapak/pages/checkout/after_checkout.dart';
 import 'package:lapak/service/api_service.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/error.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:lapak/widget/skeleton.dart';
 import 'package:material_dialogs/material_dialogs.dart';
@@ -58,7 +57,16 @@ class _PesananPageState extends State<PesananPage> {
                         ],
                       );
                     } else if (snapshot.hasError) {
-                      return Error();
+                      return StaggeredGrid.count(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 2,
+                        children: [
+                          Skeleton(),
+                          Skeleton(),
+                          Skeleton(),
+                          Skeleton(),
+                        ],
+                      );
                     } else {
                       if (snapshot.hasData) {
                         return _builder(snapshot.data, width);
@@ -78,7 +86,17 @@ class _PesananPageState extends State<PesananPage> {
 
   Widget _builder(PesananModel pesanan, width) {
     if (pesanan.data.isEmpty) {
-      return LottieBuilder.asset("assets/json/lf20_ioskgmiv.json");
+      return Column(
+        children: [
+          LottieBuilder.asset("assets/json/lf20_ioskgmiv.json"),
+          Text("Tidak ada barang di pesanan",
+              style: TextStyle(
+                  fontSize: width / 18,
+                  color: grayText,
+                  fontFamily: "popinsemi"),
+              textAlign: TextAlign.center)
+        ],
+      );
     } else {
       return StaggeredGrid.count(
         crossAxisCount: 2,

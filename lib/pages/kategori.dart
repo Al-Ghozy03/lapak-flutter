@@ -8,6 +8,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:lapak/service/api_service.dart';
 import 'package:lapak/models/detail_model.dart';
 import 'package:lapak/models/kategori_model.dart';
+import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/custom_card.dart';
 import 'package:lapak/widget/skeleton.dart';
 import 'package:material_dialogs/material_dialogs.dart';
@@ -77,12 +78,31 @@ class _KategoriPageState extends State<KategoriPage> {
                       ],
                     );
                   } else if (snapshot.hasError) {
-                    return Text("terjadi kesalahan");
+                    return StaggeredGrid.count(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 2,
+                      children: [
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
+                        Skeleton(),
+                      ],
+                    );
                   } else {
                     if (snapshot.hasData) {
                       if (snapshot.data.data.length == 0) {
-                        return Center(
-                            child:LottieBuilder.asset("assets/json/93134-not-found.json"));
+                        return Column(
+                          children: [
+                            LottieBuilder.asset(
+                                "assets/json/93134-not-found.json"),
+                            Text("Barang tidak ditemukan",
+                                style: TextStyle(
+                                    fontSize: width / 18,
+                                    color: grayText,
+                                    fontFamily: "popinsemi"),
+                                textAlign: TextAlign.center)
+                          ],
+                        );
                       }
                       return _card(width, snapshot.data);
                     } else {

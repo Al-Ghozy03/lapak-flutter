@@ -23,11 +23,9 @@ import 'package:lapak/pages/account/profile.dart';
 import 'package:lapak/pages/search/search.dart';
 import 'package:lapak/pages/store/empty_store.dart';
 import 'package:lapak/pages/store/toko.dart';
-import 'package:lapak/service/notification_service.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/rupiah_format.dart';
-import 'package:material_dialogs/material_dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -60,8 +58,9 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future notifLength() async {
-    Uri url = Uri.parse("$baseUrl/checkout/counter/$userId");
     SharedPreferences storage = await SharedPreferences.getInstance();
+    Uri url = Uri.parse(
+        "$baseUrl/checkout/counter/${Jwt.parseJwt(storage.getString("token").toString())["id"]}");
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
     final res = await http.get(url, headers: headers);
     if (res.statusCode == 200) {
@@ -69,7 +68,7 @@ class _DashboardState extends State<Dashboard> {
       setState(() {
         lengthNotif = length;
       });
-      return true;
+      return length;
     } else {
       print(res.statusCode);
       return false;
@@ -104,6 +103,7 @@ class _DashboardState extends State<Dashboard> {
     final height = MediaQuery.of(context).size.height;
     bool hasStore = false;
     GlobalKey<ScaffoldState> scaffoldState = GlobalKey<ScaffoldState>();
+
     Widget _rekomendasiBuilder() {
       return Container(
         height: width / 1.3,
@@ -119,7 +119,7 @@ class _DashboardState extends State<Dashboard> {
                     child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (context, i) {
-                          return _emptyState(height, width);
+                          return _loadingState(height, width);
                         },
                         separatorBuilder: (_, __) {
                           return SizedBox(
@@ -129,22 +129,20 @@ class _DashboardState extends State<Dashboard> {
                         itemCount: 5),
                   );
                 } else if (snapshot.hasError) {
-                  return Align(
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        LottieBuilder.asset(
-                          "assets/94900-error.json",
-                          height: width / 2,
-                        ),
-                        Text(
-                          "Something went wrong",
-                          style: TextStyle(
-                              fontSize: width / 20, fontFamily: "popinsemi"),
-                        )
-                      ],
-                    ),
+                  return Container(
+                    width: width,
+                    height: width / 2,
+                    child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, i) {
+                          return _loadingState(height, width);
+                        },
+                        separatorBuilder: (_, __) {
+                          return SizedBox(
+                            width: width / 18,
+                          );
+                        },
+                        itemCount: 5),
                   );
                 } else {
                   if (snapshot.hasData) {
@@ -637,6 +635,7 @@ class _DashboardState extends State<Dashboard> {
                       BadgePosition.topEnd(top: width / 67, end: width / 60),
                   child: IconButton(
                       onPressed: () {
+                        socket.emit("see_notif", userId);
                         Get.to(Notifikasi(),
                             transition: Transition.rightToLeft);
                       },
@@ -672,8 +671,7 @@ class _DashboardState extends State<Dashboard> {
           setState(() {
             getRekomendasi = ApiService().getRekomendasi();
             getProfile = ApiService().getProfile();
-          });
-          getUserId();
+          }); 
           notifLength();
         },
         child: ListView(
@@ -714,10 +712,7 @@ class _DashboardState extends State<Dashboard> {
                   SizedBox(
                     height: width / 20,
                   ),
-                  Container(
-                    height: width / 1.4,
-                    child: _rekomendasiBuilder(),
-                  ),
+                  _rekomendasiBuilder(),
                   SizedBox(
                     height: width / 10,
                   ),
@@ -894,8 +889,7 @@ class _DashboardState extends State<Dashboard> {
       children: [
         ElevatedButton(
             style: ElevatedButton.styleFrom(
-                elevation: 0,
-                primary: Colors.white,
+                elevation: 0, backgroundColor: Colors.white,
                 side: BorderSide(width: 1, color: Color(0xff898989)),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(width)),
@@ -948,7 +942,7 @@ class _DashboardState extends State<Dashboard> {
               ),
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      primary: Colors.white,
+                      backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular((width / 40))),
                       padding: EdgeInsets.symmetric(
@@ -991,10 +985,11 @@ class _DashboardState extends State<Dashboard> {
     );
   }
 
-  Widget _emptyState(height, width) {
+  Widget _loadingState(height, width) {
     return Container(
+      padding: EdgeInsets.all(width / 40),
       margin:
-          EdgeInsets.symmetric(horizontal: width / 40, vertical: width / 40),
+          EdgeInsets.symmetric(horizontal: width / 50, vertical: width / 40),
       height: height / 3,
       width: width / 2,
       decoration: BoxDecoration(
@@ -1011,26 +1006,33 @@ class _DashboardState extends State<Dashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: height / 5,
-            decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.3),
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(
-                      width / 20,
-                    ),
-                    topRight: Radius.circular(width / 20))),
+          FadeShimmer(
+            width: width,
+            height: height / 6,
+            radius: width / 50,
+            baseColor: Colors.grey.withOpacity(0.2),
+            highlightColor: Colors.grey.withOpacity(0.5),
           ),
           SizedBox(
             height: width / 30,
           ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: width / 30),
-            height: height / 50,
-            decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(width)),
-          )
+          FadeShimmer(
+            width: width,
+            height: height / 75,
+            radius: width,
+            baseColor: Colors.grey.withOpacity(0.2),
+            highlightColor: Colors.grey.withOpacity(0.5),
+          ),
+          SizedBox(
+            height: width / 50,
+          ),
+          FadeShimmer(
+            width: width / 5,
+            height: height / 75,
+            radius: width,
+            baseColor: Colors.grey.withOpacity(0.2),
+            highlightColor: Colors.grey.withOpacity(0.5),
+          ),
         ],
       ),
     );

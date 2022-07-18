@@ -33,8 +33,7 @@ class EmptyStore extends StatelessWidget {
                 width: width,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: width / 60),
-                      primary: blueTheme,
+                      padding: EdgeInsets.symmetric(vertical: width / 60), backgroundColor: blueTheme,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(width / 40))),
                   onPressed: () {

@@ -106,7 +106,7 @@ class _DetailState extends State<Detail> {
                         transition: Transition.rightToLeft);
                   },
                   style: ElevatedButton.styleFrom(
-                      primary: blueTheme,
+                      backgroundColor: blueTheme,
                       padding: EdgeInsets.symmetric(vertical: width / 80),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(width / 50))),

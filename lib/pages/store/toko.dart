@@ -20,13 +20,13 @@ import 'package:lapak/pages/store/create_barang.dart';
 import 'package:lapak/pages/store/edit_barang.dart';
 import 'package:lapak/pages/store/edit_toko.dart';
 import 'package:lapak/style/color.dart';
-import 'package:lapak/widget/error.dart';
 import 'package:lapak/widget/rupiah_format.dart';
 import 'package:lapak/widget/skeleton.dart';
 import 'package:material_dialogs/material_dialogs.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as Io;
+import 'package:toast/toast.dart';
 
 class Toko extends StatefulWidget {
   int storeId;
@@ -85,6 +85,7 @@ class _TokoState extends State<Toko> {
   String orderBy = "";
 
   Future generateCode(int to) async {
+    Toast.show('Mohon tunggu sebentar', gravity: Toast.bottom);
     Uri url = Uri.parse("$baseUrl/chat/generate-code/$to");
     SharedPreferences storage = await SharedPreferences.getInstance();
     headers["Authorization"] = "Bearer ${storage.getString("token")}";
@@ -196,15 +197,18 @@ class _TokoState extends State<Toko> {
             ),
             bottom: PreferredSize(
               preferredSize: Size.fromHeight(height / 30),
-              child: Container(
-                padding: EdgeInsets.only(top: width / 25),
-                height: width / 20,
-                width: width,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(width / 15),
-                        topRight: Radius.circular(width / 15)),
-                    color: Colors.white),
+              child: Transform.translate(
+                offset: Offset(0, 1),
+                child: Container(
+                  padding: EdgeInsets.only(top: width / 25),
+                  height: width / 20,
+                  width: width,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(width / 15),
+                          topRight: Radius.circular(width / 15)),
+                      color: Colors.white),
+                ),
               ),
             ),
           ),
@@ -324,7 +328,7 @@ class _TokoState extends State<Toko> {
           if (snapshot.connectionState != ConnectionState.done) {
             return _loadingState(width, height);
           } else if (snapshot.hasError) {
-            return Error();
+            return _loadingState(width, height);
           } else {
             if (snapshot.hasData) {
               return _builder(snapshot.data);
@@ -554,8 +558,8 @@ class _TokoState extends State<Toko> {
               style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(width / 60)),
-                  padding: EdgeInsets.symmetric(vertical: width / 80),
-                  primary: blueTheme),
+                  backgroundColor: blueTheme,
+                  padding: EdgeInsets.symmetric(vertical: width / 80)),
               onPressed: () {
                 deleteBarang(id).then((value) {
                   setState(() {
@@ -610,15 +614,18 @@ class _TokoState extends State<Toko> {
           ),
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(height / 30),
-            child: Container(
-              padding: EdgeInsets.only(top: width / 25),
-              height: width / 20,
-              width: width,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(width / 15),
-                      topRight: Radius.circular(width / 15)),
-                  color: Colors.white),
+            child: Transform.translate(
+              offset: Offset(0, 1),
+              child: Container(
+                padding: EdgeInsets.only(top: width / 25),
+                height: width / 20,
+                width: width,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(width / 15),
+                        topRight: Radius.circular(width / 15)),
+                    color: Colors.white),
+              ),
             ),
           ),
         ),

@@ -111,7 +111,7 @@ class _AfterCheckoutState extends State<AfterCheckout> {
                         barangSampai(widget.data.id);
                       },
                       style: ElevatedButton.styleFrom(
-                          primary: blueTheme,
+                          backgroundColor: blueTheme,
                           padding: EdgeInsets.symmetric(vertical: width / 50),
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(width / 50))),
