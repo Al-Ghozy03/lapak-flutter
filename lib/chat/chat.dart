@@ -33,6 +33,7 @@ class _ChatPageState extends State<ChatPage> {
   ChatModel? chatModel;
   ScrollController scrollController = ScrollController();
   Info _info = Info(name: "", alamat: "");
+  bool reverse = true;
 
   void getInfo() async {
     SharedPreferences storage = await SharedPreferences.getInstance();
@@ -189,7 +190,7 @@ class _ChatPageState extends State<ChatPage> {
                   ],
                 );
               } else {
-                return Text("kosong");
+                return _loadingState(width);
               }
             }
           },
@@ -328,6 +329,7 @@ class _ChatPageState extends State<ChatPage> {
           IconButton(
             onPressed: () {
               socket.emit("send_message", {
+                "sender": user,
                 "from": sender,
                 "to": widget.to,
                 "message": messageController.text,

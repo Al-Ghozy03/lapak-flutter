@@ -23,6 +23,7 @@ import 'package:lapak/pages/account/profile.dart';
 import 'package:lapak/pages/search/search.dart';
 import 'package:lapak/pages/store/empty_store.dart';
 import 'package:lapak/pages/store/toko.dart';
+import 'package:lapak/service/notification_service.dart';
 import 'package:lapak/style/color.dart';
 import 'package:lapak/widget/attribute.dart';
 import 'package:lapak/widget/rupiah_format.dart';
@@ -49,6 +50,18 @@ class _DashboardState extends State<Dashboard> {
   late Future getProfile;
   int userId = 0;
   int lengthNotif = 0;
+
+void newMessage()async{
+  SharedPreferences storage = await SharedPreferences.getInstance();
+  int id = Jwt.parseJwt(storage.getString("token").toString())["id"];
+  socket.on("received_message", (data){
+    print(data);
+    if(data["to"] == id){
+      NotificationService.showNotification(title: "Pesan baru dari ${data["sender"]}");
+    }
+  });
+}
+
 
   void getUserId() async {
     SharedPreferences storage = await SharedPreferences.getInstance();
@@ -90,6 +103,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void initState() {
+    newMessage();
     getUserId();
     getRekomendasi = ApiService().getRekomendasi();
     getProfile = ApiService().getProfile();
