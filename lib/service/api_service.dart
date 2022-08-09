@@ -16,7 +16,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as Io;
 
 String baseUrl = "https://lapak-backend-uas.herokuapp.com";
-// String baseUrl = "http://192.168.1.12:4003";
 Map<String, String> headers = {
   "Content-Type": "application/json",
   "Authorization": ""
