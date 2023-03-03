@@ -212,7 +212,7 @@ class _TokoState extends State<Toko> {
               ),
             ),
           ),
-          SliverList(
+          (
               delegate: SliverChildListDelegate.fixed([
             SingleChildScrollView(
               child: Container(
